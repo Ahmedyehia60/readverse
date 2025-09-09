@@ -10,3 +10,27 @@
   font-weight: 700;
   font-style: normal;
 }
+
+.logo {
+  position: relative;
+  background: url("../public/assests/images/bg.jpg");
+  background-size: cover;
+  background-position: center;
+  border-bottom-left-radius: 5rem;
+  border-bottom-right-radius: 5rem;
+}
+
+.logo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: rgba(240, 243, 210, 0.704);
+  z-index: 1;
+  border-bottom-left-radius: 5rem;
+  border-bottom-right-radius: 5rem;
+}
+
+.logo > * {
+  position: relative;
+  z-index: 2;
+}
