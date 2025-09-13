@@ -1,12 +1,15 @@
 import steps from "../data/umrah.json";
-const Saai = () => {
-  const duringSteps = steps.steps.filter((step) => step.phase === "saai");
+
+const BeforeUmrah = () => {
+  const filteredSteps = steps.steps.filter((step) =>
+    ["before"].includes(step.phase)
+  );
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1 style={{ textAlign: "center", marginBottom: "20px" }}>أدعية السعي</h1>
+      <h1 style={{ textAlign: "center", marginBottom: "20px" }}>قبل العمره</h1>
 
-      {duringSteps.map((step) => (
+      {filteredSteps.map((step) => (
         <div
           key={step.id}
           style={{
@@ -46,4 +49,4 @@ const Saai = () => {
   );
 };
 
-export default Saai;
+export default BeforeUmrah;

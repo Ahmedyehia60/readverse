@@ -1,4 +1,4 @@
-import { Canvas, useFrame } from "@react-three/fiber";
+/* import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { useEffect, useMemo, useRef } from "react";
@@ -45,7 +45,7 @@ function BoyAgent() {
   );
 }
 
-export default function Scene() {
+export default function TawafScene() {
   return (
     <Canvas
       camera={{ position: [4, 4, 15], fov: 25 }}
@@ -58,8 +58,67 @@ export default function Scene() {
       <KaabaModel />
       <BoyAgent />
 
-      {/* الكاميرا مركّزة بس عملنا الإزاحة شمال */}
+      {/* الكاميرا مركّزة بس عملنا الإزاحة شمال }
       <OrbitControls target={[3, 2, 0]} enablePan={false} />
     </Canvas>
   );
 }
+ */
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//THE SIMULATION WILL BE DISPLAYED WHILE THE DATA DISPLAYED WHEN CLICKED OR ANIMATED OR WHATEVER THE DESIGN IS BUT THIS IS THE DATA NEDDED HERE
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+import steps from "../data/umrah.json";
+
+const Tawaf = () => {
+  const filteredSteps = steps.steps.filter((step) =>
+    ["during", "after"].includes(step.phase)
+  );
+
+  return (
+    <div style={{ padding: "20px" }}>
+      <h1 style={{ textAlign: "center", marginBottom: "20px" }}>
+        أدعية الطواف وما بعده
+      </h1>
+
+      {filteredSteps.map((step) => (
+        <div
+          key={step.id}
+          style={{
+            border: "1px solid #ddd",
+            borderRadius: "8px",
+            padding: "15px",
+            marginBottom: "20px",
+            backgroundColor: "#f9f9f9",
+          }}
+        >
+          <h2 style={{ marginBottom: "10px", color: "#2c3e50" }}>
+            {step.title}
+          </h2>
+
+          {step.description.length > 0 && (
+            <div style={{ marginBottom: "10px" }}>
+              {step.description.map((desc, i) => (
+                <p key={i} style={{ margin: "5px 0" }}>
+                  {desc}
+                </p>
+              ))}
+            </div>
+          )}
+
+          {step.dua.length > 0 && (
+            <ul style={{ paddingLeft: "20px", margin: 0 }}>
+              {step.dua.map((d, i) => (
+                <li key={i} style={{ marginBottom: "5px", color: "#16a085" }}>
+                  {d}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default Tawaf;
