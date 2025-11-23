@@ -13,8 +13,59 @@ import { FcGoogle } from "react-icons/fc";
 import { FaApple, FaFacebook } from "react-icons/fa";
 import Link from "next/link";
 import { Space_Grotesk } from "next/font/google";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { TriangleAlert } from "lucide-react";
+
+
+//======================================================
+
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
+
 function Page() {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState("");
+
+  //================== Handle Submit =======================
+
+  const handelSubmit = async (e: React.FormEvent) => {
+
+
+    e.preventDefault();
+    setPending(true);
+    // Simulate form submission
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(form),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setPending(false);
+
+      toast.success(data.message);
+      router.push("/");
+    } else if (res.status === 400) {
+      setError(data.message);
+      setPending(false);
+    } else if (res.status === 500) {
+      setError(data.message);
+      console.error("Server Error:", data.message);
+      setPending(false);
+    }
+  };
+
+
+  //================== JSX ======================
   return (
     <div className="min-h-screen flex bg-[#0d1a2d]">
       <div className="w-full lg:w-1/2 flex flex-col ">
@@ -31,14 +82,26 @@ function Page() {
               Map your literary journey across the stars.
             </CardDescription>
           </CardHeader>
+             
+          {!!error && (
+          <div className="bg-destructive/15 p-3 rounded-md flex items-center gap-x-2 text-sm text-destructive mb-6">
+            <TriangleAlert />
+            <p>{error}</p>
+          </div>
+        )}
+
 
           <CardContent className="px-0max-w-[400px] mx-auto">
-            <form className="flex flex-col gap-5">
+            <form className="flex flex-col gap-5" onSubmit={handelSubmit}>
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm text-gray-300">Name</label>
                 <input
                   type="text"
                   placeholder="Enter your name"
+                  disabled={pending}
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  required
                   className="
                   w-full h-12
                   px-4 rounded-md
@@ -48,7 +111,9 @@ function Page() {
                 "
                 />
               </div>
-              {/* Email */}
+
+              {/*================== Email===================== */}
+
               <div className="flex flex-col gap-1.5">
                 <label
                   className={`${spaceGrotesk.className} text-sm text-gray-300`}
@@ -58,11 +123,15 @@ function Page() {
                 <input
                   type="email"
                   placeholder="Enter your email"
+                  disabled={pending}
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  required
                   className="h-12 px-4 rounded-md bg-white/10 border border-white/20 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
 
-              {/* Password */}
+              {/*================== Password====================== */}
               <div className="flex flex-col gap-1.5">
                 <label
                   className={`text-sm text-gray-300 ${spaceGrotesk.className}`}
@@ -72,11 +141,18 @@ function Page() {
                 <input
                   type="password"
                   placeholder="Enter your password"
+                  disabled={pending}
+                  value={form.password}
+                  onChange={(e) =>
+                    setForm({ ...form, password: e.target.value })
+                  }
+                  required
                   className="h-12 px-4 rounded-md bg-white/10 border border-white/20 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
 
               <Button
+                disabled={pending}
                 className={` ${spaceGrotesk.className} w-full h-12 bg-emerald-500 hover:bg-emerald-600 text-white text-lg`}
               >
                 Sign Up
