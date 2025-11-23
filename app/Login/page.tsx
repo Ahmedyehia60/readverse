@@ -1,6 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { signIn } from "next-auth/react";
+
 import {
   Card,
   CardTitle,
@@ -13,8 +15,36 @@ import { FcGoogle } from "react-icons/fc";
 import { FaApple, FaFacebook } from "react-icons/fa";
 import Link from "next/link";
 import { Space_Grotesk } from "next/font/google";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { TriangleAlert } from "lucide-react";
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
 function Page() {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
+
+  const handelSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPending(true);
+    const res = await signIn("credentials", {
+      redirect: false,
+      email,
+      password,
+    });
+    if (res?.ok) {
+      router.push("/");
+      toast.success("Logged in successfully");
+    } else if (res?.status === 401) {
+      setError("Invalid email or password");
+      setPending(false);
+    } else {
+      setError("Something went wrong");
+    }
+  };
   return (
     <div className="min-h-screen flex bg-[#0d1a2d]">
       <div
@@ -50,9 +80,14 @@ function Page() {
               Welcome back! Please login to your account.
             </CardDescription>
           </CardHeader>
-
+          {!!error && (
+            <div className="bg-destructive/15 p-3 rounded-md flex items-center gap-x-2 text-sm text-destructive mb-6">
+              <TriangleAlert />
+              <p>{error}</p>
+            </div>
+          )}
           <CardContent className="px-0max-w-[400px] mx-auto">
-            <form className="flex flex-col gap-5">
+            <form className="flex flex-col gap-5" onSubmit={handelSubmit}>
               {/* Email */}
               <div className="flex flex-col gap-1.5">
                 <label
@@ -63,6 +98,12 @@ function Page() {
                 <input
                   type="email"
                   placeholder="Enter your email"
+                  disabled={pending}
+                  required
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                  }}
                   className="h-12 px-4 rounded-md bg-white/10 border border-white/20 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
@@ -77,11 +118,18 @@ function Page() {
                 <input
                   type="password"
                   placeholder="Enter your password"
+                  disabled={pending}
+                  required
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                  }}
                   className="h-12 px-4 rounded-md bg-white/10 border border-white/20 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
 
               <Button
+                disabled={pending}
                 className={` ${spaceGrotesk.className} w-full h-12 bg-emerald-500 hover:bg-emerald-600 text-white text-lg`}
               >
                 Sign In

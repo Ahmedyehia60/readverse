@@ -1,9 +1,14 @@
+"use client";
+import UserButton from "@/components/UserButton";
+import { SessionProvider } from "next-auth/react";
+
 // app/page.tsx
-export default async function Home() {
-  await new Promise((r) => setTimeout(r, 9000));
+export default function Home() {
   return (
     <main>
-      <h1>Welcome to the Home Page</h1>
+      <SessionProvider>
+        <UserButton />
+      </SessionProvider>
     </main>
   );
 }
