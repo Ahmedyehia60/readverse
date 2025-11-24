@@ -17,7 +17,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { TriangleAlert } from "lucide-react";
-
+import { signIn } from "next-auth/react";
 
 //======================================================
 
@@ -36,8 +36,6 @@ function Page() {
   //================== Handle Submit =======================
 
   const handelSubmit = async (e: React.FormEvent) => {
-
-
     e.preventDefault();
     setPending(true);
     // Simulate form submission
@@ -50,9 +48,17 @@ function Page() {
     });
     const data = await res.json();
     if (res.ok) {
-      setPending(false);
-
       toast.success(data.message);
+      const signInRes = await signIn("credentials", {
+        redirect: false,
+        email: form.email,
+        password: form.password,
+      });
+      if (signInRes?.ok) {
+        setPending(false);
+        router.push("/");
+        router.refresh();
+      }
       router.push("/");
     } else if (res.status === 400) {
       setError(data.message);
@@ -63,7 +69,6 @@ function Page() {
       setPending(false);
     }
   };
-
 
   //================== JSX ======================
   return (
@@ -82,14 +87,13 @@ function Page() {
               Map your literary journey across the stars.
             </CardDescription>
           </CardHeader>
-             
-          {!!error && (
-          <div className="bg-destructive/15 p-3 rounded-md flex items-center gap-x-2 text-sm text-destructive mb-6">
-            <TriangleAlert />
-            <p>{error}</p>
-          </div>
-        )}
 
+          {!!error && (
+            <div className="bg-destructive/15 p-3 rounded-md flex items-center gap-x-2 text-sm text-destructive mb-6">
+              <TriangleAlert />
+              <p>{error}</p>
+            </div>
+          )}
 
           <CardContent className="px-0max-w-[400px] mx-auto">
             <form className="flex flex-col gap-5" onSubmit={handelSubmit}>
