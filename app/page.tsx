@@ -1,14 +1,20 @@
-"use client";
 import UserButton from "@/components/UserButton";
-import { SessionProvider } from "next-auth/react";
+import { getServerSession } from "next-auth";
 
+import { authOptions } from "./api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
+import NextAuthProvider from "@/components/providers/NextAuthProvider";
 // app/page.tsx
-export default function Home() {
+export default async function Home() {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    redirect("/Login");
+  }
   return (
     <main>
-      <SessionProvider>
+      <NextAuthProvider>
         <UserButton />
-      </SessionProvider>
+      </NextAuthProvider>
     </main>
   );
 }
