@@ -72,9 +72,9 @@ function Page() {
 
   //================== JSX ======================
   return (
-    <div className="min-h-screen flex bg-[#0d1a2d]">
-      <div className="w-full lg:w-1/2 flex flex-col ">
-        <Card className="w-full h-full max-w-none rounded-none bg-[#0b0b0b] border-0 border-l border-white/10 flex flex-col justify-center p-8 sm:p-12">
+    <div className="min-h-screen flex bg-[#0d1a2d] overflow-hidden ">
+      <div className="w-full lg:w-1/2 flex flex-col">
+        <Card className="w-full min-h-screen overflow-y-auto max-w-none rounded-none bg-[#0b0b0b] border-0 border-l border-white/10 flex flex-col justify-center p-8 sm:p-12">
           <CardHeader className="space-y-2 px-0">
             <CardTitle
               className={`text-center text-white text-3xl font-bold ${spaceGrotesk.className}`}
@@ -95,7 +95,7 @@ function Page() {
             </div>
           )}
 
-          <CardContent className="px-0max-w-[400px] mx-auto">
+          <CardContent className="px-0 max-w-[400px] mx-auto w-full">
             <form className="flex flex-col gap-5" onSubmit={handelSubmit}>
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm text-gray-300">Name</label>
@@ -248,7 +248,8 @@ function Page() {
         <h1
           className={` font-bold drop-shadow-lg ${spaceGrotesk.className} text-2xl`}
         >
-          WELCOME BACK!
+          Welcome to your personal book galaxy. <br />
+          Sign up to save, track, and explore your favorite reads.
         </h1>
       </div>
     </div>
