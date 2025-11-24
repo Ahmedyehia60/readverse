@@ -1,7 +1,7 @@
 import connectToDatabase from "@/lib/mongo";
 import User from "@/models/users";
 import bcrypt from "bcryptjs";
-
+import Google from "next-auth/providers/google";
 import NextAuth from "next-auth";
 import CredintialsProvider from "next-auth/providers/credentials";
 const handler = NextAuth({

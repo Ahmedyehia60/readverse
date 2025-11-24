@@ -50,8 +50,13 @@ function Page() {
     }
   };
 
-
-  //=========================================
+  const handleProvider = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    value: "google" | "apple" | "facebook"
+  ) => {
+    event.preventDefault();
+    signIn(value, { callbackUrl: "/" });
+  };
   return (
     <div className="min-h-screen flex bg-[#0d1a2d]">
       <div
@@ -155,6 +160,7 @@ function Page() {
             <div className="space-y-3">
               <Button
                 variant="outline"
+                onClick={(e) => handleProvider(e, "google")}
                 className="w-full h-11 bg-white/10 border-white/20 hover:bg-white/20 text-white justify-start pl-6 relative"
               >
                 <FcGoogle size={22} className="absolute left-4" />
