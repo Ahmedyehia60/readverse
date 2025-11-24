@@ -19,6 +19,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { TriangleAlert } from "lucide-react";
+
+
+//===============================================================
+
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
 function Page() {
   const [email, setEmail] = useState<string>("");
@@ -45,6 +49,9 @@ function Page() {
       setError("Something went wrong");
     }
   };
+
+
+  //=========================================
   return (
     <div className="min-h-screen flex bg-[#0d1a2d]">
       <div
