@@ -5,12 +5,17 @@ import Google from "next-auth/providers/google";
 import NextAuth from "next-auth";
 import CredintialsProvider from "next-auth/providers/credentials";
 import type { NextAuthOptions } from "next-auth";
-
+import GoogleProvider from "next-auth/providers/google";
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
+
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
     CredintialsProvider({
       name: "credentials",
       credentials: {
@@ -45,6 +50,18 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === "google") {
+        await connectToDatabase();
+        const existingUser = await User.findOne({ email: user.email });
+
+        if (!existingUser) {
+          return "/Login?error=NoAccount";
+        }
+      }
+
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;

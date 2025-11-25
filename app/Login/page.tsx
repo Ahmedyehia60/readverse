@@ -15,14 +15,10 @@ import { FcGoogle } from "react-icons/fc";
 import { FaApple, FaFacebook } from "react-icons/fa";
 import Link from "next/link";
 import { Space_Grotesk } from "next/font/google";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { TriangleAlert } from "lucide-react";
-
-
-//===============================================================
-
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
 function Page() {
   const [email, setEmail] = useState<string>("");
@@ -30,7 +26,8 @@ function Page() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
-
+  const searchParams = useSearchParams();
+  const errorType = searchParams.get("error");
   const handelSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPending(true);
@@ -57,6 +54,15 @@ function Page() {
     event.preventDefault();
     signIn(value, { callbackUrl: "/" });
   };
+
+  useEffect(() => {
+    if (errorType === "NoAccount") {
+      toast.error(
+        "This Google account is not registered. Please sign up first."
+      );
+    }
+  }, [errorType]);
+
   return (
     <div className="min-h-screen flex bg-[#0d1a2d]">
       <div
@@ -98,6 +104,7 @@ function Page() {
               <p>{error}</p>
             </div>
           )}
+
           <CardContent className="px-0max-w-[400px] mx-auto">
             <form className="flex flex-col gap-5" onSubmit={handelSubmit}>
               {/* Email */}
