@@ -25,7 +25,7 @@ const UserButton = () => {
     await signOut({
       redirect: false,
     });
-    router.push("/");
+    router.push("/Login");
   };
   return (
     <nav>

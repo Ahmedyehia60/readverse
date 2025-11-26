@@ -65,9 +65,7 @@ function Page() {
 
   useEffect(() => {
     if (errorType === "NoAccount") {
-      toast.error(
-        "This Google account is not registered. Please sign up first."
-      );
+      toast.error("This account is not registered. Please sign up first.");
     }
   }, [errorType]);
 
