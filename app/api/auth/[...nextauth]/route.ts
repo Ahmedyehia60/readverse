@@ -5,6 +5,7 @@ import NextAuth from "next-auth";
 import CredintialsProvider from "next-auth/providers/credentials";
 import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import FacebookProvider from "next-auth/providers/facebook";
 
 //================== NextAuth Options =======================
 export const authOptions: NextAuthOptions = {
@@ -23,6 +24,16 @@ export const authOptions: NextAuthOptions = {
       id: "google-signup",
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+    FacebookProvider({
+      id: "facebook-signin",
+      clientId: process.env.FACEBOOK_CLIENT_ID!,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+    }),
+    FacebookProvider({
+      id: "facebook-signup",
+      clientId: process.env.FACEBOOK_CLIENT_ID!,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
     }),
 
     CredintialsProvider({
@@ -67,7 +78,10 @@ export const authOptions: NextAuthOptions = {
       if (!account) return true;
 
       await connectToDatabase();
-      if (account.provider === "google-signin") {
+      if (
+        account.provider === "google-signin" ||
+        account.provider === "facebook-signin"
+      ) {
         const existingUser = await User.findOne({ email: user.email });
 
         if (!existingUser) {
@@ -78,11 +92,21 @@ export const authOptions: NextAuthOptions = {
         return true;
       }
 
-      if (account.provider === "google-signup") {
+      if (
+        account.provider === "google-signup" ||
+        account.provider === "facebook-signup"
+      ) {
         const existingUser = await User.findOne({ email: user.email });
 
         if (existingUser) {
           return "/Login?error=AlreadyExists";
+        }
+        let loginProvider: string;
+
+        if (account.provider === "google-signup") {
+          loginProvider = "google";
+        } else {
+          loginProvider = "facebook";
         }
 
         const newUser = await User.create({
@@ -90,7 +114,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           password: null,
           image: user.image,
-          provider: "google",
+          provider: loginProvider,
         });
 
         user.id = newUser._id.toString();

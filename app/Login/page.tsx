@@ -22,6 +22,7 @@ import { useSearchParams } from "next/navigation";
 
 //======================================================
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
+
 function Page() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -56,7 +57,7 @@ function Page() {
 
   const handleProvider = (
     event: React.MouseEvent<HTMLButtonElement>,
-    value: "google-signin" | "apple" | "facebook"
+    value: "google-signin" | "apple" | "facebook-signin"
   ) => {
     event.preventDefault();
     signIn(value, { callbackUrl: "/" });
@@ -92,12 +93,14 @@ function Page() {
         </h1>
       </div>
 
-      <div className="w-full lg:w-1/2 flex flex-col">
-        <Card className="w-full h-full max-w-none rounded-none bg-[#0b0b0b] border-0 border-l border-white/10 flex flex-col justify-center p-8 sm:p-12">
-          <div className="absolute top-4 left-4 flex items-center text-white">
-            <FaBook size={28} className="mr-2 text-blue-900" />
-            <h1 className="text-2xl font-bold">READVerse</h1>
-          </div>
+      <div className="w-full lg:w-1/2 flex flex-col relative bg-[#0b0b0b]">
+        <div className="absolute top-4 left-4 flex items-center text-white z-10">
+          <FaBook size={28} className="mr-2 text-blue-900" />
+          <h1 className={`text-2xl font-bold ${spaceGrotesk.className}`}>
+            READVerse
+          </h1>
+        </div>
+        <Card className="w-full h-full max-w-none rounded-none bg-[#0b0b0b] border-none flex flex-col justify-center p-8 sm:p-12 scale-90">
           <CardHeader className="space-y-2 px-0">
             <CardTitle
               className={`text-center text-white text-3xl font-bold ${spaceGrotesk.className}`}
@@ -188,6 +191,7 @@ function Page() {
 
               <Button
                 variant="outline"
+                onClick={(e) => handleProvider(e, "facebook-signin")}
                 className="w-full h-11 bg-white/10 border-white/20 hover:bg-white/20 text-white justify-start pl-6 relative"
               >
                 <FaFacebook
