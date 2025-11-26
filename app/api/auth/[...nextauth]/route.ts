@@ -1,11 +1,12 @@
 import connectToDatabase from "@/lib/mongo";
 import User from "@/models/users";
 import bcrypt from "bcryptjs";
-import Google from "next-auth/providers/google";
 import NextAuth from "next-auth";
 import CredintialsProvider from "next-auth/providers/credentials";
 import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+
+//================== NextAuth Options =======================
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
@@ -13,15 +14,25 @@ export const authOptions: NextAuthOptions = {
 
   providers: [
     GoogleProvider({
+      id: "google-signin",
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
+
+    GoogleProvider({
+      id: "google-signup",
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+
     CredintialsProvider({
       name: "credentials",
       credentials: {
         email: {},
         password: {},
       },
+
+      //================== Authorize =======================
       async authorize(credentials) {
         try {
           await connectToDatabase();
@@ -49,33 +60,65 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
+
+  //================== Callbacks =======================
   callbacks: {
-    async signIn({ user, account }) {
-      if (account?.provider === "google") {
-        await connectToDatabase();
+    async signIn({ user, account, profile }) {
+      if (!account) return true;
+
+      await connectToDatabase();
+      if (account.provider === "google-signin") {
         const existingUser = await User.findOne({ email: user.email });
 
         if (!existingUser) {
           return "/Login?error=NoAccount";
         }
+
+        user.id = existingUser._id.toString();
+        return true;
+      }
+
+      if (account.provider === "google-signup") {
+        const existingUser = await User.findOne({ email: user.email });
+
+        if (existingUser) {
+          return "/Login?error=AlreadyExists";
+        }
+
+        const newUser = await User.create({
+          name: user.name || profile?.name || "",
+          email: user.email,
+          password: null,
+          image: user.image,
+          provider: "google",
+        });
+
+        user.id = newUser._id.toString();
+        return true;
       }
 
       return true;
     },
+
+    //================== JWT Callback =======================
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
+        token.id = user.id ?? token.id;
         token.email = user.email;
         token.name = user.name;
+        token.picture = user.image ?? token.picture;
       }
       return token;
     },
+
+    //================== Session Callback =======================
     async session({ session, token }) {
       if (token) {
         session.user = {
+          id: token.id as string,
           email: token.email as string,
           name: token.name as string,
-          image: token.picture,
+          image: token.picture as string | undefined,
         };
       }
       return session;

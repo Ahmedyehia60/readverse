@@ -10,12 +10,12 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@radix-ui/react-separator";
 import { FcGoogle } from "react-icons/fc";
-import { FaApple, FaFacebook } from "react-icons/fa";
+import { FaApple, FaBook, FaFacebook } from "react-icons/fa";
 import Link from "next/link";
 import { Space_Grotesk } from "next/font/google";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { TriangleAlert } from "lucide-react";
 import { signIn } from "next-auth/react";
 
@@ -32,7 +32,8 @@ function Page() {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
-
+  const searchParams = useSearchParams();
+  const errorType = searchParams.get("error");
   //================== Handle Submit =======================
 
   const handelSubmit = async (e: React.FormEvent) => {
@@ -70,9 +71,30 @@ function Page() {
     }
   };
 
-  //================== JSX ======================
+  //===============================handelprovider=========================
+  const handleProvider = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    value: "google-signup" | "apple" | "facebook"
+  ) => {
+    event.preventDefault();
+    signIn(value, { callbackUrl: "/" });
+  };
+
+  useEffect(() => {
+    if (errorType === "AlreadyExists") {
+      toast.error(
+        "An account with this Google email already exists. Please log in instead."
+      );
+    }
+  }, [errorType]);
+
+  //================== JSX ==============================================
   return (
     <div className="min-h-screen flex bg-[#0d1a2d] overflow-hidden ">
+      <div className="absolute top-4 left-4 flex items-center text-white">
+        <FaBook size={28} className="mr-2 text-blue-900" />
+        <h1 className="text-2xl font-bold">READVerse</h1>
+      </div>
       <div className="w-full lg:w-1/2 flex flex-col">
         <Card className="w-full min-h-screen overflow-y-auto max-w-none rounded-none bg-[#0b0b0b] border-0 border-l border-white/10 flex flex-col justify-center p-8 sm:p-12">
           <CardHeader className="space-y-2 px-0">
@@ -95,7 +117,7 @@ function Page() {
             </div>
           )}
 
-          <CardContent className="px-0 max-w-[400px] mx-auto w-full">
+          <CardContent className="px-0 max-w-[450px] mx-auto w-full">
             <form className="flex flex-col gap-5" onSubmit={handelSubmit}>
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm text-gray-300">Name</label>
@@ -111,7 +133,7 @@ function Page() {
                   px-4 rounded-md
                   bg-white/10 border border-white/20
                   text-white placeholder:text-gray-400 text-sm
-                  focus:outline-none focus:ring-2 focus:ring-emerald-500/80
+                  focus:outline-none focus:ring-2 focus:ring-blue-900
                 "
                 />
               </div>
@@ -131,7 +153,7 @@ function Page() {
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   required
-                  className="h-12 px-4 rounded-md bg-white/10 border border-white/20 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="h-12 px-4 rounded-md bg-white/10 border border-white/20 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-900"
                 />
               </div>
 
@@ -151,13 +173,13 @@ function Page() {
                     setForm({ ...form, password: e.target.value })
                   }
                   required
-                  className="h-12 px-4 rounded-md bg-white/10 border border-white/20 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="h-12 px-4 rounded-md bg-white/10 border border-white/20 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-900"
                 />
               </div>
 
               <Button
                 disabled={pending}
-                className={` ${spaceGrotesk.className} w-full h-12 bg-emerald-500 hover:bg-emerald-600 text-white text-lg`}
+                className={` ${spaceGrotesk.className} w-full h-12 bg-[#2B1B72] hover:bg-[#3d257f] text-white text-lg`}
               >
                 Sign Up
               </Button>
@@ -174,6 +196,7 @@ function Page() {
             {/* Social Buttons */}
             <div className="space-y-3">
               <Button
+                onClick={(e) => handleProvider(e, "google-signup")}
                 variant="outline"
                 className="w-full h-11 bg-white/10 border-white/20 hover:bg-white/20 text-white justify-start pl-6 relative"
               >
@@ -209,7 +232,7 @@ function Page() {
               Already have an account?
               <Link
                 href="/Login"
-                className="text-emerald-400 hover:text-emerald-300 ml-2 font-semibold"
+                className="text-blue-500   hover:text-[#0c1ba1] ml-2 font-semibold"
               >
                 Sign In
               </Link>
@@ -218,14 +241,14 @@ function Page() {
               By creating an account, you agree to our
               <Link
                 href="#"
-                className="text-emerald-400 hover:underline font-medium"
+                className="text-blue-500 hover:underline font-medium"
               >
                 Terms of Service
               </Link>
               &
               <Link
                 href="#"
-                className="text-emerald-400 hover:underline font-medium"
+                className="text-blue-500 hover:underline font-medium"
               >
                 Privacy Policy
               </Link>
@@ -257,4 +280,3 @@ function Page() {
 }
 
 export default Page;
-
