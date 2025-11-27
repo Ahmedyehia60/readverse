@@ -169,27 +169,28 @@ function Page() {
                 Sign In
               </Button>
 
-              <Link
-                href="/ForgetPassword"
-                className="text-blue-500 hover:underline text-sm    font-medium"
-              >
-                Forget password?
-              </Link>
-
-              <div className="flex items-center  gap-2 mt-1">
-                <input
-                  type="checkbox"
-                  id="rememberMe"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 accent-blue-900"
-                />
-                <label
-                  htmlFor="rememberMe"
-                  className={`text-sm text-gray-300 ${spaceGrotesk.className}`}
+              <div className="flex flex-row items-center justify-between">
+                <div className="flex items-center  gap-2 mt-1">
+                  <input
+                    type="checkbox"
+                    id="rememberMe"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="w-4 h-4 accent-blue-900"
+                  />
+                  <label
+                    htmlFor="rememberMe"
+                    className={`text-sm text-gray-300 ${spaceGrotesk.className}`}
+                  >
+                    Remember Me
+                  </label>
+                </div>
+                <Link
+                  href="/ForgetPassword"
+                  className="text-blue-500 hover:underline text-sm font-medium"
                 >
-                  Remember Me
-                </label>
+                  Forget password?
+                </Link>
               </div>
             </form>
 

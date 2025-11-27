@@ -11,6 +11,7 @@ import FacebookProvider from "next-auth/providers/facebook";
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
+    maxAge: 60 * 60 * 24 * 30,
   },
 
   providers: [
@@ -137,12 +138,12 @@ export const authOptions: NextAuthOptions = {
         token.rememberMe = user.rememberMe ?? false;
 
         if (token.rememberMe) {
-          token.exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30; 
+          token.exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30;
         } else {
-          token.exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24; 
+          token.exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24;
         }
       }
-
+      console.log("JWT TOKEN:", token);
       return token;
     },
     //================== Session Callback =======================
