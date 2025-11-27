@@ -31,6 +31,7 @@ function Page() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const errorType = searchParams.get("error");
+  const [rememberMe, setRememberMe] = useState(false);
 
   //================== Handle Submit =======================
 
@@ -41,6 +42,7 @@ function Page() {
       redirect: false,
       email,
       password,
+      rememberMe,
     });
     if (res?.ok) {
       router.push("/");
@@ -120,7 +122,7 @@ function Page() {
 
           <CardContent className="px-0 max-w-[450px] mx-auto">
             <form className="flex flex-col gap-5" onSubmit={handelSubmit}>
-              {/* Email */}
+              {/* =================================Email =========================================*/}
               <div className="flex flex-col gap-1.5">
                 <label
                   className={`${spaceGrotesk.className} text-sm text-gray-300`}
@@ -140,7 +142,7 @@ function Page() {
                 />
               </div>
 
-              {/* Password */}
+              {/*============================= Password============================= */}
               <div className="flex flex-col gap-1.5">
                 <label
                   className={`text-sm text-gray-300 ${spaceGrotesk.className}`}
@@ -166,6 +168,29 @@ function Page() {
               >
                 Sign In
               </Button>
+
+              <Link
+                href="/ForgetPassword"
+                className="text-blue-500 hover:underline text-sm    font-medium"
+              >
+                Forget password?
+              </Link>
+
+              <div className="flex items-center  gap-2 mt-1">
+                <input
+                  type="checkbox"
+                  id="rememberMe"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 accent-blue-900"
+                />
+                <label
+                  htmlFor="rememberMe"
+                  className={`text-sm text-gray-300 ${spaceGrotesk.className}`}
+                >
+                  Remember Me
+                </label>
+              </div>
             </form>
 
             <Separator className="my-6 bg-white/20" />

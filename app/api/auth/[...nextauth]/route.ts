@@ -41,6 +41,7 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: {},
         password: {},
+        rememberMe: { label: "Remember Me", type: "checkbox" },
       },
 
       //================== Authorize =======================
@@ -63,6 +64,7 @@ export const authOptions: NextAuthOptions = {
             id: user._id.toString(),
             email: user.email,
             name: user.name,
+            rememberMe: credentials?.rememberMe === "true",
           };
         } catch (error) {
           console.error("Authorization Error:", error);
@@ -131,10 +133,18 @@ export const authOptions: NextAuthOptions = {
         token.email = user.email;
         token.name = user.name;
         token.picture = user.image ?? token.picture;
+
+        token.rememberMe = user.rememberMe ?? false;
+
+        if (token.rememberMe) {
+          token.exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30; 
+        } else {
+          token.exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24; 
+        }
       }
+
       return token;
     },
-
     //================== Session Callback =======================
     async session({ session, token }) {
       if (token) {

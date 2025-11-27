@@ -29,7 +29,7 @@ const UserButton = () => {
   };
   return (
     <nav>
-      {session ? (
+      {session && (
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger className="outline-none relative float-right p-4 md:p-8">
             <div className="flex gap-4 items-center">
@@ -51,15 +51,6 @@ const UserButton = () => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      ) : (
-        <div className="flex justify-end p-4 gap-4">
-          <Button>
-            <Link href="Login">Sign in</Link>
-          </Button>
-          <Button>
-            <Link href="SignUp">Sign up</Link>
-          </Button>
-        </div>
       )}
     </nav>
   );

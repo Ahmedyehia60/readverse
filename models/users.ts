@@ -38,6 +38,7 @@ const UserSchema: Schema<IUser> = new mongoose.Schema(
       required: false,
       default: "credentials", 
     },
+    
   },
   {
     timestamps: true,
