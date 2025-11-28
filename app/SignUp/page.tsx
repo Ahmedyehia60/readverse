@@ -231,14 +231,14 @@ function Page() {
             <p className="text-center text-xs mt-6 text-gray-400 leading-relaxed">
               By creating an account, you agree to our
               <Link
-                href="#"
+                href="/TermsAndConditions"
                 className="text-blue-500 hover:underline font-medium"
               >
                 Terms of Service
               </Link>
               &
               <Link
-                href="#"
+                href="/PrivacyPolicy"
                 className="text-blue-500 hover:underline font-medium"
               >
                 Privacy Policy
