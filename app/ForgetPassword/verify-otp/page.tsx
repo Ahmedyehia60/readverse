@@ -1,35 +1,46 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-export default function ForgotPassword() {
-  const [email, setEmail] = useState("");
+export default function VerifyOtpPage() {
+  const searchParams = useSearchParams();
+  const initialEmail = searchParams.get("email") || "";
+
+  const [email, setEmail] = useState(initialEmail);
+  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
+
   const router = useRouter();
+
+  useEffect(() => {
+    if (initialEmail) setEmail(initialEmail);
+  }, [initialEmail]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const res = await fetch("/api/ForgetPassword/send-otp", {
+      const res = await fetch("/api/ForgetPassword/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, otp }),
       });
 
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        toast.error(data.message || "Failed to send OTP");
+        toast.error(data.message || "Invalid OTP");
       } else {
-        toast.success("OTP has been sent to your email.");
+        toast.success("OTP verified successfully");
 
         router.push(
-          `/ForgetPassword/verify-otp?email=${encodeURIComponent(email)}`
+          `/ForgetPassword/reset-password?email=${encodeURIComponent(
+            email
+          )}&otp=${encodeURIComponent(otp)}`
         );
       }
     } catch (error) {
@@ -57,19 +68,37 @@ export default function ForgotPassword() {
         "
       >
         <h2 className="text-white text-3xl font-bold text-center mb-4">
-          Reset Your Password
+          Verify OTP
         </h2>
 
         <p className="text-gray-400 text-center mb-8 leading-relaxed">
-          Enter the email associated with your account and we&apos;ll send you a one-time verification code.
+          Enter the verification code that was sent to your email.
         </p>
 
         <label className="text-gray-300 text-sm mb-1 block">
           Email Address
         </label>
-
         <input
           type="email"
+          className="
+            w-full h-12 mb-4 px-4 rounded-md 
+            bg-white/10 text-white 
+            border border-white/20 
+            placeholder:text-gray-400
+            focus:outline-none 
+            focus:ring-2 
+            focus:ring-blue-900
+          "
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <label className="text-gray-300 text-sm mb-1 block">
+          Verification Code (OTP)
+        </label>
+        <input
+          type="text"
           className="
             w-full h-12 mb-6 px-4 rounded-md 
             bg-white/10 text-white 
@@ -79,17 +108,17 @@ export default function ForgotPassword() {
             focus:ring-2 
             focus:ring-blue-900
           "
-          placeholder="Enter your email address"
+          placeholder="Enter the code you received"
           required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={otp}
+          onChange={(e) => setOtp(e.target.value)}
         />
 
         <Button
           className="w-full h-12 text-lg bg-[#2B1B72] hover:bg-[#3d257f] text-white"
           disabled={loading}
         >
-          {loading ? "Sending..." : "Send OTP"}
+          {loading ? "Verifying..." : "Verify Code"}
         </Button>
       </form>
     </div>
