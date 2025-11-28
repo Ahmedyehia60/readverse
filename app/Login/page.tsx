@@ -226,16 +226,6 @@ function Page() {
                   Continue with Facebook
                 </span>
               </Button>
-
-              <Button
-                variant="outline"
-                className="w-full h-11 bg-white/10 border-white/20 hover:bg-white/20 text-white justify-start pl-6 relative"
-              >
-                <FaApple size={22} className="absolute left-4" />
-                <span className="w-full text-center">
-                  Continue with Apple ID
-                </span>
-              </Button>
             </div>
 
             <p className="text-center text-sm mt-6 text-gray-300">

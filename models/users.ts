@@ -6,6 +6,7 @@ export interface IUser extends Document {
   password?: string | null;
   image?: string | null;
   provider?: string; // google | credentials
+  interests?: string[];
 }
 
 const UserSchema: Schema<IUser> = new mongoose.Schema(
@@ -18,12 +19,12 @@ const UserSchema: Schema<IUser> = new mongoose.Schema(
     email: {
       type: String,
       required: true,
-      unique: true, 
+      unique: true,
     },
 
     password: {
       type: String,
-      required: false, 
+      required: false,
       default: null,
     },
 
@@ -36,15 +37,17 @@ const UserSchema: Schema<IUser> = new mongoose.Schema(
     provider: {
       type: String,
       required: false,
-      default: "credentials", 
+      default: "credentials",
     },
-    
+    interests: {
+      type: [String],
+      default: [],
+    },
   },
   {
     timestamps: true,
   }
 );
-
 
 const User: Model<IUser> =
   mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
