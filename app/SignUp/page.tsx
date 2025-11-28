@@ -57,10 +57,10 @@ function Page() {
       });
       if (signInRes?.ok) {
         setPending(false);
-        router.push("/");
+        router.push("/InterestList");
         router.refresh();
       }
-      router.push("/");
+      router.push("/InterestList");
     } else if (res.status === 400) {
       setError(data.message);
       setPending(false);

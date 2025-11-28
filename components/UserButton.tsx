@@ -9,8 +9,6 @@ import {
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Loader } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
 const UserButton = () => {
   const router = useRouter();
