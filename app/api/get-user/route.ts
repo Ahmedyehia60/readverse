@@ -4,6 +4,7 @@ import connectToDatabase from "@/lib/mongo";
 import User from "@/models/users";
 import { getServerSession } from "next-auth";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function GET(req: Request) {
   try {
     await connectToDatabase();
@@ -26,7 +27,7 @@ export async function GET(req: Request) {
     }
 
     return NextResponse.json({ success: true, user });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
       { success: false, message: "Server error", error: error.message },
       { status: 500 }

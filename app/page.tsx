@@ -2,6 +2,7 @@ import UserButton from "@/components/UserButton";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
+import DashBoard from "@/components/DashBoard";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
@@ -10,7 +11,10 @@ export default async function Home() {
   }
   return (
     <main>
-      <UserButton />
+      
+      <DashBoard  />
+
+    
     </main>
   );
 }
