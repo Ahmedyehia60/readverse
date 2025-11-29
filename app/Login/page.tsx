@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@radix-ui/react-separator";
 import { FcGoogle } from "react-icons/fc";
-import { FaApple, FaBook, FaFacebook } from "react-icons/fa";
+import { FaBook, FaFacebook } from "react-icons/fa";
 import Link from "next/link";
 import { Space_Grotesk } from "next/font/google";
 import { useEffect, useState } from "react";

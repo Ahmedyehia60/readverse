@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 import { Button } from "@/components/ui/button";
 import { Home, Layers, Search, Star, User, X } from "lucide-react";
@@ -25,7 +26,6 @@ interface SearchResults {
 // ----------------------------------------------------
 
 function DashBoard() {
-  const [showBar, setShowBar] = useState(false);
   const [activeIcon, setActiveIcon] = useState("home");
   const [showModal, setShowModal] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -33,11 +33,20 @@ function DashBoard() {
     null
   );
   const [loading, setLoading] = useState(false);
+  const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
 
+  const tooltipLabels: Record<string, string> = {
+    home: "Home Page",
+    star: "Favorite List",
+    layers: "Categories",
+    user: "Profile",
+  };
+
+  // Profile آخر أيقونة
   const icons = [
-    { id: "user", icon: User, name: "Profile" },
     { id: "star", icon: Star, name: "Favorites" },
     { id: "layers", icon: Layers, name: "Categories" },
+    { id: "user", icon: User, name: "Profile" },
   ];
 
   const handleSearch = useCallback(async (query: string) => {
@@ -68,7 +77,6 @@ function DashBoard() {
     }
   }, []);
 
-  // Debouncing Logic
   useEffect(() => {
     if (!showModal) return;
 
@@ -79,17 +87,11 @@ function DashBoard() {
     return () => clearTimeout(delayDebounceFn);
   }, [searchText, showModal, handleSearch]);
 
-  const handleToggleBar = () => {
-    setActiveIcon("home");
-    setShowBar((prev) => !prev);
-  };
-
   return (
     <div
       className="min-h-screen bg-center bg-repeat text-white relative"
       style={{ backgroundImage: "url('/Images/galaxy3.jpg')" }}
     >
-      {/* 1. Add Book Button */}
       <Button
         className="absolute top-4 right-4 p-5 bg-[#2B1B72] text-white hover:bg-blue-800 z-10"
         onClick={() => setShowModal(true)}
@@ -97,28 +99,36 @@ function DashBoard() {
         Add Book
       </Button>
 
-      {/* 2. Side Bar (شريط الأيقونات الجانبي) */}
       <div className="absolute left-5 top-1/2 -translate-y-1/2 border-3 border-[#2B1B72] py-4 px-2 rounded-lg">
-        {/* Toggle Button (Home Icon) */}
-        <Button
-          className={`p-3 rounded-full backdrop-blur-sm cursor-pointer transition my-3 ${
-            activeIcon === "home"
-              ? "bg-[#2B1B72] hover:bg-[#2B1B72]"
-              : "bg-white/10 hover:bg-white/20"
-          }`}
-          onClick={handleToggleBar}
-        >
-          <Home className="w-3 h-3 text-white" />
-        </Button>
+        {/* Home Icon */}
+        <div className="relative flex justify-center my-3">
+          <Button
+            className={`p-3 rounded-full backdrop-blur-sm cursor-pointer transition ${
+              activeIcon === "home"
+                ? "bg-[#2B1B72] hover:bg-[#2B1B72]"
+                : "bg-white/10 hover:bg-white/20"
+            }`}
+            onClick={() => setActiveIcon("home")}
+            onMouseEnter={() => setHoveredIcon("home")}
+            onMouseLeave={() => setHoveredIcon(null)}
+          >
+            <Home className="w-3 h-3 text-white" />
+          </Button>
+          {hoveredIcon === "home" && (
+            <div className="absolute left-14 top-1/2 -translate-y-1/2 bg-black/80 text-white text-xs px-3 py-1 rounded-lg whitespace-nowrap">
+              {tooltipLabels["home"]}
+            </div>
+          )}
+        </div>
 
-        {/* Icons الفرعية */}
-        {showBar &&
-          icons.map(({ id, icon: Icon }) => (
+        {icons.map(({ id, icon: Icon }) => (
+          <div key={id} className="relative flex justify-center my-3">
             <div
-              key={id}
               onClick={() => setActiveIcon(id)}
+              onMouseEnter={() => setHoveredIcon(id)}
+              onMouseLeave={() => setHoveredIcon(null)}
               className={`
-                p-3 rounded-full backdrop-blur-sm cursor-pointer transition my-3
+                p-3 rounded-full backdrop-blur-sm cursor-pointer transition
                 ${
                   activeIcon === id
                     ? "bg-[#2B1B72]"
@@ -128,10 +138,16 @@ function DashBoard() {
             >
               <Icon className="w-3 h-3 text-white mx-auto" />
             </div>
-          ))}
+            {hoveredIcon === id && (
+              <div className="absolute left-14 top-1/2 -translate-y-1/2 bg-black/80 text-white text-xs px-3 py-1 rounded-lg whitespace-nowrap">
+                {tooltipLabels[id]}
+              </div>
+            )}
+          </div>
+        ))}
       </div>
 
-      {/* 3. Search Modal */}
+    
       {showModal && (
         <div
           className="
@@ -159,7 +175,6 @@ function DashBoard() {
               </Button>
             </div>
 
-            {/* شريط البحث */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" />
               <input
@@ -171,7 +186,6 @@ function DashBoard() {
               />
             </div>
 
-            {/* منطقة عرض النتائج */}
             <div className="mt-4 max-h-60 overflow-y-auto">
               {loading && (
                 <p className="text-center text-gray-400">Loading...</p>
@@ -214,7 +228,7 @@ function DashBoard() {
                 searchResults.items.length === 0 &&
                 searchText.length > 0 ? (
                 <p className="text-center text-gray-400">
-                  No books found matching "{searchText}".
+                  No books found matching &quot;{searchText}&quot;.
                 </p>
               ) : searchText.length === 0 && !loading ? (
                 <p className="text-center text-gray-400">
