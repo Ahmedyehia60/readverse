@@ -4,7 +4,8 @@
 import { Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { Loader } from "lucide-react";
+import Loader from "@/components/Loader";
+import SideBarIcon from "@/components/SideBarIcon";
 function Profile() {
   type UserType = {
     name: string;
@@ -13,7 +14,7 @@ function Profile() {
 
   const { data: session, status } = useSession();
   const [user, setUser] = useState<UserType | null>(null);
-
+  const [activeIcon, setActiveIcon] = useState("home");
   useEffect(() => {
     if (!session?.user?.id) return;
 
@@ -27,7 +28,14 @@ function Profile() {
   }, [session]);
 
   if (status === "loading" || !user) {
-    return <Loader className="size-6 mr-4 mt-4 float-right animate-spin" />;
+    return (
+      <Loader
+        bookScale={1.6}
+        bookTop={-100}
+        bookLeft={-40}
+        text="Loading worlds..."
+      />
+    );
   }
 
   return (
@@ -57,6 +65,7 @@ function Profile() {
           {user.name}
         </h2>
       </div>
+      <SideBarIcon activeIcon={activeIcon} setActiveIcon={setActiveIcon} />
     </div>
   );
 }
