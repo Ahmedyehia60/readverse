@@ -3,7 +3,9 @@
 import { Button } from "@/components/ui/button";
 import { Home, Layers, Search, Star, User, X } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
+import UserButton from "./UserButton";
 
+// ==================Types==========================
 interface BookVolumeInfo {
   title: string;
   authors?: string[];
@@ -23,8 +25,7 @@ interface SearchResults {
   error?: string;
 }
 
-// ----------------------------------------------------
-
+// ==================DashBoard Component==========================
 function DashBoard() {
   const [activeIcon, setActiveIcon] = useState("home");
   const [showModal, setShowModal] = useState(false);
@@ -48,6 +49,8 @@ function DashBoard() {
     { id: "user", icon: User, name: "Profile" },
   ];
 
+
+  // ===============Search Handler======================= 
   const handleSearch = useCallback(async (query: string) => {
     if (!query || !query.trim()) {
       setSearchResults(null);
@@ -76,6 +79,8 @@ function DashBoard() {
     }
   }, []);
 
+  // ===============Debounce search input=======================
+
   useEffect(() => {
     if (!showModal) return;
 
@@ -86,11 +91,15 @@ function DashBoard() {
     return () => clearTimeout(delayDebounceFn);
   }, [searchText, showModal, handleSearch]);
 
+
+
+
   return (
     <div
       className="min-h-screen bg-center bg-repeat text-white relative"
       style={{ backgroundImage: "url('/Images/galaxy3.jpg')" }}
     >
+      <UserButton />
       <Button
         className="absolute top-4 right-4 p-5 bg-[#2B1B72] text-white hover:bg-blue-800 z-10"
         onClick={() => setShowModal(true)}
