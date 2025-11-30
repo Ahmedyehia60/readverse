@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import NextAuthProvider from "@/components/providers/NextAuthProvider";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 //================== Fonts =======================
 const geistSans = Geist({
@@ -35,6 +36,7 @@ export default function RootLayout({
       >
         <NextAuthProvider>
           <Toaster />
+
           {children}
         </NextAuthProvider>
       </body>

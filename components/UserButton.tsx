@@ -3,12 +3,9 @@ import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useSession, signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Loader } from "lucide-react";
 
 type UserType = {
@@ -17,7 +14,6 @@ type UserType = {
 };
 
 const UserButton = () => {
-  const router = useRouter();
   const { data: session, status } = useSession();
   const [user, setUser] = useState<UserType | null>(null);
 
@@ -39,11 +35,6 @@ const UserButton = () => {
 
   const avatarFallback = user.name.charAt(0).toUpperCase();
 
-  const handleSignOut = async () => {
-    await signOut({ redirect: false });
-    router.push("/Login");
-  };
-
   return (
     <nav>
       <DropdownMenu modal={false}>
@@ -61,11 +52,6 @@ const UserButton = () => {
             </Avatar>
           </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="center" side="bottom" className="w-50">
-          <DropdownMenuItem className="h-10" onClick={handleSignOut}>
-            Log out
-          </DropdownMenuItem>
-        </DropdownMenuContent>
       </DropdownMenu>
     </nav>
   );
