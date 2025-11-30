@@ -4,7 +4,8 @@
 import { Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { Loader } from "lucide-react";
+import Loader from "@/components/Loader";
+
 function Profile() {
   type UserType = {
     name: string;
@@ -27,7 +28,14 @@ function Profile() {
   }, [session]);
 
   if (status === "loading" || !user) {
-    return <Loader className="size-6 mr-4 mt-4 float-right animate-spin" />;
+    return (
+      <Loader
+        bookScale={1.6}
+        bookTop={-100}
+        bookLeft={-40}
+        text="Loading worlds..."
+      />
+    );
   }
 
   return (

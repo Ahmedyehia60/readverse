@@ -14,6 +14,8 @@ const UserButton = () => {
   const { data: session, status } = useSession();
   const [user, setUser] = useState<UserType | null>(null);
   const router = useRouter();
+
+  
   useEffect(() => {
     if (!session?.user?.id) return;
 

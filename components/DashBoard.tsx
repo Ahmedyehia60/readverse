@@ -14,6 +14,7 @@ import {
 import { useState, useEffect, useCallback } from "react";
 import { AppSidebar } from "./SideBar";
 import UserButton from "./UserButton";
+import { useRouter } from "next/navigation";
 
 // ==================Types==========================
 interface BookVolumeInfo {
@@ -47,6 +48,8 @@ function DashBoard() {
   const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
   const [showBar, setShowBar] = useState(false);
 
+  const router = useRouter();
+
   const tooltipLabels: Record<string, string> = {
     home: "Home Page",
     star: "Favorite List",
@@ -61,6 +64,7 @@ function DashBoard() {
   ];
 
   // ===============Search Handler=======================
+
   const handleSearch = useCallback(async (query: string) => {
     if (!query || !query.trim()) {
       setSearchResults(null);
@@ -88,6 +92,7 @@ function DashBoard() {
       setLoading(false);
     }
   }, []);
+
 
   // ===============Debounce search input=======================
 
@@ -149,10 +154,15 @@ function DashBoard() {
                 </div>
               )}
             </div>
-            {icons.map(({ id, icon: Icon }) => (
+            {icons.map(({ id, icon: Icon ,name }) => (
               <div key={id} className="relative flex justify-center my-3">
                 <div
-                  onClick={() => setActiveIcon(id)}
+                  onClick={() => {
+                    setActiveIcon(id);
+                    if (id === "user") {
+                      router.push(`/${name}`); 
+                    }
+                  }}
                   onMouseEnter={() => setHoveredIcon(id)}
                   onMouseLeave={() => setHoveredIcon(null)}
                   className={`
