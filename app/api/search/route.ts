@@ -5,8 +5,12 @@ export async function GET(request: Request) {
   const query = searchParams.get("q");
   const key = process.env.API_KEY;
   const baseUrl = "https://www.googleapis.com/books/v1/volumes";
+  const optimizedQuery = `intitle:${query}`;
+  const MAX_RESULTS = 40;
   try {
-    const response = await fetch(`${baseUrl}?q=${query}&key=${key}`);
+    const response = await fetch(
+      `${baseUrl}?q=${optimizedQuery}&printType=books&orderBy=relevance&maxResults=${MAX_RESULTS}&key=${key}`
+    );
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {

@@ -42,7 +42,6 @@ function DashBoard() {
     user: "Profile",
   };
 
-  // Profile آخر أيقونة
   const icons = [
     { id: "star", icon: Star, name: "Favorites" },
     { id: "layers", icon: Layers, name: "Categories" },
