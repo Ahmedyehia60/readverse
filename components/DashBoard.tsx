@@ -1,8 +1,18 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import { Button } from "@/components/ui/button";
-import { Home, Layers, Search, Star, User, X } from "lucide-react";
+import {
+  ChevronsLeft,
+  ChevronsRight,
+  Home,
+  Layers,
+  Search,
+  Star,
+  User,
+  X,
+} from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
+import { AppSidebar } from "./SideBar";
 import UserButton from "./UserButton";
 
 // ==================Types==========================
@@ -35,6 +45,7 @@ function DashBoard() {
   );
   const [loading, setLoading] = useState(false);
   const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
+  const [showBar, setShowBar] = useState(false);
 
   const tooltipLabels: Record<string, string> = {
     home: "Home Page",
@@ -107,35 +118,48 @@ function DashBoard() {
         Add Book
       </Button>
 
-      <div className="absolute left-5 top-1/2 -translate-y-1/2 border-3 border-[#2B1B72] py-4 px-2 rounded-lg">
-        {/* Home Icon */}
-        <div className="relative flex justify-center my-3">
-          <Button
-            className={`p-3 rounded-full backdrop-blur-sm cursor-pointer transition ${
-              activeIcon === "home"
-                ? "bg-[#2B1B72] hover:bg-[#2B1B72]"
-                : "bg-white/10 hover:bg-white/20"
-            }`}
-            onClick={() => setActiveIcon("home")}
-            onMouseEnter={() => setHoveredIcon("home")}
-            onMouseLeave={() => setHoveredIcon(null)}
-          >
-            <Home className="w-3 h-3 text-white" />
-          </Button>
-          {hoveredIcon === "home" && (
-            <div className="absolute left-14 top-1/2 -translate-y-1/2 bg-black/80 text-white text-xs px-3 py-1 rounded-lg whitespace-nowrap">
-              {tooltipLabels["home"]}
+      {showBar ? (
+        <>
+          <AppSidebar />
+          <ChevronsLeft
+            className="absolute top-1/2 -translate-y-1/2 left-70 cursor-pointer"
+            onClick={() => setShowBar(!showBar)}
+          />
+        </>
+      ) : (
+        <>
+          <ChevronsRight
+            className="absolute top-1/2 -translate-y-1/2 left-25 cursor-pointer"
+            onClick={() => setShowBar(!showBar)}
+          />
+          <div className="absolute left-5 top-1/2 -translate-y-1/2 border-3 border-[#2B1B72] py-4 px-2 rounded-lg">
+            {/* Home Icon */}
+            <div className="relative flex justify-center my-3">
+              <Button
+                className={`p-3 rounded-full backdrop-blur-sm cursor-pointer transition ${
+                  activeIcon === "home"
+                    ? "bg-[#2B1B72] hover:bg-[#2B1B72]"
+                    : "bg-white/10 hover:bg-white/20"
+                }`}
+                onClick={() => setActiveIcon("home")}
+                onMouseEnter={() => setHoveredIcon("home")}
+                onMouseLeave={() => setHoveredIcon(null)}
+              >
+                <Home className="w-3 h-3 text-white" />
+              </Button>
+              {hoveredIcon === "home" && (
+                <div className="absolute left-14 top-1/2 -translate-y-1/2 bg-black/80 text-white text-xs px-3 py-1 rounded-lg whitespace-nowrap">
+                  {tooltipLabels["home"]}
+                </div>
+              )}
             </div>
-          )}
-        </div>
-
-        {icons.map(({ id, icon: Icon }) => (
-          <div key={id} className="relative flex justify-center my-3">
-            <div
-              onClick={() => setActiveIcon(id)}
-              onMouseEnter={() => setHoveredIcon(id)}
-              onMouseLeave={() => setHoveredIcon(null)}
-              className={`
+            {icons.map(({ id, icon: Icon }) => (
+              <div key={id} className="relative flex justify-center my-3">
+                <div
+                  onClick={() => setActiveIcon(id)}
+                  onMouseEnter={() => setHoveredIcon(id)}
+                  onMouseLeave={() => setHoveredIcon(null)}
+                  className={`
                 p-3 rounded-full backdrop-blur-sm cursor-pointer transition
                 ${
                   activeIcon === id
@@ -143,19 +167,20 @@ function DashBoard() {
                     : "bg-white/10 hover:bg-white/20"
                 }
               `}
-            >
-              <Icon className="w-3 h-3 text-white mx-auto" />
-            </div>
-            {hoveredIcon === id && (
-              <div className="absolute left-14 top-1/2 -translate-y-1/2 bg-black/80 text-white text-xs px-3 py-1 rounded-lg whitespace-nowrap">
-                {tooltipLabels[id]}
+                >
+                  <Icon className="w-3 h-3 text-white mx-auto" />
+                </div>
+                {hoveredIcon === id && (
+                  <div className="absolute left-14 top-1/2 -translate-y-1/2 bg-black/80 text-white text-xs px-3 py-1 rounded-lg whitespace-nowrap">
+                    {tooltipLabels[id]}
+                  </div>
+                )}
               </div>
-            )}
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      )}
 
-    
       {showModal && (
         <div
           className="

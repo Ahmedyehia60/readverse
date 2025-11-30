@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Loader } from "lucide-react";
 
@@ -11,10 +11,9 @@ type UserType = {
 };
 
 const UserButton = () => {
-  const router = useRouter();
   const { data: session, status } = useSession();
   const [user, setUser] = useState<UserType | null>(null);
-
+  const router = useRouter();
   useEffect(() => {
     if (!session?.user?.id) return;
 
@@ -32,8 +31,6 @@ const UserButton = () => {
   }
 
   const avatarFallback = user.name.charAt(0).toUpperCase();
-
-
 
   const handelRedirectProfile = () => {
     router.push("/Profile");

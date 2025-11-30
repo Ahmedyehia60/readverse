@@ -149,7 +149,6 @@ body,
   }
 }
 
-
 .ripple {
   border: 1px solid rgba(34, 14, 255, 0.521);
   animation: pulse 4s ease-in-out infinite;
