@@ -1,5 +1,13 @@
 "use client";
-import { Calendar, Home, Inbox, LogOut, Search, Settings } from "lucide-react";
+import {
+  Calendar,
+  Home,
+  Inbox,
+  LogOut,
+  Search,
+  Settings,
+  Star,
+} from "lucide-react";
 
 import {
   Sidebar,
@@ -31,7 +39,12 @@ const items = [
     icon: Inbox,
   },
   {
-    title: "Calendar",
+    title: "Favorite",
+    url: "#",
+    icon: Star,
+  },
+  {
+    title: "Categories",
     url: "#",
     icon: Calendar,
   },
@@ -81,11 +94,17 @@ export function AppSidebar() {
               <SidebarGroupContent className="mt-20 ">
                 <SidebarMenu>
                   {items.map((item) => (
-                    <SidebarMenuItem key={item.title}>
+                    <SidebarMenuItem
+                      key={item.title}
+                      className="border-b border-white/20 py-2"
+                    >
                       <SidebarMenuButton asChild>
-                        <a href={item.url} className="flex items-center gap-2">
-                          <item.icon />
+                        <a
+                          href={item.url}
+                          className="flex items-center gap-2 justify-between "
+                        >
                           <span>{item.title}</span>
+                          <item.icon />
                         </a>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -95,7 +114,7 @@ export function AppSidebar() {
             </SidebarGroup>
           </div>
 
-          <div className="flex items-center gap-12 px-4 py-3 border-t border-white/10">
+          <div className="flex items-center justify-between px-4 py-3 border-t border-white/10">
             <UserButton />
 
             <Button
