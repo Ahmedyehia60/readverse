@@ -4,7 +4,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import NextAuthProvider from "@/components/providers/NextAuthProvider";
 
-import SidebarWrapper from "@/components/providers/SideBarWrapper";
+import SideBarIcon from "@/components/SideBarIcon";
 
 //================== Fonts =======================
 const geistSans = Geist({
@@ -38,10 +38,8 @@ export default function RootLayout({
       >
         <NextAuthProvider>
           <Toaster />
-
+          <SideBarIcon />
           {children}
-
-          <SidebarWrapper />
         </NextAuthProvider>
       </body>
     </html>
