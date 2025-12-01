@@ -1,20 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import { Button } from "@/components/ui/button";
-import {
-  ChevronsLeft,
-  ChevronsRight,
-  Home,
-  Layers,
-  Search,
-  Star,
-  User,
-  X,
-} from "lucide-react";
+import { ChevronsLeft, ChevronsRight, Search, X } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { AppSidebar } from "./SideBar";
 import UserButton from "./UserButton";
-import { useRouter } from "next/navigation";
+
+import SidebarIcon from "./SideBarIcon";
 
 // ==================Types==========================
 interface BookVolumeInfo {
@@ -45,23 +37,7 @@ function DashBoard() {
     null
   );
   const [loading, setLoading] = useState(false);
-  const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
   const [showBar, setShowBar] = useState(false);
-
-  const router = useRouter();
-
-  const tooltipLabels: Record<string, string> = {
-    home: "Home Page",
-    star: "Favorite List",
-    layers: "Categories",
-    user: "Profile",
-  };
-
-  const icons = [
-    { id: "star", icon: Star, name: "Favorites" },
-    { id: "layers", icon: Layers, name: "Categories" },
-    { id: "user", icon: User, name: "Profile" },
-  ];
 
   // ===============Search Handler=======================
 
@@ -133,57 +109,7 @@ function DashBoard() {
             className="absolute top-1/2 -translate-y-1/2 left-25 cursor-pointer"
             onClick={() => setShowBar(!showBar)}
           />
-          <div className="absolute left-5 top-1/2 -translate-y-1/2 border-3 border-[#2B1B72] py-4 px-2 rounded-lg">
-            {/* Home Icon */}
-            <div className="relative flex justify-center my-3">
-              <Button
-                className={`p-3 rounded-full backdrop-blur-sm cursor-pointer transition ${
-                  activeIcon === "home"
-                    ? "bg-[#2B1B72] hover:bg-[#2B1B72]"
-                    : "bg-white/10 hover:bg-white/20"
-                }`}
-                onClick={() => setActiveIcon("home")}
-                onMouseEnter={() => setHoveredIcon("home")}
-                onMouseLeave={() => setHoveredIcon(null)}
-              >
-                <Home className="w-3 h-3 text-white" />
-              </Button>
-              {hoveredIcon === "home" && (
-                <div className="absolute left-14 top-1/2 -translate-y-1/2 bg-black/80 text-white text-xs px-3 py-1 rounded-lg whitespace-nowrap">
-                  {tooltipLabels["home"]}
-                </div>
-              )}
-            </div>
-            {icons.map(({ id, icon: Icon ,name }) => (
-              <div key={id} className="relative flex justify-center my-3">
-                <div
-                  onClick={() => {
-                    setActiveIcon(id);
-                    if (id === "user") {
-                      router.push(`/${name}`); 
-                    }
-                  }}
-                  onMouseEnter={() => setHoveredIcon(id)}
-                  onMouseLeave={() => setHoveredIcon(null)}
-                  className={`
-                p-3 rounded-full backdrop-blur-sm cursor-pointer transition
-                ${
-                  activeIcon === id
-                    ? "bg-[#2B1B72]"
-                    : "bg-white/10 hover:bg-white/20"
-                }
-              `}
-                >
-                  <Icon className="w-3 h-3 text-white mx-auto" />
-                </div>
-                {hoveredIcon === id && (
-                  <div className="absolute left-14 top-1/2 -translate-y-1/2 bg-black/80 text-white text-xs px-3 py-1 rounded-lg whitespace-nowrap">
-                    {tooltipLabels[id]}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+          <SidebarIcon activeIcon={activeIcon} setActiveIcon={setActiveIcon} />
         </>
       )}
 
