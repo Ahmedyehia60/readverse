@@ -4,18 +4,13 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Home, Layers, Star, User } from "lucide-react";
-interface SidebarIconsProps {
-  activeIcon: string;
-  setActiveIcon: (value: string) => void;
-}
+import { useSession } from "next-auth/react";
 
-export default function SidebarIcon({
-  activeIcon,
-  setActiveIcon,
-}: SidebarIconsProps) {
+export default function SidebarIcon() {
   const router = useRouter();
+  const { status } = useSession();
   const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
-
+  const [activeIcon, setActiveIcon] = useState("home");
   const tooltipLabels: Record<string, string> = {
     home: "Home Page",
     star: "Favorite List",
@@ -28,7 +23,7 @@ export default function SidebarIcon({
     { id: "layers", icon: Layers, name: "Categories" },
     { id: "user", icon: User, name: "Profile" },
   ];
-
+  if (status == "loading") return null;
   return (
     <div className="absolute left-5 top-1/2 -translate-y-1/2 border-3 border-[#2B1B72] py-4 px-2 rounded-lg">
       {/* Home */}

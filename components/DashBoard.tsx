@@ -6,8 +6,6 @@ import { useState, useEffect, useCallback } from "react";
 import { AppSidebar } from "./SideBar";
 import UserButton from "./UserButton";
 
-import SidebarIcon from "./SideBarIcon";
-
 // ==================Types==========================
 interface BookVolumeInfo {
   title: string;
@@ -30,7 +28,6 @@ interface SearchResults {
 
 // ==================DashBoard Component==========================
 function DashBoard() {
-  const [activeIcon, setActiveIcon] = useState("home");
   const [showModal, setShowModal] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResults | null>(
@@ -107,7 +104,6 @@ function DashBoard() {
             className="absolute top-1/2 -translate-y-1/2 left-25 cursor-pointer"
             onClick={() => setShowBar(!showBar)}
           />
-          <SidebarIcon activeIcon={activeIcon} setActiveIcon={setActiveIcon} />
         </>
       )}
 

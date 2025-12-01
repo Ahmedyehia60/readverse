@@ -32,7 +32,8 @@
     "react-icons": "^5.5.0",
     "save-dev": "^0.0.1-security",
     "sonner": "^2.0.7",
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "^3.4.0",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
