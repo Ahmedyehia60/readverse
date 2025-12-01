@@ -4,18 +4,22 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Loader } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type UserType = {
   name: string;
   image: string;
 };
 
-const UserButton = () => {
+type UserButtonProps = {
+  className?: string;
+};
+
+const UserButton = ({ className }: UserButtonProps) => {
   const { data: session, status } = useSession();
   const [user, setUser] = useState<UserType | null>(null);
   const router = useRouter();
 
-  
   useEffect(() => {
     if (!session?.user?.id) return;
 
@@ -29,7 +33,7 @@ const UserButton = () => {
   }, [session]);
 
   if (status === "loading" || !user) {
-    return <Loader className="size-6 mr-4 mt-4 float-right animate-spin" />;
+    return <Loader className="size-5 animate-spin" />;
   }
 
   const avatarFallback = user.name.charAt(0).toUpperCase();
@@ -39,22 +43,25 @@ const UserButton = () => {
   };
 
   return (
-    <nav className="float-left" onClick={handelRedirectProfile}>
-      <div className="outline-none relative float-right p-4 md:p-8">
-        <div className="flex gap-4 items-center">
-          <Avatar className="size-10 hover:opacity-75 transition">
-            <AvatarImage
-              className="size-10 hover:opacity-75 transition"
-              src={user.image || undefined}
-            />
-            <AvatarFallback className="bg-sky-900 text-white">
-              {avatarFallback}
-            </AvatarFallback>
-          </Avatar>
-          <span className="capitalize"> {user.name}</span>
-        </div>
-      </div>
-    </nav>
+    <button
+      type="button"
+      onClick={handelRedirectProfile}
+      className={cn(
+        "flex items-center gap-3 px-1 py-1 cursor-pointer",
+        className
+      )}
+    >
+      <Avatar className="w-9 h-9">
+        <AvatarImage src={user.image || undefined} />
+        <AvatarFallback className="bg-sky-900 text-white">
+          {avatarFallback}
+        </AvatarFallback>
+      </Avatar>
+
+      <span className="capitalize whitespace-nowrap text-sm font-medium">
+        {user.name}
+      </span>
+    </button>
   );
 };
 

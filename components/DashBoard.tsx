@@ -69,7 +69,6 @@ function DashBoard() {
     }
   }, []);
 
-
   // ===============Debounce search input=======================
 
   useEffect(() => {
@@ -87,7 +86,11 @@ function DashBoard() {
       className="min-h-screen bg-center bg-repeat text-white relative"
       style={{ backgroundImage: "url('/Images/galaxy3.jpg')" }}
     >
-      <UserButton />
+      <UserButton
+        className=" absolute top-5 left-9 
+    scale-110
+    "
+      />
       <Button
         className="absolute top-4 right-4 p-5 bg-[#2B1B72] text-white hover:bg-blue-800 z-10"
         onClick={() => setShowModal(true)}
