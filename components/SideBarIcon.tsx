@@ -41,7 +41,7 @@ export default function SidebarIcon({
           }`}
           onClick={() => {
             setActiveIcon("home");
-            router.push("/Home");
+            router.push("/");
           }}
           onMouseEnter={() => setHoveredIcon("home")}
           onMouseLeave={() => setHoveredIcon(null)}
@@ -56,7 +56,6 @@ export default function SidebarIcon({
         )}
       </div>
 
-      {/* باقي الأيقونات */}
       {icons.map(({ id, icon: Icon, name }) => (
         <div key={id} className="relative flex justify-center my-3">
           <div
