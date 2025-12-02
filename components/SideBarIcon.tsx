@@ -4,11 +4,10 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Home, Layers, Star, User } from "lucide-react";
-import { useSession } from "next-auth/react";
 
-export default function SidebarIcon() {
+export default function SideBarIcon() {
   const router = useRouter();
-  const { status } = useSession();
+
   const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
   const [activeIcon, setActiveIcon] = useState("home");
   const tooltipLabels: Record<string, string> = {
@@ -23,9 +22,9 @@ export default function SidebarIcon() {
     { id: "layers", icon: Layers, name: "Categories" },
     { id: "user", icon: User, name: "Profile" },
   ];
-  if (status == "loading") return null;
+
   return (
-    <div className="absolute left-5 top-1/2 -translate-y-1/2 border-3 border-[#2B1B72] py-4 px-2 rounded-lg">
+    <div className="absolute left-5 top-1/2 -translate-y-1/2 z-1 border border-[#2B1B72] py-4 px-2 rounded-lg">
       {/* Home */}
       <div className="relative flex justify-center my-3">
         <Button

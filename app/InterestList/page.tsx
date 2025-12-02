@@ -87,6 +87,7 @@ export default function InterestList() {
 
       toast.success("Profile updated — redirecting...");
       router.push("/");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       toast.error("Something went wrong");
     } finally {
@@ -117,6 +118,7 @@ export default function InterestList() {
           <div className="relative">
             <div className="w-28 h-28 rounded-full bg-white/10 border border-white/20 flex items-center justify-center overflow-hidden">
               {photo ? (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={URL.createObjectURL(photo)}
                   alt="Profile"
