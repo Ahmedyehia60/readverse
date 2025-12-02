@@ -22,7 +22,7 @@ export default function Loader({
   return (
     <div
       className={[
-        "relative w-full overflow-hidden",
+        "relative w-full overflow-hidden  inset-0",
         fullScreen ? "min-h-screen" : "h-full min-h-[300px]",
         "flex flex-col bg-background-light dark:bg-background-dark",
       ].join(" ")}

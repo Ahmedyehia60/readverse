@@ -182,3 +182,17 @@ body,
     opacity: 0.35;
   }
 }
+
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgb(93, 93, 94);
+  border-radius: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}

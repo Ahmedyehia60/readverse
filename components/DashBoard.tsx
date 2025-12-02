@@ -1,10 +1,17 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import { Button } from "@/components/ui/button";
-import { ChevronsLeft, ChevronsRight, Search, X } from "lucide-react";
+import {
+  ChevronsLeft,
+  ChevronsRight,
+  CirclePlus,
+  Search,
+  X,
+} from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { AppSidebar } from "./SideBar";
 import UserButton from "./UserButton";
+import SidebarIcon from "./SideBarIcon";
 
 // ==================Types==========================
 interface BookVolumeInfo {
@@ -89,27 +96,28 @@ function DashBoard() {
     "
       />
       <Button
-        className="absolute top-4 right-4 p-5 bg-[#2B1B72] text-white hover:bg-blue-800 z-10"
+        className="absolute top-4 right-4 p-5 bg-[#2B1B72] text-white hover:bg-blue-900 z-10"
         onClick={() => setShowModal(true)}
       >
         Add Book
       </Button>
 
       {showBar ? (
-        <>
+        <div className="hidden md:block">
           <AppSidebar />
           <ChevronsLeft
             className="absolute top-1/2 -translate-y-1/2 left-70 cursor-pointer"
             onClick={() => setShowBar(!showBar)}
           />
-        </>
+        </div>
       ) : (
-        <>
+        <div className="hidden md:block">
           <ChevronsRight
             className="absolute top-1/2 -translate-y-1/2 left-25 cursor-pointer"
             onClick={() => setShowBar(!showBar)}
           />
-        </>
+          <SidebarIcon active="home" />
+        </div>
       )}
 
       {showModal && (
@@ -126,7 +134,7 @@ function DashBoard() {
           }}
         >
           <div
-            className="bg-[#20193f] p-6 rounded-xl shadow-2xl w-full max-w-md mx-4"
+            className="bg-[#20193f] p-6 rounded-xl shadow-2xl w-full max-w-lg mx-4"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
@@ -140,7 +148,7 @@ function DashBoard() {
             </div>
 
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300" />
               <input
                 type="text"
                 value={searchText}
@@ -150,7 +158,7 @@ function DashBoard() {
               />
             </div>
 
-            <div className="mt-4 max-h-60 overflow-y-auto">
+            <div className="mt-4 max-h-60  overflow-y-auto">
               {loading && (
                 <p className="text-center text-gray-400">Loading...</p>
               )}
@@ -172,13 +180,16 @@ function DashBoard() {
                         alt={book.volumeInfo?.title || "Book cover"}
                         className="w-8 h-12 object-cover mr-3 rounded"
                       />
-                      <div>
-                        <p className="font-semibold text-sm">
-                          {book.volumeInfo?.title || "No Title"}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          {book.volumeInfo.authors?.[0] || "Unknown Author"}
-                        </p>
+                      <div className="flex items-center w-full justify-between">
+                        <div>
+                          <p className="font-semibold text-sm">
+                            {book.volumeInfo?.title || "No Title"}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            {book.volumeInfo.authors?.[0] || "Unknown Author"}
+                          </p>
+                        </div>
+                        <CirclePlus className="text-gray-500 hover:text-green-500" />
                       </div>
                     </li>
                   ))}
