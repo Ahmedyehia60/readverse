@@ -79,6 +79,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account, profile }) {
       if (!account) return true;
+      console.log("SIGNIN ACCOUNT:", process.env.GOOGLE_CLIENT_SECRET);
 
       await connectToDatabase();
       if (
