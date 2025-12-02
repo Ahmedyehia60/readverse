@@ -1,13 +1,29 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 
+export interface IMindMapBook {
+  title: string;
+  categories: string[];
+  createdAt?: Date;
+}
+
 export interface IUser extends Document {
   name: string;
   email: string;
   password?: string | null;
   image?: string | null;
-  provider?: string; // google | credentials
+  provider?: string;
   interests?: string[];
+  mindMap?: IMindMapBook[];
 }
+
+const MindMapBookSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true },
+    categories: { type: [String], default: [] },
+    createdAt: { type: Date, default: Date.now },
+  },
+  { _id: false }
+);
 
 const UserSchema: Schema<IUser> = new mongoose.Schema(
   {
@@ -24,23 +40,26 @@ const UserSchema: Schema<IUser> = new mongoose.Schema(
 
     password: {
       type: String,
-      required: false,
       default: null,
     },
 
     image: {
       type: String,
-      required: false,
       default: null,
     },
 
     provider: {
       type: String,
-      required: false,
       default: "credentials",
     },
+
     interests: {
       type: [String],
+      default: [],
+    },
+
+    mindMap: {
+      type: [MindMapBookSchema],
       default: [],
     },
   },

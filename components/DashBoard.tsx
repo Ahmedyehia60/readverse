@@ -17,6 +17,7 @@ import SidebarIcon from "./SideBarIcon";
 interface BookVolumeInfo {
   title: string;
   authors?: string[];
+  categories?: string[];
   imageLinks?: {
     smallThumbnail: string;
     thumbnail: string;
@@ -42,7 +43,6 @@ function DashBoard() {
   );
   const [loading, setLoading] = useState(false);
   const [showBar, setShowBar] = useState(false);
-
   // ===============Search Handler=======================
 
   const handleSearch = useCallback(async (query: string) => {
@@ -72,6 +72,33 @@ function DashBoard() {
       setLoading(false);
     }
   }, []);
+
+  const handleAddBook = async (book: BookItem) => {
+    const title = book.volumeInfo.title;
+    const categories =
+      book.volumeInfo.categories && Array.isArray(book.volumeInfo.categories)
+        ? book.volumeInfo.categories
+        : [];
+
+    const response = await fetch("/api/books", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title,
+        categories,
+      }),
+    });
+
+    if (!response.ok) {
+      return;
+    }
+
+    setShowModal(false);
+    setSearchResults(null);
+    setSearchText("");
+  };
 
   // ===============Debounce search input=======================
 
@@ -171,6 +198,7 @@ function DashBoard() {
                     <li
                       key={book.id}
                       className="flex items-center p-2 rounded hover:bg-[#3C288D] transition cursor-pointer"
+                      onClick={() => handleAddBook(book)}
                     >
                       <img
                         src={
