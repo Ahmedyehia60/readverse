@@ -5,6 +5,7 @@ import { Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Loader from "@/components/Loader";
+import SidebarIcon from "@/components/SideBarIcon";
 function Profile() {
   type UserType = {
     name: string;
@@ -41,6 +42,7 @@ function Profile() {
       className="min-h-screen bg-center bg-repeat text-white relative"
       style={{ backgroundImage: "url('/Images/galaxy3.jpg')" }}
     >
+      <SidebarIcon active="user" />
       <div className="flex justify-between items-center p-4">
         <p className="">Profile </p>
         <Pencil size={24} />

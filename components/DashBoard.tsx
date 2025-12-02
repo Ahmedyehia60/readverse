@@ -5,6 +5,7 @@ import { ChevronsLeft, ChevronsRight, Search, X } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { AppSidebar } from "./SideBar";
 import UserButton from "./UserButton";
+import SidebarIcon from "./SideBarIcon";
 
 // ==================Types==========================
 interface BookVolumeInfo {
@@ -96,20 +97,21 @@ function DashBoard() {
       </Button>
 
       {showBar ? (
-        <>
+        <div className="hidden md:block">
           <AppSidebar />
           <ChevronsLeft
             className="absolute top-1/2 -translate-y-1/2 left-70 cursor-pointer"
             onClick={() => setShowBar(!showBar)}
           />
-        </>
+        </div>
       ) : (
-        <>
+        <div className="hidden md:block">
           <ChevronsRight
             className="absolute top-1/2 -translate-y-1/2 left-25 cursor-pointer"
             onClick={() => setShowBar(!showBar)}
           />
-        </>
+          <SidebarIcon active="home" />
+        </div>
       )}
 
       {showModal && (

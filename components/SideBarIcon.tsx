@@ -4,13 +4,12 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Home, Layers, Star, User } from "lucide-react";
-import { useSession } from "next-auth/react";
-
-export default function SidebarIcon() {
+type SidebarIconProps = {
+  active: string;
+};
+export default function SidebarIcon({ active }: SidebarIconProps) {
   const router = useRouter();
-  const { status } = useSession();
   const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
-  const [activeIcon, setActiveIcon] = useState("home");
   const tooltipLabels: Record<string, string> = {
     home: "Home Page",
     star: "Favorite List",
@@ -23,19 +22,21 @@ export default function SidebarIcon() {
     { id: "layers", icon: Layers, name: "Categories" },
     { id: "user", icon: User, name: "Profile" },
   ];
-  if (status == "loading") return null;
+
   return (
-    <div className="absolute left-5 top-1/2 -translate-y-1/2 border-3 border-[#2B1B72] py-4 px-2 rounded-lg">
+    <div
+      className="fixed left-5 top-1/2 -translate-y-1/2 z-40 border-3 border-[#2B1B72] py-4 px-2 rounded-lg"
+      style={{ zIndex: 1 }}
+    >
       {/* Home */}
       <div className="relative flex justify-center my-3">
         <Button
           className={`p-3 rounded-full backdrop-blur-sm cursor-pointer transition ${
-            activeIcon === "home"
+            active === "home"
               ? "bg-[#2B1B72] hover:bg-[#2B1B72]"
               : "bg-white/10 hover:bg-white/20"
           }`}
           onClick={() => {
-            setActiveIcon("home");
             router.push("/");
           }}
           onMouseEnter={() => setHoveredIcon("home")}
@@ -55,7 +56,6 @@ export default function SidebarIcon() {
         <div key={id} className="relative flex justify-center my-3">
           <div
             onClick={() => {
-              setActiveIcon(id);
               router.push(`/${name}`);
             }}
             onMouseEnter={() => setHoveredIcon(id)}
@@ -63,9 +63,7 @@ export default function SidebarIcon() {
             className={`
               p-3 rounded-full backdrop-blur-sm cursor-pointer transition
               ${
-                activeIcon === id
-                  ? "bg-[#2B1B72]"
-                  : "bg-white/10 hover:bg-white/20"
+                active === id ? "bg-[#2B1B72]" : "bg-white/10 hover:bg-white/20"
               }
             `}
           >
