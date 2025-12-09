@@ -12,6 +12,7 @@ import { useState, useEffect, useCallback } from "react";
 import { AppSidebar } from "./SideBar";
 import UserButton from "./UserButton";
 import SidebarIcon from "./SideBarIcon";
+import { toast } from "sonner";
 
 // ==================Types==========================
 interface BookVolumeInfo {
@@ -43,7 +44,8 @@ function DashBoard() {
   );
   const [loading, setLoading] = useState(false);
   const [showBar, setShowBar] = useState(false);
-  // ===============Search Handler=======================
+
+  // ===============Handlers=======================
 
   const handleSearch = useCallback(async (query: string) => {
     if (!query || !query.trim()) {
@@ -90,9 +92,12 @@ function DashBoard() {
         categories,
       }),
     });
+    const data = await response.json();
 
-    if (!response.ok) {
-      return;
+    if (response.ok) {
+      toast.success(`Book "${title}" added successfully!`);
+    } else if (!response.ok) {
+      toast.error(data.error);
     }
 
     setShowModal(false);

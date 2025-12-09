@@ -1,8 +1,21 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 
+// -------------------- INTERFACES --------------------
+
+export interface IBookItem {
+  title: string;
+}
+
+export interface ICategory {
+  name: string;
+  image: string;
+  books: IBookItem[];
+  count: number;
+}
+
 export interface IMindMapBook {
   title: string;
-  categories: string[];
+  categories: ICategory[];
   createdAt?: Date;
 }
 
@@ -13,60 +26,50 @@ export interface IUser extends Document {
   image?: string | null;
   provider?: string;
   interests?: string[];
-  mindMap?: IMindMapBook[];
+  mindMap?: ICategory[];
 }
 
-const MindMapBookSchema = new mongoose.Schema(
+// -------------------- SCHEMAS --------------------
+
+const BookItemSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
-    categories: { type: [String], default: [] },
-    createdAt: { type: Date, default: Date.now },
+  },
+  { _id: false }
+);
+
+const CategorySchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    image: { type: String, default: null },
+    books: { type: [BookItemSchema], default: [] },
+    count: { type: Number, default: 0 },
+    // x: { type: Number, default: 0 },
+    // y: { type: Number, default: 0 },
   },
   { _id: false }
 );
 
 const UserSchema: Schema<IUser> = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
-    },
+    name: { type: String, required: true },
 
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-    },
+    email: { type: String, required: true, unique: true },
 
-    password: {
-      type: String,
-      default: null,
-    },
+    password: { type: String, default: null },
 
-    image: {
-      type: String,
-      default: null,
-    },
+    image: { type: String, default: null },
 
-    provider: {
-      type: String,
-      default: "credentials",
-    },
+    provider: { type: String, default: "credentials" },
 
-    interests: {
-      type: [String],
-      default: [],
-    },
+    interests: { type: [String], default: [] },
 
-    mindMap: {
-      type: [MindMapBookSchema],
-      default: [],
-    },
+    mindMap: { type: [CategorySchema], default: [] },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
+
+// -------------------- MODEL --------------------
 
 const User: Model<IUser> =
   mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
