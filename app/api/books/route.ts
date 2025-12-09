@@ -87,3 +87,23 @@ export async function POST(req: Request) {
     );
   }
 }
+export async function GET(req: Request) {
+  try {
+    await connectDB();
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const user = (await User.findById(session.user.id)) as IUser | null;
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+    return NextResponse.json({ mindMap: user.mindMap });
+  } catch (error) {
+    console.error("Error fetching mind map:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}

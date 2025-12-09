@@ -8,11 +8,12 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { AppSidebar } from "./SideBar";
 import UserButton from "./UserButton";
 import SidebarIcon from "./SideBarIcon";
 import { toast } from "sonner";
+import { ICategory } from "@/models/users";
 
 // ==================Types==========================
 interface BookVolumeInfo {
@@ -45,10 +46,35 @@ function DashBoard() {
   const [loading, setLoading] = useState(false);
   const [showBar, setShowBar] = useState(false);
 
-  // ===============Handlers=======================
+  // NEW: STATE TO STORE MINDMAP SHOWN IN UI
+  // ---------------------------------------
+  const [mindMap, setMindMap] = useState<ICategory[]>([]);
 
+  // =============== Fetch MindMap from API =======================
+  const fetchMindMap = async () => {
+    const res = await fetch("/api/books", { method: "GET" });
+    const data = await res.json();
+
+    // UPDATE UI
+    setMindMap(data.mindMap || []);
+  };
+
+  // FIRST LOAD FETCH MINDMAP
+  // -------------------------
+  useEffect(() => {
+    fetchMindMap();
+  }, []);
+  const positions = useMemo(() => {
+    return mindMap.map(() => {
+      const top = Math.random() * (window.innerHeight - 180);
+      const left = Math.random() * (window.innerWidth - 180);
+      return { top, left };
+    });
+  }, [mindMap.length]);
+
+  // ===============Handlers=======================
   const handleSearch = useCallback(async (query: string) => {
-    if (!query || !query.trim()) {
+    if (!query.trim()) {
       setSearchResults(null);
       return;
     }
@@ -62,13 +88,8 @@ function DashBoard() {
       const response = await fetch(endpoint);
       const data: SearchResults = await response.json();
 
-      if (data.error) {
-        setSearchResults({ error: data.error });
-      } else {
-        setSearchResults(data);
-      }
+      setSearchResults(data.error ? { error: data.error } : data);
     } catch (error) {
-      console.error("Error fetching data from internal API:", error);
       setSearchResults({ error: "Failed to connect to search service." });
     } finally {
       setLoading(false);
@@ -77,26 +98,25 @@ function DashBoard() {
 
   const handleAddBook = async (book: BookItem) => {
     const title = book.volumeInfo.title;
-    const categories =
-      book.volumeInfo.categories && Array.isArray(book.volumeInfo.categories)
-        ? book.volumeInfo.categories
-        : [];
+    const categories = Array.isArray(book.volumeInfo.categories)
+      ? book.volumeInfo.categories
+      : [];
 
     const response = await fetch("/api/books", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        title,
-        categories,
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, categories }),
     });
+
     const data = await response.json();
 
     if (response.ok) {
       toast.success(`Book "${title}" added successfully!`);
-    } else if (!response.ok) {
+
+      // REFRESH MINDMAP IN UI
+      // -----------------------
+      fetchMindMap(); // <= IMPORTANT FIX
+    } else {
       toast.error(data.error);
     }
 
@@ -105,14 +125,45 @@ function DashBoard() {
     setSearchText("");
   };
 
-  // ===============Debounce search input=======================
+  // ===============Render MindMap=======================
+  const renderMindMap = () => {
+    if (!mindMap.length) return null;
 
+    return (
+      <div className="relative w-full h-screen overflow-hidden">
+        {mindMap.map((cat, index) => (
+          <div
+            key={cat.name}
+            style={{
+              position: "absolute",
+              width: "120px",
+              height: "120px",
+              top: positions[index]?.top,
+              left: positions[index]?.left,
+            }}
+            className="rounded-xl overflow-hidden shadow-lg bg-black/30"
+          >
+            <div className="absolute top-0 bg-black/60 w-full py-1 px-1">
+              <p className="text-xs text-center text-white truncate">
+                {cat.name}
+              </p>
+            </div>
+            <img
+              src={cat.image || "/placeholder.png"}
+              alt={cat.name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  // ===============Debounce search input=======================
   useEffect(() => {
     if (!showModal) return;
 
-    const delayDebounceFn = setTimeout(() => {
-      handleSearch(searchText);
-    }, 500);
+    const delayDebounceFn = setTimeout(() => handleSearch(searchText), 500);
 
     return () => clearTimeout(delayDebounceFn);
   }, [searchText, showModal, handleSearch]);
@@ -122,11 +173,8 @@ function DashBoard() {
       className="min-h-screen bg-center bg-repeat text-white relative"
       style={{ backgroundImage: "url('/Images/galaxy3.jpg')" }}
     >
-      <UserButton
-        className=" absolute top-5 left-9 
-    scale-110
-    "
-      />
+      <UserButton className="absolute top-5 left-9 scale-110" />
+
       <Button
         className="absolute top-4 right-4 p-5 bg-[#2B1B72] text-white hover:bg-blue-900 z-10"
         onClick={() => setShowModal(true)}
@@ -134,31 +182,34 @@ function DashBoard() {
         Add Book
       </Button>
 
+      {/* DISPLAY MINDMAP IN UI */}
+      {/* ---------------------- */}
+      {renderMindMap()}
+
+      {/* SIDE BAR */}
       {showBar ? (
         <div className="hidden md:block">
           <AppSidebar />
           <ChevronsLeft
             className="absolute top-1/2 -translate-y-1/2 left-70 cursor-pointer"
-            onClick={() => setShowBar(!showBar)}
+            onClick={() => setShowBar(false)}
           />
         </div>
       ) : (
         <div className="hidden md:block">
           <ChevronsRight
             className="absolute top-1/2 -translate-y-1/2 left-25 cursor-pointer"
-            onClick={() => setShowBar(!showBar)}
+            onClick={() => setShowBar(true)}
           />
           <SidebarIcon active="home" />
         </div>
       )}
 
+      {/* SEARCH MODAL */}
       {showModal && (
         <div
-          className="
-            fixed inset-0 z-50 flex items-center justify-center 
-            bg-black/20 backdrop-blur-sm 
-            transition-opacity duration-300
-          "
+          className="fixed inset-0 z-50 flex items-center justify-center 
+          bg-black/20 backdrop-blur-sm transition-opacity duration-300"
           onClick={() => {
             setShowModal(false);
             setSearchResults(null);
@@ -190,11 +241,12 @@ function DashBoard() {
               />
             </div>
 
-            <div className="mt-4 max-h-60  overflow-y-auto">
+            <div className="mt-4 max-h-60 overflow-y-auto">
               {loading && (
                 <p className="text-center text-gray-400">Loading...</p>
               )}
 
+              {/* SEARCH RESULTS */}
               {searchResults &&
               searchResults.items &&
               searchResults.items.length > 0 ? (
@@ -230,13 +282,6 @@ function DashBoard() {
               ) : searchResults && searchResults.error ? (
                 <p className="text-center text-red-400">
                   Error: {searchResults.error}
-                </p>
-              ) : searchResults &&
-                searchResults.items &&
-                searchResults.items.length === 0 &&
-                searchText.length > 0 ? (
-                <p className="text-center text-gray-400">
-                  No books found matching &quot;{searchText}&quot;.
                 </p>
               ) : searchText.length === 0 && !loading ? (
                 <p className="text-center text-gray-400">
