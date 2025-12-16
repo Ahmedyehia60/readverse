@@ -11,6 +11,8 @@ export interface ICategory {
   image: string;
   books: IBookItem[];
   count: number;
+  x: number;
+  y: number;
 }
 
 export interface IMindMapBook {
@@ -44,8 +46,8 @@ const CategorySchema = new mongoose.Schema(
     image: { type: String, default: null },
     books: { type: [BookItemSchema], default: [] },
     count: { type: Number, default: 0 },
-    // x: { type: Number, default: 0 },
-    // y: { type: Number, default: 0 },
+    x: { type: Number, default: 0 },
+    y: { type: Number, default: 0 },
   },
   { _id: false }
 );

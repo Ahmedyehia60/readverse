@@ -8,7 +8,7 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { AppSidebar } from "./SideBar";
 import UserButton from "./UserButton";
 import SidebarIcon from "./SideBarIcon";
@@ -64,13 +64,6 @@ function DashBoard() {
   useEffect(() => {
     fetchMindMap();
   }, []);
-  const positions = useMemo(() => {
-    return mindMap.map(() => {
-      const top = Math.random() * (window.innerHeight - 180);
-      const left = Math.random() * (window.innerWidth - 180);
-      return { top, left };
-    });
-  }, [mindMap.length]);
 
   // ===============Handlers=======================
   const handleSearch = useCallback(async (query: string) => {
@@ -89,7 +82,7 @@ function DashBoard() {
       const data: SearchResults = await response.json();
 
       setSearchResults(data.error ? { error: data.error } : data);
-    } catch (error) {
+    } catch {
       setSearchResults({ error: "Failed to connect to search service." });
     } finally {
       setLoading(false);
@@ -131,15 +124,15 @@ function DashBoard() {
 
     return (
       <div className="relative w-full h-screen overflow-hidden">
-        {mindMap.map((cat, index) => (
+        {mindMap.map((cat) => (
           <div
             key={cat.name}
             style={{
               position: "absolute",
               width: "120px",
               height: "120px",
-              top: positions[index]?.top,
-              left: positions[index]?.left,
+              top: `${cat.y}px`,
+              left: `${cat.x}px`,
             }}
             className="rounded-xl overflow-hidden shadow-lg bg-black/30"
           >
@@ -191,7 +184,7 @@ function DashBoard() {
         <div className="hidden md:block">
           <AppSidebar />
           <ChevronsLeft
-            className="absolute top-1/2 -translate-y-1/2 left-70 cursor-pointer"
+            className=" top-1/2 -translate-y-1/2 left-70 cursor-pointer z-10 fixed"
             onClick={() => setShowBar(false)}
           />
         </div>
