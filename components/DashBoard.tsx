@@ -45,6 +45,7 @@ function DashBoard() {
   );
   const [loading, setLoading] = useState(false);
   const [showBar, setShowBar] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<ICategory | null>(null);
 
   // NEW: STATE TO STORE MINDMAP SHOWN IN UI
   // ---------------------------------------
@@ -59,7 +60,6 @@ function DashBoard() {
     setMindMap(data.mindMap || []);
   };
 
-  // FIRST LOAD FETCH MINDMAP
   // -------------------------
   useEffect(() => {
     fetchMindMap();
@@ -94,7 +94,28 @@ function DashBoard() {
     const categories = Array.isArray(book.volumeInfo.categories)
       ? book.volumeInfo.categories
       : [];
+    const MAX_BOOKS_PER_CATEGORY = 5;
+    let fullCategoriesCount = 0;
+    mindMap.forEach((existingCat) => {
+      let currentCount = existingCat.books.length;
+      const isBookInThisCat = categories.some(
+        (newCat) => newCat.toLowerCase() === existingCat.name.toLowerCase()
+      );
+      if (isBookInThisCat) {
+        currentCount += 1;
+      }
 
+      if (currentCount >= MAX_BOOKS_PER_CATEGORY) {
+        fullCategoriesCount++;
+      }
+    });
+
+    if (fullCategoriesCount >= 2) {
+      console.log(
+        "⚠️ Alert: Two or more categories have reached the limit (5+ books)!"
+      );
+    }
+    // ========================================================
     const response = await fetch("/api/books", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -105,10 +126,7 @@ function DashBoard() {
 
     if (response.ok) {
       toast.success(`Book "${title}" added successfully!`);
-
-      // REFRESH MINDMAP IN UI
-      // -----------------------
-      fetchMindMap(); // <= IMPORTANT FIX
+      fetchMindMap();
     } else {
       toast.error(data.error);
     }
@@ -129,23 +147,31 @@ function DashBoard() {
             key={cat.name}
             style={{
               position: "absolute",
-              width: "120px",
-              height: "120px",
-              top: `${cat.y}px`,
-              left: `${cat.x}px`,
+              top: `${cat.y * 100}%`,
+              left: `${cat.x * 100}%`,
             }}
-            className="rounded-xl overflow-hidden shadow-lg bg-black/30"
+            className="flex flex-col items-center gap-0 cursor-pointer
+               hover:scale-105 transition"
+            onClick={() => setActiveCategory(cat)}
           >
-            <div className="absolute top-0 bg-black/60 w-full py-1 px-1">
-              <p className="text-xs text-center text-white truncate">
-                {cat.name}
-              </p>
+            {/* Category Name */}
+            <p className="text-xs text-white text-center max-w-[110px] truncate">
+              {cat.name}
+            </p>
+
+            {/* Image */}
+            <div className="w-[100px] h-[100px] rounded-xl overflow-hidden shadow-lg">
+              <img
+                src={cat.image || "/placeholder.png"}
+                alt={cat.name}
+                className="w-full h-full object-cover"
+              />
             </div>
-            <img
-              src={cat.image || "/placeholder.png"}
-              alt={cat.name}
-              className="w-full h-full object-cover"
-            />
+
+            {/* Book Title */}
+            <p className="text-xs text-white text-center max-w-[110px] truncate opacity-80">
+              {cat.books[cat.books.length - 1]?.title}
+            </p>
           </div>
         ))}
       </div>
@@ -164,7 +190,7 @@ function DashBoard() {
   return (
     <div
       className="min-h-screen bg-center bg-repeat text-white relative"
-      style={{ backgroundImage: "url('/Images/galaxy3.jpg')" }}
+      style={{ backgroundImage: "url('/Images/galaxy4.jpg')" }}
     >
       <UserButton className="absolute top-5 left-9 scale-110" />
 
@@ -178,6 +204,57 @@ function DashBoard() {
       {/* DISPLAY MINDMAP IN UI */}
       {/* ---------------------- */}
       {renderMindMap()}
+      {activeCategory && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center
+               bg-black/60 backdrop-blur-sm"
+          onClick={() => setActiveCategory(null)}
+        >
+          <div
+            className="flex gap-6 p-6 rounded-2xl max-w-3xl w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* IMAGE */}
+            <div className="w-1/2 flex flex-col items-center">
+              <div className="relative w-40 h-40 flex items-center justify-center">
+                {/* Ripple rings */}
+                <div className="ripple absolute w-44 h-44 rounded-full border border-white/10"></div>
+                <div className="ripple absolute w-52 h-52 rounded-full border border-white/10"></div>
+                <div className="ripple absolute w-60 h-60 rounded-full border border-white/10"></div>
+
+                {/* Image */}
+                <img
+                  src={activeCategory.image || "/placeholder.png"}
+                  alt={activeCategory.name}
+                  className="w-full h-full object-cover rounded-full z-10"
+                />
+              </div>
+
+              {/* Category name */}
+              <h2 className="mt-6 text-lg font-semibold text-center">
+                {activeCategory.name}
+              </h2>
+            </div>
+
+            {/* BOOK LIST */}
+            <div className="w-1/2 max-h-[400px] overflow-y-auto">
+              <h3 className="mb-3 text-sm text-gray-300">Books</h3>
+
+              <ul className="space-y-2">
+                {activeCategory.books.map((book, index) => (
+                  <li
+                    key={index}
+                    className="p-2 rounded-lg bg-white/10 hover:bg-white/20
+                         transition cursor-pointer text-sm"
+                  >
+                    {book.title}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* SIDE BAR */}
       {showBar ? (

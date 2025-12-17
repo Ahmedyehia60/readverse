@@ -10,29 +10,30 @@ const getRandomImage = (): string => {
   return `/images/${randomIndex}.png`;
 };
 const generateNonOverlappingPosition = (existingCategories: ICategory[]) => {
-  const NODE_SIZE = 140;
-  const MAX_WIDTH = 800;
-  const MAX_HEIGHT = 600;
-  const MAX_ATTEMPTS = 50;
-  const MIN_WIDTH = 230;
+  const MIN_DIST = 0.18;
+  const MAX_ATTEMPTS = 100;
+  const MIN_HEIGHT = 0.1;
+  const MAX_HEIGHT = 0.9;
+  const MIN_WIDTH = 0.1;
+  const MAX_WIDTH = 0.9;
 
-  let x, y;
+  let x: number;
+  let y: number;
+  let overlap: boolean;
   let attempts = 0;
-  let overlap;
 
   do {
     overlap = false;
-    x = Math.floor(Math.random() * (MAX_WIDTH - NODE_SIZE) + MIN_WIDTH);
-    y = Math.floor(Math.random() * (MAX_HEIGHT - NODE_SIZE));
+    x = Math.random() * (MAX_WIDTH - MIN_WIDTH) + MIN_WIDTH;
+    y = Math.random() * (MAX_HEIGHT - MIN_HEIGHT) + MIN_HEIGHT;
 
     for (const cat of existingCategories) {
-      const diffX = Math.abs(cat.x - x);
-      const diffY = Math.abs(cat.y - y);
-      if (diffX < NODE_SIZE && diffY < NODE_SIZE) {
+      if (Math.abs(cat.x - x) < MIN_DIST && Math.abs(cat.y - y) < MIN_DIST) {
         overlap = true;
         break;
       }
     }
+
     attempts++;
   } while (overlap && attempts < MAX_ATTEMPTS);
 
