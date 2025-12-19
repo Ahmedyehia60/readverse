@@ -18,6 +18,8 @@ import { ICategory } from "@/models/users";
 // ==================Types==========================
 interface BookVolumeInfo {
   title: string;
+  description?: string;
+  infoLink?: string;
   authors?: string[];
   categories?: string[];
   imageLinks?: {
@@ -36,6 +38,42 @@ interface SearchResults {
   error?: string;
 }
 
+const MAX_BOOKS_PER_CATEGORY = 5;
+
+// Find 2 random categories that reached max books
+const getTwoRandomFullCategories = (
+  mindMap: ICategory[],
+  bookCategories: string[]
+): ICategory[] | null => {
+  const fullCategories = mindMap.filter((cat) => {
+    let count = cat.books.length;
+
+    const isBookInThisCat = bookCategories.some(
+      (newCat) => newCat.toLowerCase() === cat.name.toLowerCase()
+    );
+
+    if (isBookInThisCat) count += 1;
+
+    return count >= MAX_BOOKS_PER_CATEGORY;
+  });
+
+  if (fullCategories.length < 2) return null;
+
+  const shuffled = [...fullCategories].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, 2);
+};
+
+// Fetch mapped books from API
+const fetchMappedBooks = async (cat1: string, cat2: string) => {
+  const res = await fetch(
+    `/api/mapping?category1=${encodeURIComponent(
+      cat1
+    )}&category2=${encodeURIComponent(cat2)}`
+  );
+  if (!res.ok) throw new Error("Mapping API failed");
+  return res.json();
+};
+
 // ==================DashBoard Component==========================
 function DashBoard() {
   const [showModal, setShowModal] = useState(false);
@@ -47,25 +85,20 @@ function DashBoard() {
   const [showBar, setShowBar] = useState(false);
   const [activeCategory, setActiveCategory] = useState<ICategory | null>(null);
 
-  // NEW: STATE TO STORE MINDMAP SHOWN IN UI
-  // ---------------------------------------
   const [mindMap, setMindMap] = useState<ICategory[]>([]);
-
-  // =============== Fetch MindMap from API =======================
+  const [bridgedCategories, setBridgedCategories] = useState<ICategory[]>([]);
+  // Fetch MindMap
   const fetchMindMap = async () => {
     const res = await fetch("/api/books", { method: "GET" });
     const data = await res.json();
-
-    // UPDATE UI
     setMindMap(data.mindMap || []);
   };
 
-  // -------------------------
   useEffect(() => {
     fetchMindMap();
   }, []);
 
-  // ===============Handlers=======================
+  // Debounced search
   const handleSearch = useCallback(async (query: string) => {
     if (!query.trim()) {
       setSearchResults(null);
@@ -75,12 +108,9 @@ function DashBoard() {
     setLoading(true);
     setSearchResults(null);
 
-    const endpoint = `/api/search?q=${query}`;
-
     try {
-      const response = await fetch(endpoint);
+      const response = await fetch(`/api/search?q=${query}`);
       const data: SearchResults = await response.json();
-
       setSearchResults(data.error ? { error: data.error } : data);
     } catch {
       setSearchResults({ error: "Failed to connect to search service." });
@@ -89,59 +119,111 @@ function DashBoard() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!showModal) return;
+    const delayDebounceFn = setTimeout(() => handleSearch(searchText), 500);
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchText, showModal, handleSearch]);
+
+  // ==================Handle Add Book==========================
   const handleAddBook = async (book: BookItem) => {
-    const title = book.volumeInfo.title;
-    const categories = Array.isArray(book.volumeInfo.categories)
-      ? book.volumeInfo.categories
-      : [];
-    const MAX_BOOKS_PER_CATEGORY = 5;
-    let fullCategoriesCount = 0;
-    mindMap.forEach((existingCat) => {
-      let currentCount = existingCat.books.length;
-      const isBookInThisCat = categories.some(
-        (newCat) => newCat.toLowerCase() === existingCat.name.toLowerCase()
-      );
-      if (isBookInThisCat) {
-        currentCount += 1;
+    try {
+      const payload = {
+        title: book.volumeInfo.title,
+        categories: book.volumeInfo.categories || [],
+        image: book.volumeInfo.imageLinks?.thumbnail,
+        author: book.volumeInfo.authors?.[0],
+        link: book.volumeInfo.infoLink,
+      };
+
+      const response = await fetch("/api/books", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to add book");
       }
 
-      if (currentCount >= MAX_BOOKS_PER_CATEGORY) {
-        fullCategoriesCount++;
-      }
-    });
+      const data = await response.json();
 
-    if (fullCategoriesCount >= 2) {
-      console.log(
-        "⚠️ Alert: Two or more categories have reached the limit (5+ books)!"
+      setMindMap(data.mindMap);
+      const fullCats = getTwoRandomFullCategories(
+        data.mindMap,
+        payload.categories
       );
+
+      if (fullCats) {
+        const [c1, c2] = fullCats;
+        const bridgeData = await fetchMappedBooks(c1.name, c2.name);
+        if (bridgeData.books && bridgeData.books.length > 0) {
+          const sortedBridge = [...bridgeData.books].sort(
+            (a, b) => b.score - a.score
+          );
+          const recommended = sortedBridge[0];
+          setTimeout(() => {
+            toast.info(`Smart Link Found!`, {
+              description: `We found a connection: "${recommended.volumeInfo.title}" combines your interest in ${c1.name} and ${c2.name}.`,
+              duration: 10000,
+              action: {
+                label: "View Book",
+                onClick: () =>
+                  window.open(recommended.volumeInfo.infoLink, "_blank"),
+              },
+            });
+          }, 400);
+          setBridgedCategories([c1, c2]);
+        }
+      }
+
+      // Reset UI
+      setShowModal(false);
+      setSearchText("");
+      toast.success("Book added to your mind map!");
+    } catch {
+      toast.error("Something went wrong");
     }
-    // ========================================================
-    const response = await fetch("/api/books", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, categories }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      toast.success(`Book "${title}" added successfully!`);
-      fetchMindMap();
-    } else {
-      toast.error(data.error);
-    }
-
-    setShowModal(false);
-    setSearchResults(null);
-    setSearchText("");
   };
 
-  // ===============Render MindMap=======================
+  // ==================Render MindMap==========================
   const renderMindMap = () => {
     if (!mindMap.length) return null;
-
     return (
       <div className="relative w-full h-screen overflow-hidden">
+        <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
+          <defs>
+            <marker
+              id="arrowhead"
+              markerWidth="10"
+              markerHeight="7"
+              refX="9"
+              refY="3.5"
+              orient="auto"
+            >
+              <polygon points="0 0, 10 3.5, 0 7" fill="#c6c6c6" />
+            </marker>
+          </defs>
+
+          {bridgedCategories.length === 2 && (
+            <line
+              x1={`${bridgedCategories[0].x * 100}%`}
+              y1={`${bridgedCategories[0].y * 100}%`}
+              x2={`${bridgedCategories[1].x * 100}%`}
+              y2={`${bridgedCategories[1].y * 100}%`}
+              stroke="#8884d8"
+              strokeWidth="2"
+              strokeDasharray="8,5"
+              className="animate-pulse"
+              markerEnd="url(#arrowhead)"
+            >
+              <title>Smart Bridge</title>
+            </line>
+          )}
+        </svg>
+
+        {/* --- رندر الدوائر (زي ما هو) --- */}
         {mindMap.map((cat) => (
           <div
             key={cat.name}
@@ -149,43 +231,27 @@ function DashBoard() {
               position: "absolute",
               top: `${cat.y * 100}%`,
               left: `${cat.x * 100}%`,
+              transform: "translate(-50%, -50%)", // إضافة ده لضبط السنتر
             }}
-            className="flex flex-col items-center gap-0 cursor-pointer
-               hover:scale-105 transition"
+            className="flex flex-col items-center gap-0 cursor-pointer hover:scale-105 transition z-10"
             onClick={() => setActiveCategory(cat)}
           >
-            {/* Category Name */}
+            {/* باقي محتوى الدائرة... */}
             <p className="text-xs text-white text-center max-w-[110px] truncate">
               {cat.name}
             </p>
-
-            {/* Image */}
-            <div className="w-[100px] h-[100px] rounded-xl overflow-hidden shadow-lg">
+            <div className="w-[100px] h-[100px] rounded-xl overflow-hidden shadow-lg border-2 border-white/10">
               <img
                 src={cat.image || "/placeholder.png"}
                 alt={cat.name}
                 className="w-full h-full object-cover"
               />
             </div>
-
-            {/* Book Title */}
-            <p className="text-xs text-white text-center max-w-[110px] truncate opacity-80">
-              {cat.books[cat.books.length - 1]?.title}
-            </p>
           </div>
         ))}
       </div>
     );
   };
-
-  // ===============Debounce search input=======================
-  useEffect(() => {
-    if (!showModal) return;
-
-    const delayDebounceFn = setTimeout(() => handleSearch(searchText), 500);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchText, showModal, handleSearch]);
 
   return (
     <div
@@ -215,6 +281,7 @@ function DashBoard() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* IMAGE */}
+
             <div className="w-1/2 flex flex-col items-center">
               <div className="relative w-40 h-40 flex items-center justify-center">
                 {/* Ripple rings */}

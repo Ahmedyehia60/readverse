@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongo";
-import User, { IUser } from "@/models/users";
+import User from "@/models/users";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 interface BookItem {
@@ -10,49 +10,86 @@ interface BookItem {
 interface BookVolumeInfo {
   title: string;
   authors?: string[];
+  description?: string;
   categories?: string[];
   imageLinks?: {
     smallThumbnail: string;
     thumbnail: string;
   };
 }
+interface ScoredBook extends BookItem {
+  score: number;
+}
+
 export async function GET(req: Request) {
   try {
     await connectDB();
-
     const session = await getServerSession(authOptions);
-    if (!session || !session.user?.id) {
+
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const url = new URL(req.url);
-    const category1 = url.searchParams.get("category1");
-    const category2 = url.searchParams.get("category2");
+    const { searchParams } = new URL(req.url);
+    const cat1 = searchParams.get("category1");
+    const cat2 = searchParams.get("category2");
 
-    if (category1 && category2) {
-      const res = await fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=subject:${category1}&maxResults=40`
+    // --- Bridge Logic ---
+    if (cat1 && cat2) {
+      const query = `subject:"${cat1}" subject:"${cat2}"`;
+
+      const googleRes = await fetch(
+        `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
+          query
+        )}&maxResults=20`
       );
-      const data = await res.json();
+      const data = await googleRes.json();
 
-      const filteredBooks = data.items.filter((book: BookItem) => {
-        const categories = book.volumeInfo.categories || [];
-        return categories.includes(category1) && categories.includes(category2);
+      if (!data.items) return NextResponse.json({ books: [] });
+
+      const scoredBooks = data.items.map((book: BookItem) => {
+        const info = book.volumeInfo;
+        const title = (info.title || "").toLowerCase();
+        const cats = (info.categories || []).map((c: string) =>
+          c.toLowerCase()
+        );
+        const desc = (info.description || "").toLowerCase();
+
+        let score = 0;
+        const t1 = cat1.toLowerCase();
+        const t2 = cat2.toLowerCase();
+
+        if (title.includes(t1) && title.includes(t2)) score += 20;
+
+        if (cats.some((c) => c.includes(t1))) score += 10;
+        if (cats.some((c) => c.includes(t2))) score += 10;
+
+        if (title.includes(t1)) score += 5;
+        if (title.includes(t2)) score += 5;
+        const hasCat1 =
+          title.includes(t1) ||
+          cats.some((c) => c.includes(t1)) ||
+          desc.includes(t1);
+        const hasCat2 =
+          title.includes(t2) ||
+          cats.some((c) => c.includes(t2)) ||
+          desc.includes(t2);
+
+        if (!hasCat1 || !hasCat2) score = 0;
+
+        return { ...book, score };
       });
 
-      return NextResponse.json({ books: filteredBooks });
-    }
-    const user = (await User.findById(session.user.id)) as IUser | null;
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
+      const bridgeBooks = scoredBooks
+        .filter((b: ScoredBook) => b.score > 5)
+        .sort((a: ScoredBook, b: ScoredBook) => b.score - a.score);
 
-    return NextResponse.json({ mindMap: user.mindMap });
+      return NextResponse.json({ books: bridgeBooks });
+    }
+    const user = await User.findById(session.user.id);
+    return NextResponse.json({ mindMap: user?.mindMap || [] });
   } catch (error) {
-    console.error("Error fetching data:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    console.error("🚨 API Error:", error);
+    return NextResponse.json({ error: "Server Error" }, { status: 500 });
   }
 }
