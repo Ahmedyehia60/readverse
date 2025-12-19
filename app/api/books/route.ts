@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongo";
-import User, { ICategory, IBookItem, IUser } from "@/models/users";
+import User, { ICategory, IBookItem, IUser, IBridge } from "@/models/users";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 
@@ -132,11 +132,49 @@ export async function GET(req: Request) {
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
-    return NextResponse.json({ mindMap: user.mindMap });
+    return NextResponse.json({
+      mindMap: user.mindMap,
+      bridges: user.bridges || [],
+    });
   } catch (error) {
     console.error("Error fetching mind map:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
+export async function PATCH(req: Request) {
+  try {
+    await connectDB();
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { fromCategory, toCategory, recommendedBook } = await req.json();
+
+    const user = await User.findById(session.user.id);
+    if (!user)
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    const alreadyExists = user.bridges.some(
+      (b: IBridge) =>
+        (b.fromCategory === fromCategory && b.toCategory === toCategory) ||
+        (b.fromCategory === toCategory && b.toCategory === fromCategory)
+    );
+
+    if (!alreadyExists) {
+      user.bridges.push({ fromCategory, toCategory, recommendedBook });
+      await user.save();
+    }
+
+    return NextResponse.json({
+      message: "Bridge saved",
+      bridges: user.bridges,
+    });
+  } catch {
+    return NextResponse.json(
+      { error: "Failed to save bridge" },
       { status: 500 }
     );
   }

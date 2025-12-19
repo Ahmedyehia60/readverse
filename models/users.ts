@@ -1,7 +1,12 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 
 // -------------------- INTERFACES --------------------
-
+export interface IBridge {
+  fromCategory: string;
+  toCategory: string;
+  recommendedBook: string;
+  bookImage?: string;
+}
 export interface IBookItem {
   title: string;
 }
@@ -29,6 +34,7 @@ export interface IUser extends Document {
   provider?: string;
   interests?: string[];
   mindMap?: ICategory[];
+  bridges: IBridge[];
 }
 
 // -------------------- SCHEMAS --------------------
@@ -51,7 +57,15 @@ const CategorySchema = new mongoose.Schema(
   },
   { _id: false }
 );
-
+const BridgeSchema = new mongoose.Schema(
+  {
+    fromCategory: { type: String, required: true },
+    toCategory: { type: String, required: true },
+    recommendedBook: { type: String, required: true },
+    bookImage: { type: String, default: null },
+  },
+  { _id: false }
+);
 const UserSchema: Schema<IUser> = new mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -67,6 +81,7 @@ const UserSchema: Schema<IUser> = new mongoose.Schema(
     interests: { type: [String], default: [] },
 
     mindMap: { type: [CategorySchema], default: [] },
+    bridges: { type: [BridgeSchema], default: [] },
   },
   { timestamps: true }
 );

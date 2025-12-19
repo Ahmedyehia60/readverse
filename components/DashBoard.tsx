@@ -13,7 +13,7 @@ import { AppSidebar } from "./SideBar";
 import UserButton from "./UserButton";
 import SidebarIcon from "./SideBarIcon";
 import { toast } from "sonner";
-import { ICategory } from "@/models/users";
+import { IBridge, ICategory } from "@/models/users";
 
 // ==================Types==========================
 interface BookVolumeInfo {
@@ -47,14 +47,11 @@ const getTwoRandomFullCategories = (
 ): ICategory[] | null => {
   const fullCategories = mindMap.filter((cat) => {
     let count = cat.books.length;
-
     const isBookInThisCat = bookCategories.some(
       (newCat) => newCat.toLowerCase() === cat.name.toLowerCase()
     );
-
     if (isBookInThisCat) count += 1;
-
-    return count >= MAX_BOOKS_PER_CATEGORY;
+    return count > 0 && count % MAX_BOOKS_PER_CATEGORY === 0;
   });
 
   if (fullCategories.length < 2) return null;
@@ -62,7 +59,6 @@ const getTwoRandomFullCategories = (
   const shuffled = [...fullCategories].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, 2);
 };
-
 // Fetch mapped books from API
 const fetchMappedBooks = async (cat1: string, cat2: string) => {
   const res = await fetch(
@@ -84,14 +80,14 @@ function DashBoard() {
   const [loading, setLoading] = useState(false);
   const [showBar, setShowBar] = useState(false);
   const [activeCategory, setActiveCategory] = useState<ICategory | null>(null);
-
+  const [bridges, setBridges] = useState<IBridge[]>([]);
   const [mindMap, setMindMap] = useState<ICategory[]>([]);
-  const [bridgedCategories, setBridgedCategories] = useState<ICategory[]>([]);
   // Fetch MindMap
   const fetchMindMap = async () => {
     const res = await fetch("/api/books", { method: "GET" });
     const data = await res.json();
     setMindMap(data.mindMap || []);
+    setBridges(data.bridges || []);
   };
 
   useEffect(() => {
@@ -163,6 +159,24 @@ function DashBoard() {
             (a, b) => b.score - a.score
           );
           const recommended = sortedBridge[0];
+          const recommendedTitle = recommended.volumeInfo.title;
+          await fetch("/api/books", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              fromCategory: c1.name,
+              toCategory: c2.name,
+              recommendedBook: recommendedTitle,
+            }),
+          });
+          setBridges((prev) => [
+            ...prev,
+            {
+              fromCategory: c1.name,
+              toCategory: c2.name,
+              recommendedBook: recommendedTitle,
+            },
+          ]);
           setTimeout(() => {
             toast.info(`Smart Link Found!`, {
               description: `We found a connection: "${recommended.volumeInfo.title}" combines your interest in ${c1.name} and ${c2.name}.`,
@@ -174,7 +188,6 @@ function DashBoard() {
               },
             });
           }, 400);
-          setBridgedCategories([c1, c2]);
         }
       }
 
@@ -202,28 +215,58 @@ function DashBoard() {
               refY="3.5"
               orient="auto"
             >
-              <polygon points="0 0, 10 3.5, 0 7" fill="#c6c6c6" />
+              <polygon points="0 0, 10 3.5, 0 7" fill="#8884d8" />
             </marker>
           </defs>
+          {bridges.map((bridge, index) => {
+            const cat1 = mindMap.find((c) => c.name === bridge.fromCategory);
+            const cat2 = mindMap.find((c) => c.name === bridge.toCategory);
 
-          {bridgedCategories.length === 2 && (
-            <line
-              x1={`${bridgedCategories[0].x * 100}%`}
-              y1={`${bridgedCategories[0].y * 100}%`}
-              x2={`${bridgedCategories[1].x * 100}%`}
-              y2={`${bridgedCategories[1].y * 100}%`}
-              stroke="#8884d8"
-              strokeWidth="2"
-              strokeDasharray="8,5"
-              className="animate-pulse"
-              markerEnd="url(#arrowhead)"
-            >
-              <title>Smart Bridge</title>
-            </line>
-          )}
+            if (!cat1 || !cat2) return null;
+            const midX = ((cat1.x + cat2.x) / 2) * 100;
+            const midY = ((cat1.y + cat2.y) / 2) * 100;
+
+            return (
+              <g key={index}>
+                <line
+                  x1={`${cat1.x * 100}%`}
+                  y1={`${cat1.y * 100}%`}
+                  x2={`${cat2.x * 100}%`}
+                  y2={`${cat2.y * 100}%`}
+                  stroke="#8884d8"
+                  strokeWidth="0.7"
+                  strokeDasharray="0"
+                  markerEnd="url(#arrowhead)"
+                  className="opacity-60 animate-pulse"
+                />
+
+                <text
+                  x={`${midX}%`}
+                  y={`${midY}%`}
+                  fill="#ede7e7"
+                  fontSize="10"
+                  textAnchor="middle"
+                  className="font-medium italic select-none"
+                  style={{ textShadow: "0px 0px 4px rgba(0,0,0,0.9)" }}
+                >
+                  {bridge.recommendedBook}
+                  {bridge.bookImage && (
+                    <tspan>
+                      <image
+                        x={`${midX}%`}
+                        y={`${midY}%`}
+                        href={bridge.bookImage}
+                        width="10"
+                        height="10"
+                      />
+                    </tspan>
+                  )}
+                </text>
+              </g>
+            );
+          })}
         </svg>
 
-        {/* --- رندر الدوائر (زي ما هو) --- */}
         {mindMap.map((cat) => (
           <div
             key={cat.name}
@@ -231,12 +274,11 @@ function DashBoard() {
               position: "absolute",
               top: `${cat.y * 100}%`,
               left: `${cat.x * 100}%`,
-              transform: "translate(-50%, -50%)", // إضافة ده لضبط السنتر
+              transform: "translate(-50%, -50%)",
             }}
             className="flex flex-col items-center gap-0 cursor-pointer hover:scale-105 transition z-10"
             onClick={() => setActiveCategory(cat)}
           >
-            {/* باقي محتوى الدائرة... */}
             <p className="text-xs text-white text-center max-w-[110px] truncate">
               {cat.name}
             </p>
