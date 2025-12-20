@@ -179,3 +179,87 @@ export async function PATCH(req: Request) {
     );
   }
 }
+export async function DELETE(req: Request) {
+  try {
+    await connectDB();
+
+    // 1️⃣ Auth
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // 2️⃣ Body
+    const { categoryName, bookTitle } = await req.json();
+
+    if (!categoryName || !bookTitle) {
+      return NextResponse.json(
+        { error: "Missing category name or book title" },
+        { status: 400 }
+      );
+    }
+
+    // 3️⃣ Get user
+    const user = (await User.findById(session.user.id)) as IUser | null;
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // 4️⃣ Ensure mindMap exists (حل مشكلة TypeScript)
+    if (!user.mindMap) {
+      user.mindMap = [];
+    }
+
+    // 5️⃣ Find category
+    const categoryIndex = user.mindMap.findIndex(
+      (c) => c.name.toLowerCase() === categoryName.toLowerCase()
+    );
+
+    if (categoryIndex === -1) {
+      return NextResponse.json(
+        { error: "Category not found" },
+        { status: 404 }
+      );
+    }
+
+    const category = user.mindMap[categoryIndex];
+
+    // 6️⃣ Delete book
+    category.books = category.books.filter(
+      (b) => b.title.toLowerCase() !== bookTitle.toLowerCase()
+    );
+
+    category.count = category.books.length;
+
+    // 7️⃣ If category empty → delete category + related bridges
+    if (category.books.length === 0) {
+      const removedCategoryName = category.name;
+
+      user.mindMap.splice(categoryIndex, 1);
+
+      user.bridges = user.bridges.filter(
+        (b: IBridge) =>
+          b.fromCategory !== removedCategoryName &&
+          b.toCategory !== removedCategoryName
+      );
+    }
+
+    // 8️⃣ Save
+    user.markModified("mindMap");
+    user.markModified("bridges");
+    await user.save();
+
+    // 9️⃣ Response
+    return NextResponse.json({
+      message: "Book deleted successfully",
+      mindMap: user.mindMap,
+      bridges: user.bridges,
+    });
+  } catch (error) {
+    console.error("Error deleting book:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}

@@ -14,6 +14,7 @@ import UserButton from "./UserButton";
 import SidebarIcon from "./SideBarIcon";
 import { toast } from "sonner";
 import { IBridge, ICategory } from "@/models/users";
+import { Trash2 } from "lucide-react";
 
 // ==================Types==========================
 interface BookVolumeInfo {
@@ -82,6 +83,12 @@ function DashBoard() {
   const [activeCategory, setActiveCategory] = useState<ICategory | null>(null);
   const [bridges, setBridges] = useState<IBridge[]>([]);
   const [mindMap, setMindMap] = useState<ICategory[]>([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [bookToDelete, setBookToDelete] = useState<{
+    categoryName: string;
+    bookTitle: string;
+  } | null>(null);
+
   // Fetch MindMap
   const fetchMindMap = async () => {
     const res = await fetch("/api/books", { method: "GET" });
@@ -197,6 +204,38 @@ function DashBoard() {
       toast.success("Book added to your mind map!");
     } catch {
       toast.error("Something went wrong");
+    }
+  };
+
+  //========================handle  delete book==========================
+  const handleDeleteBook = async () => {
+    if (!bookToDelete) return;
+
+    try {
+      const res = await fetch("/api/books", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bookToDelete),
+      });
+
+      if (!res.ok) throw new Error();
+
+      const data = await res.json();
+
+      setMindMap(data.mindMap);
+      setBridges(data.bridges);
+
+      const updatedCategory = data.mindMap.find(
+        (c: ICategory) => c.name === bookToDelete.categoryName
+      );
+      setActiveCategory(updatedCategory || null);
+
+      toast.success("Book deleted");
+    } catch {
+      toast.error("Failed to delete book");
+    } finally {
+      setShowDeleteModal(false);
+      setBookToDelete(null);
     }
   };
 
@@ -353,10 +392,25 @@ function DashBoard() {
                 {activeCategory.books.map((book, index) => (
                   <li
                     key={index}
-                    className="p-2 rounded-lg bg-white/10 hover:bg-white/20
-                         transition cursor-pointer text-sm"
+                    className="flex items-center justify-between p-2 rounded-lg
+       bg-white/10 hover:bg-white/20 transition-all duration-300
+       text-sm group"
                   >
-                    {book.title}
+                    <span className="group-hover:opacity-80">{book.title}</span>
+
+                    <Trash2
+                      size={16}
+                      className="text-red-400 opacity-0 group-hover:opacity-100
+ hover:text-red-600 cursor-pointer transition"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setBookToDelete({
+                          categoryName: activeCategory.name,
+                          bookTitle: book.title,
+                        });
+                        setShowDeleteModal(true);
+                      }}
+                    />
                   </li>
                 ))}
               </ul>
@@ -381,6 +435,46 @@ function DashBoard() {
             onClick={() => setShowBar(true)}
           />
           <SidebarIcon active="home" />
+        </div>
+      )}
+      {showDeleteModal && bookToDelete && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center
+       bg-black/60 backdrop-blur-sm"
+        >
+          <div className="bg-[#20193f] rounded-xl p-6 w-full max-w-sm shadow-xl">
+            <h3 className="text-lg font-semibold mb-2 text-white">
+              Confirm Delete
+            </h3>
+
+            <p className="text-sm text-gray-300 mb-6">
+              Are you sure you want to delete
+              <span className="text-white font-medium">
+                &quot;{bookToDelete.bookTitle}&quot;
+              </span>
+              ؟
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="ghost"
+                className="text-gray-300 hover:text-white"
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setBookToDelete(null);
+                }}
+              >
+                Cancel
+              </Button>
+
+              <Button
+                className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={handleDeleteBook}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
