@@ -37,6 +37,27 @@ export interface IUser extends Document {
   bridges: IBridge[];
 }
 
+export interface BookVolumeInfo {
+  title: string;
+  description?: string;
+  infoLink?: string;
+  authors?: string[];
+  categories?: string[];
+  imageLinks?: {
+    smallThumbnail: string;
+    thumbnail: string;
+  };
+}
+
+export interface BookItem {
+  id: string;
+  volumeInfo: BookVolumeInfo;
+}
+
+export interface SearchResults {
+  items?: BookItem[];
+  error?: string;
+}
 // -------------------- SCHEMAS --------------------
 
 const BookItemSchema = new mongoose.Schema(
