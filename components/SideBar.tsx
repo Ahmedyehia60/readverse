@@ -1,13 +1,5 @@
 "use client";
-import {
-  Calendar,
-  Home,
-  Inbox,
-  LogOut,
-  Search,
-  Settings,
-  Star,
-} from "lucide-react";
+import { Home, Inbox, LogOut, Search, Settings, Star } from "lucide-react";
 
 import {
   Sidebar,
@@ -43,7 +35,6 @@ const items = [
     url: "#",
     icon: Star,
   },
-
   {
     title: "Search",
     url: "#",
