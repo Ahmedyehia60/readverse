@@ -179,3 +179,72 @@ export async function PATCH(req: Request) {
     );
   }
 }
+export async function DELETE(req: Request) {
+  try {
+    await connectDB();
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const { categoryName, bookTitle } = await req.json();
+
+    if (!categoryName || !bookTitle) {
+      return NextResponse.json(
+        { error: "Missing category name or book title" },
+        { status: 400 }
+      );
+    }
+    const user = (await User.findById(session.user.id)) as IUser | null;
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    if (!user.mindMap) {
+      user.mindMap = [];
+    }
+    const categoryIndex = user.mindMap.findIndex(
+      (c) => c.name.toLowerCase() === categoryName.toLowerCase()
+    );
+
+    if (categoryIndex === -1) {
+      return NextResponse.json(
+        { error: "Category not found" },
+        { status: 404 }
+      );
+    }
+
+    const category = user.mindMap[categoryIndex];
+    category.books = category.books.filter(
+      (b) => b.title.toLowerCase() !== bookTitle.toLowerCase()
+    );
+
+    category.count = category.books.length;
+    if (category.books.length === 0) {
+      const removedCategoryName = category.name;
+
+      user.mindMap.splice(categoryIndex, 1);
+
+      user.bridges = user.bridges.filter(
+        (b: IBridge) =>
+          b.fromCategory !== removedCategoryName &&
+          b.toCategory !== removedCategoryName
+      );
+    }
+    user.markModified("mindMap");
+    user.markModified("bridges");
+    await user.save();
+
+    // 9️⃣ Response
+    return NextResponse.json({
+      message: "Book deleted successfully",
+      mindMap: user.mindMap,
+      bridges: user.bridges,
+    });
+  } catch (error) {
+    console.error("Error deleting book:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}

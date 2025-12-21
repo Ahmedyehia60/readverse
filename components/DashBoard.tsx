@@ -120,7 +120,30 @@ function DashBoard() {
       toast.error("Something went wrong");
     }
   };
+  const handleDeleteBook = async (categoryName: string, bookTitle: string) => {
+    try {
+      const res = await fetch("/api/books", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ categoryName, bookTitle }),
+      });
 
+      if (!res.ok) throw new Error();
+
+      const data = await res.json();
+      setMindMap(data.mindMap);
+      setBridges(data.bridges);
+      const updatedCategory = data.mindMap.find(
+        (c: ICategory) => c.name.toLowerCase() === categoryName.toLowerCase()
+      );
+
+      setActiveCategory(updatedCategory || null);
+
+      toast.success("Book deleted successfully");
+    } catch {
+      toast.error("Failed to delete book");
+    }
+  };
   return (
     <div
       className="min-h-screen bg-center bg-repeat text-white relative"
@@ -145,6 +168,7 @@ function DashBoard() {
       <CategoryDetailModal
         category={activeCategory}
         onClose={() => setActiveCategory(null)}
+        onDeleteBook={handleDeleteBook}
       />
       {/* SIDE BAR */}
       <SidebarWrapper />
