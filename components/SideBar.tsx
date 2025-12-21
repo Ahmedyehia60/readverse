@@ -43,11 +43,7 @@ const items = [
     url: "#",
     icon: Star,
   },
-  {
-    title: "Categories",
-    url: "#",
-    icon: Calendar,
-  },
+
   {
     title: "Search",
     url: "#",

@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Home, Layers, Star, User } from "lucide-react";
+import { Home, Star, User } from "lucide-react";
 type SidebarIconProps = {
   active: string;
 };
@@ -13,13 +13,11 @@ export default function SidebarIcon({ active }: SidebarIconProps) {
   const tooltipLabels: Record<string, string> = {
     home: "Home Page",
     star: "Favorite List",
-    layers: "Categories",
     user: "Profile",
   };
 
   const icons = [
     { id: "star", icon: Star, name: "Favorites" },
-    { id: "layers", icon: Layers, name: "Categories" },
     { id: "user", icon: User, name: "Profile" },
   ];
 

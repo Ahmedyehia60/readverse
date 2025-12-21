@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import { ICategory } from "@/models/users";
-import { Trash2, X } from "lucide-react";
+import { Star, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button"; // تأكدي من مسار الـ Button عندك
 
@@ -47,7 +47,7 @@ export const CategoryDetailModal = ({
         onClick={onClose}
       >
         <div
-          className="flex flex-col md:flex-row gap-6 p-8 rounded-2xl max-w-3xl w-full mx-4 bg-[#1a1635]/90 border border-white/10 relative shadow-2xl"
+          className="flex flex-col md:flex-row gap-6 p-8 rounded-2xl max-w-3xl w-full mx-4  relative shadow-2xl"
           onClick={(e) => e.stopPropagation()}
         >
           <button
@@ -83,13 +83,22 @@ export const CategoryDetailModal = ({
                   className="p-3 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition text-sm text-gray-200 justify-between flex items-center group"
                 >
                   <span className="flex-1">{book.title}</span>
-                  <button
-                    onClick={() => openConfirmDelete(book.title)}
-                    className="ml-2 p-1 text-gray-500 hover:text-red-500 transition-colors"
-                    title="Delete Book"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <div>
+                    <button
+                      onClick={() => openConfirmDelete(book.title)}
+                      className="ml-2 p-1 text-gray-500 hover:text-yellow-500 transition-colors"
+                      title="Add to Favorites"
+                    >
+                      <Star size={16} />
+                    </button>
+                    <button
+                      onClick={() => openConfirmDelete(book.title)}
+                      className="ml-2 p-1 text-gray-500 hover:text-red-500 transition-colors"
+                      title="Delete Book"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
