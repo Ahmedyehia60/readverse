@@ -30,6 +30,12 @@ function DashBoard() {
   const [activeCategory, setActiveCategory] = useState<ICategory | null>(null);
   const [bridges, setBridges] = useState<IBridge[]>([]);
   const [mindMap, setMindMap] = useState<ICategory[]>([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [bookToDelete, setBookToDelete] = useState<{
+    categoryName: string;
+    bookTitle: string;
+  } | null>(null);
+
   // Fetch MindMap
   const fetchMindMap = async () => {
     const res = await fetch("/api/books", { method: "GET" });
