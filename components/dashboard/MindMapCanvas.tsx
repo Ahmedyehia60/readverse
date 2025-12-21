@@ -54,6 +54,7 @@ export const MindMapCanvas = ({ mindMap, bridges, onCategoryClick }: Props) => {
                 className="font-medium italic select-none"
               >
                 {bridge.recommendedBook}
+                
               </text>
             </g>
           );

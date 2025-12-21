@@ -17,7 +17,7 @@ export const CategoryDetailModal = ({ category, onClose }: Props) => {
       onClick={onClose}
     >
       <div
-        className="flex flex-col md:flex-row gap-6 p-8 rounded-2xl max-w-3xl w-full mx-4 bg-[#1a1635]/90 border border-white/10 relative shadow-2xl"
+        className="flex flex-col md:flex-row gap-6 p-8 rounded-2xl max-w-3xl w-full mx-4  border border-white/15 relative shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <button

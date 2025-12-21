@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Loader from "@/components/Loader";
 import SidebarIcon from "@/components/SideBarIcon";
+import { ICategory } from "@/models/users";
 
 function Profile() {
   type UserType = {
@@ -20,6 +21,32 @@ function Profile() {
   const [newName, setNewName] = useState("");
   const [newImage, setNewImage] = useState<File | null>(null);
   const [uploadPreview, setUploadPreview] = useState<string | null>(null);
+  const [numOfBooks, setNumOfBooks] = useState(0);
+  const [numOfCategories, setNumOfCategories] = useState(0);
+
+
+useEffect(() => {
+  const fetchBooks = async () => {
+    if (!session?.user?.id) return;
+
+    const res = await fetch("/api/books");
+    const data = await res.json();
+
+    const totalBooks =
+      data.mindMap?.reduce(
+        (sum: number, cat: ICategory) => sum + (cat.count || 0),
+        0
+      ) ?? 0;
+
+      const totalCategories = data.mindMap?.length ?? 0;
+    setNumOfCategories(totalCategories);
+
+    setNumOfBooks(totalBooks);
+  };
+
+  fetchBooks();
+}, [session]);
+
 
   useEffect(() => {
     if (!session?.user?.id) return;
@@ -103,10 +130,21 @@ function Profile() {
         <h2 className="text-2xl font-semibold mt-9 capitalize ">{user.name}</h2>
       </div>
 
+      <div className="mt-10 flex flex-row items-center justify-around flex-wrap">
+        <div className="mt-10 text-center p-10 bg-white/5 border border-white/10 rounded-2xl shadow-lg shadow-black/30">
+          <p className="text-4xl font-bold text-white">Books</p>
+          <p className="text-2xl font-medium text-purple-400 mt-5">{numOfBooks}</p>
+        </div>
+        <div className="mt-10 text-center p-10 bg-white/5 border border-white/10 rounded-2xl shadow-lg shadow-black/30">
+          <p className="text-4xl font-bold text-white">Categories</p>
+          <p className="text-2xl font-medium text-purple-400 mt-5">{numOfCategories}</p>
+        </div>
+      </div>
+
       {/* Edit Modal */}
       {edit && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="relative w-full max-w-md rounded-2xl border border-white/15 bg-gradient-to-b from-[#27214a] to-[#17122f] p-6 shadow-2xl shadow-black/60">
+          <div className="relative w-full max-w-md rounded-2xl border border-white/15 bg-linear-to-b from-[#27214a] to-[#17122f] p-6 shadow-2xl shadow-black/60">
             {/* Close */}
             <button
               className="absolute right-4 top-4 rounded-full p-1 hover:bg-white/10"

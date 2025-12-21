@@ -1,6 +1,6 @@
 "use client";
 import {
-  Calendar,
+
   Home,
   Inbox,
   LogOut,
@@ -42,11 +42,6 @@ const items = [
     title: "Favorite",
     url: "#",
     icon: Star,
-  },
-  {
-    title: "Categories",
-    url: "#",
-    icon: Calendar,
   },
   {
     title: "Search",
