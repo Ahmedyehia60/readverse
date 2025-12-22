@@ -152,7 +152,8 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { fromCategory, toCategory, recommendedBook } = await req.json();
+    const { fromCategory, toCategory, recommendedBook, bookImage, bookLink } =
+      await req.json();
 
     const user = await User.findById(session.user.id);
     if (!user)
@@ -164,7 +165,13 @@ export async function PATCH(req: Request) {
     );
 
     if (!alreadyExists) {
-      user.bridges.push({ fromCategory, toCategory, recommendedBook });
+      user.bridges.push({
+        fromCategory,
+        toCategory,
+        recommendedBook,
+        bookImage,
+        bookLink,
+      });
       await user.save();
     }
 

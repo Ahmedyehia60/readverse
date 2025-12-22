@@ -75,41 +75,60 @@ function DashBoard() {
 
       if (fullCats) {
         const [c1, c2] = fullCats;
-        const bridgeData = await fetchMappedBooks(c1.name, c2.name);
-        if (bridgeData.books && bridgeData.books.length > 0) {
-          const sortedBridge = [...bridgeData.books].sort(
-            (a, b) => b.score - a.score
-          );
-          const recommended = sortedBridge[0];
-          const recommendedTitle = recommended.volumeInfo.title;
-          await fetch("/api/books", {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              fromCategory: c1.name,
-              toCategory: c2.name,
-              recommendedBook: recommendedTitle,
-            }),
-          });
-          setBridges((prev) => [
-            ...prev,
-            {
-              fromCategory: c1.name,
-              toCategory: c2.name,
-              recommendedBook: recommendedTitle,
-            },
-          ]);
-          setTimeout(() => {
-            toast.info(`Smart Link Found!`, {
-              description: `We found a connection: "${recommended.volumeInfo.title}" combines your interest in ${c1.name} and ${c2.name}.`,
-              duration: 10000,
-              action: {
-                label: "View Book",
-                onClick: () =>
-                  window.open(recommended.volumeInfo.infoLink, "_blank"),
-              },
+
+        const isAlreadyBridged = bridges.some(
+          (b) =>
+            (b.fromCategory === c1.name && b.toCategory === c2.name) ||
+            (b.fromCategory === c2.name && b.toCategory === c1.name)
+        );
+        if (!isAlreadyBridged) {
+          const bridgeData = await fetchMappedBooks(c1.name, c2.name);
+          if (bridgeData.books && bridgeData.books.length > 0) {
+            const sortedBridge = [...bridgeData.books].sort(
+              (a, b) => b.score - a.score
+            );
+            const recommended = sortedBridge[0];
+            const recommendedTitle = recommended.volumeInfo.title;
+            const recommendedImage =
+              recommended.bookImage ||
+              recommended.volumeInfo.imageLinks?.thumbnail;
+            const recommendedLink =
+              recommended.bookLink || recommended.volumeInfo.infoLink;
+
+            await fetch("/api/books", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                fromCategory: c1.name,
+                toCategory: c2.name,
+                recommendedBook: recommendedTitle,
+                bookImage: recommendedImage,
+                bookLink: recommendedLink,
+              }),
             });
-          }, 400);
+
+            setBridges((prev) => [
+              ...prev,
+              {
+                fromCategory: c1.name,
+                toCategory: c2.name,
+                recommendedBook: recommendedTitle,
+                bookImage: recommendedImage,
+                bookLink: recommendedLink,
+              },
+            ]);
+            setTimeout(() => {
+              toast.info(`Smart Link Found!`, {
+                description: `We found a connection: "${recommended.volumeInfo.title}" combines your interest in ${c1.name} and ${c2.name}.`,
+                duration: 10000,
+                action: {
+                  label: "View Book",
+                  onClick: () =>
+                    window.open(recommended.volumeInfo.infoLink, "_blank"),
+                },
+              });
+            }, 400);
+          }
         }
       }
 
@@ -145,6 +164,7 @@ function DashBoard() {
       toast.error("Failed to delete book");
     }
   };
+
   return (
     <div
       className="min-h-screen bg-center bg-repeat text-white relative"

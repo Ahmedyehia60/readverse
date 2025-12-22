@@ -6,6 +6,7 @@ export interface IBridge {
   toCategory: string;
   recommendedBook: string;
   bookImage?: string;
+  bookLink?: string;
 }
 export interface IBookItem {
   title: string;
@@ -84,6 +85,7 @@ const BridgeSchema = new mongoose.Schema(
     toCategory: { type: String, required: true },
     recommendedBook: { type: String, required: true },
     bookImage: { type: String, default: null },
+    bookLink: { type: String, default: null },
   },
   { _id: false }
 );

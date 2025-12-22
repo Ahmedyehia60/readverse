@@ -16,6 +16,7 @@ interface BookVolumeInfo {
     smallThumbnail: string;
     thumbnail: string;
   };
+  infoLink?: string;
 }
 interface ScoredBook extends BookItem {
   score: number;
@@ -77,7 +78,12 @@ export async function GET(req: Request) {
 
         if (!hasCat1 || !hasCat2) score = 0;
 
-        return { ...book, score };
+        return {
+          ...book,
+          score,
+          infoLink: info.infoLink,
+          thumbnail: info.imageLinks?.thumbnail,
+        };
       });
 
       const bridgeBooks = scoredBooks

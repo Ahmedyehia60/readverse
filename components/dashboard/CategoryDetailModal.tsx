@@ -3,7 +3,7 @@
 import { ICategory } from "@/models/users";
 import { Star, Trash2, X } from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/components/ui/button"; // تأكدي من مسار الـ Button عندك
+import { Button } from "@/components/ui/button";
 
 interface Props {
   category: ICategory | null;
