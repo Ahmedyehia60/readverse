@@ -13,13 +13,11 @@ export default function SidebarIcon({ active }: SidebarIconProps) {
   const tooltipLabels: Record<string, string> = {
     home: "Home Page",
     star: "Favorite List",
-
     user: "Profile",
   };
 
   const icons = [
     { id: "star", icon: Star, name: "Favorites" },
-
     { id: "user", icon: User, name: "Profile" },
   ];
 

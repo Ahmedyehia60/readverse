@@ -36,6 +36,7 @@ export interface IUser extends Document {
   interests?: string[];
   mindMap?: ICategory[];
   bridges: IBridge[];
+  favorites?: string[];
 }
 
 export interface BookVolumeInfo {
@@ -105,6 +106,7 @@ const UserSchema: Schema<IUser> = new mongoose.Schema(
 
     mindMap: { type: [CategorySchema], default: [] },
     bridges: { type: [BridgeSchema], default: [] },
+    favorites: { type: [String], default: [] },
   },
   { timestamps: true }
 );

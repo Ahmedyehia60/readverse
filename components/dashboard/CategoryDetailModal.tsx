@@ -40,6 +40,11 @@ export const CategoryDetailModal = ({
     }
   };
 
+  const handleAddToFavorite = (bookTitle: string) => {
+    
+    
+  };
+
   return (
     <>
       <div
@@ -52,7 +57,7 @@ export const CategoryDetailModal = ({
         >
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-gray-400 hover:text-white"
+            className="absolute top-4 right-4 text-gray-400 hover:text-white  cursor-pointer"
           >
             <X size={24} />
           </button>
@@ -85,15 +90,15 @@ export const CategoryDetailModal = ({
                   <span className="flex-1">{book.title}</span>
                   <div>
                     <button
-                      onClick={() => openConfirmDelete(book.title)}
-                      className="ml-2 p-1 text-gray-500 hover:text-yellow-500 transition-colors"
+                      onClick={() => handleAddToFavorite(book.title)}
+                      className="ml-2 p-1 text-gray-500 hover:text-yellow-500 transition-colors  cursor-pointer"
                       title="Add to Favorites"
                     >
                       <Star size={16} />
                     </button>
                     <button
                       onClick={() => openConfirmDelete(book.title)}
-                      className="ml-2 p-1 text-gray-500 hover:text-red-500 transition-colors"
+                      className="ml-2 p-1 text-gray-500 hover:text-red-500 transition-colors cursor-pointer"
                       title="Delete Book"
                     >
                       <Trash2 size={16} />

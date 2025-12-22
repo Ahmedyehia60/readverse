@@ -173,7 +173,7 @@ function DashBoard() {
       <UserButton className="absolute top-5 left-9 scale-110" />
 
       <Button
-        className="absolute top-4 right-4 p-5 bg-[#2B1B72] text-white hover:bg-blue-900 z-10"
+        className="absolute top-4 right-4 p-5 bg-[#2B1B72] text-white hover:bg-blue-900 z-10  cursor-pointer"
         onClick={() => setShowModal(true)}
       >
         Add Book
