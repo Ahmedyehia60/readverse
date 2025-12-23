@@ -1,14 +1,14 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
-import { ICategory } from "@/models/users";
+import { ICategory, IFavorite } from "@/models/users";
 import { Star, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 interface Props {
   category: ICategory | null;
-  favorites: string[];
-  setFavorites: React.Dispatch<React.SetStateAction<string[]>>;
+  favorites: IFavorite[];
+  setFavorites: React.Dispatch<React.SetStateAction<IFavorite[]>>;
   onClose: () => void;
   onDeleteBook: (categoryName: string, bookTitle: string) => Promise<void>;
 }
@@ -45,24 +45,51 @@ export const CategoryDetailModal = ({
   };
 
   const isFavorite = (bookTitle: string) =>
-    Array.isArray(favorites) && favorites.includes(bookTitle);
+    Array.isArray(favorites) &&
+    favorites.some((fav) => fav.bookTitle === bookTitle);
 
   const toggleFavorite = async (bookTitle: string) => {
     const isFav = isFavorite(bookTitle);
 
-    const res = await fetch("/api/favorites", {
-      method: isFav ? "DELETE" : "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ bookTitle }),
-    });
+    if (isFav) {
+      const res = await fetch("/api/favorites", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookTitle }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setFavorites(data.favorites);
+      }
+      return;
+    }
+    try {
+      const googleRes = await fetch(
+        `https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(
+          bookTitle
+        )}`
+      );
+      const googleData = await googleRes.json();
+      const info = googleData.items?.[0]?.volumeInfo;
 
-    if (!res.ok) return;
+      const res = await fetch("/api/favorites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bookTitle,
+          bookImage: info?.imageLinks?.thumbnail || null,
+          bookAuthors: info?.authors || [],
+        }),
+      });
 
-    const data = await res.json();
-    setFavorites(data.favorites);
+      if (res.ok) {
+        const data = await res.json();
+        setFavorites(data.favorites);
+      }
+    } catch (err) {
+      console.error("Error fetching book details:", err);
+    }
   };
-
   return (
     <>
       <div

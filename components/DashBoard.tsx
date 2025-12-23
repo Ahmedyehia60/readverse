@@ -3,12 +3,13 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import UserButton from "./UserButton";
 import { toast } from "sonner";
-import { BookItem, IBridge, ICategory } from "@/models/users";
+import { BookItem, IBridge, ICategory, IFavorite } from "@/models/users";
 import { getTwoRandomFullCategories } from "@/lib/mindmap-utils";
 import { MindMapCanvas } from "./dashboard/MindMapCanvas";
 import { SearchModal } from "./dashboard/SearchModal";
 import { CategoryDetailModal } from "./dashboard/CategoryDetailModal";
 import { SidebarWrapper } from "./dashboard/SidebarWrapper";
+import { SearchOverlay } from "./dashboard/SearchOverlay";
 
 // ==================Types==========================
 
@@ -30,8 +31,9 @@ function DashBoard() {
   const [activeCategory, setActiveCategory] = useState<ICategory | null>(null);
   const [bridges, setBridges] = useState<IBridge[]>([]);
   const [mindMap, setMindMap] = useState<ICategory[]>([]);
-  const [favorites, setFavorites] = useState<string[]>([]);
-
+  const [favorites, setFavorites] = useState<IFavorite[]>([]);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
@@ -162,7 +164,6 @@ function DashBoard() {
 
   const handleDeleteBook = async (categoryName: string, bookTitle: string) => {
     try {
-   
       const res = await fetch("/api/books", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -176,7 +177,6 @@ function DashBoard() {
       setMindMap(data.mindMap);
       setBridges(data.bridges);
 
-    
       await fetch("/api/favorites", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -184,8 +184,9 @@ function DashBoard() {
         body: JSON.stringify({ bookTitle }),
       });
 
-   
-      setFavorites((prev) => prev.filter((title) => title !== bookTitle));
+      setFavorites((prev) =>
+        prev.filter((title) => title.bookTitle !== bookTitle)
+      );
 
       const updatedCategory = data.mindMap.find(
         (c: ICategory) => c.name.toLowerCase() === categoryName.toLowerCase()
@@ -204,6 +205,15 @@ function DashBoard() {
       className="min-h-screen bg-center bg-repeat text-white relative"
       style={{ backgroundImage: "url('/Images/galaxy4.jpg')" }}
     >
+      {isSearchOpen && (
+        <SearchOverlay
+          onSearch={(q) => setSearchQuery(q)}
+          onClose={() => {
+            setIsSearchOpen(false);
+            setSearchQuery("");
+          }}
+        />
+      )}
       <UserButton className="absolute top-5 left-9 scale-110" />
 
       <Button
@@ -218,6 +228,7 @@ function DashBoard() {
         mindMap={mindMap}
         bridges={bridges}
         onCategoryClick={setActiveCategory}
+        searchQuery={searchQuery}
       />
       {/* CATEGORY DETAIL MODAL */}
       <CategoryDetailModal
@@ -229,7 +240,7 @@ function DashBoard() {
       />
 
       {/* SIDE BAR */}
-      <SidebarWrapper />
+      <SidebarWrapper onSearchClick={() => setIsSearchOpen(true)} />
 
       {/* SEARCH MODAL */}
       <SearchModal

@@ -10,6 +10,8 @@ export interface IBridge {
 }
 export interface IBookItem {
   title: string;
+  image?: string;
+  authors?: string[];
 }
 
 export interface ICategory {
@@ -36,7 +38,7 @@ export interface IUser extends Document {
   interests?: string[];
   mindMap?: ICategory[];
   bridges: IBridge[];
-  favorites: string[];
+  favorites: IFavorite[];
 }
 
 export interface BookVolumeInfo {
@@ -56,6 +58,11 @@ export interface BookItem {
   volumeInfo: BookVolumeInfo;
 }
 
+export interface IFavorite {
+  bookTitle: string;
+  bookAuthors?: string[];
+  bookImage?: string;
+}
 export interface SearchResults {
   items?: BookItem[];
   error?: string;
@@ -68,7 +75,14 @@ const BookItemSchema = new mongoose.Schema(
   },
   { _id: false }
 );
-
+const FavoriteSchema = new mongoose.Schema(
+  {
+    bookTitle: { type: String, required: true },
+    bookAuthors: { type: [String], default: [] },
+    bookImage: { type: String, default: null },
+  },
+  { _id: false }
+);
 const CategorySchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -106,7 +120,7 @@ const UserSchema: Schema<IUser> = new mongoose.Schema(
 
     mindMap: { type: [CategorySchema], default: [] },
     bridges: { type: [BridgeSchema], default: [] },
-    favorites: { type: [String], default: [] },
+    favorites: { type: [FavoriteSchema], default: [] },
   },
   { timestamps: true }
 );

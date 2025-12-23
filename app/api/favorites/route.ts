@@ -13,7 +13,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { bookTitle } = await req.json();
+    const { bookTitle, bookImage, bookAuthors } = await req.json();
     if (!bookTitle) {
       return NextResponse.json({ error: "Missing bookTitle" }, { status: 400 });
     }
@@ -25,8 +25,17 @@ export async function POST(req: Request) {
 
     user.favorites = user.favorites || [];
 
-    if (!user.favorites.includes(bookTitle)) {
-      user.favorites.push(bookTitle);
+    const alreadyExists = user.favorites.some(
+      (fav) => fav.bookTitle === bookTitle
+    );
+
+    if (!alreadyExists) {
+      user.favorites.push({
+        bookTitle,
+        bookAuthors: bookAuthors || [],
+        bookImage: bookImage || null,
+      });
+
       await user.save();
     }
 
@@ -60,8 +69,7 @@ export async function GET() {
     return NextResponse.json({
       favorites: user.favorites || [],
     });
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
@@ -87,9 +95,10 @@ export async function DELETE(req: Request) {
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
-    user.favorites = user.favorites.filter((fav) => fav !== bookTitle);
+    user.favorites = user.favorites.filter(
+      (fav) => fav.bookTitle !== bookTitle
+    );
     await user.save();
-
 
     return NextResponse.json({ favorites: user.favorites });
   } catch {
