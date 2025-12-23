@@ -30,7 +30,26 @@ function DashBoard() {
   const [activeCategory, setActiveCategory] = useState<ICategory | null>(null);
   const [bridges, setBridges] = useState<IBridge[]>([]);
   const [mindMap, setMindMap] = useState<ICategory[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
 
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      try {
+        const res = await fetch("/api/favorites", {
+          credentials: "include",
+        });
+        if (!res.ok) return;
+
+        const data = await res.json();
+        setFavorites(data.favorites || []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchFavorites();
+  }, []);
+  // ==================Fetch MindMap==========================
   // Fetch MindMap
   const fetchMindMap = async () => {
     const res = await fetch("/api/books", { method: "GET" });
@@ -140,8 +159,10 @@ function DashBoard() {
       toast.error("Something went wrong");
     }
   };
+
   const handleDeleteBook = async (categoryName: string, bookTitle: string) => {
     try {
+   
       const res = await fetch("/api/books", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -151,8 +172,21 @@ function DashBoard() {
       if (!res.ok) throw new Error();
 
       const data = await res.json();
+
       setMindMap(data.mindMap);
       setBridges(data.bridges);
+
+    
+      await fetch("/api/favorites", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ bookTitle }),
+      });
+
+   
+      setFavorites((prev) => prev.filter((title) => title !== bookTitle));
+
       const updatedCategory = data.mindMap.find(
         (c: ICategory) => c.name.toLowerCase() === categoryName.toLowerCase()
       );
@@ -188,9 +222,12 @@ function DashBoard() {
       {/* CATEGORY DETAIL MODAL */}
       <CategoryDetailModal
         category={activeCategory}
+        favorites={favorites}
+        setFavorites={setFavorites}
         onClose={() => setActiveCategory(null)}
         onDeleteBook={handleDeleteBook}
       />
+
       {/* SIDE BAR */}
       <SidebarWrapper />
 

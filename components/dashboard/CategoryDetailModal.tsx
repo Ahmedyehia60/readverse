@@ -7,12 +7,16 @@ import { Button } from "@/components/ui/button";
 
 interface Props {
   category: ICategory | null;
+  favorites: string[];
+  setFavorites: React.Dispatch<React.SetStateAction<string[]>>;
   onClose: () => void;
   onDeleteBook: (categoryName: string, bookTitle: string) => Promise<void>;
 }
 
 export const CategoryDetailModal = ({
   category,
+  favorites,
+  setFavorites,
   onClose,
   onDeleteBook,
 }: Props) => {
@@ -40,9 +44,23 @@ export const CategoryDetailModal = ({
     }
   };
 
-  const handleAddToFavorite = (bookTitle: string) => {
-    
-    
+  const isFavorite = (bookTitle: string) =>
+    Array.isArray(favorites) && favorites.includes(bookTitle);
+
+  const toggleFavorite = async (bookTitle: string) => {
+    const isFav = isFavorite(bookTitle);
+
+    const res = await fetch("/api/favorites", {
+      method: isFav ? "DELETE" : "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ bookTitle }),
+    });
+
+    if (!res.ok) return;
+
+    const data = await res.json();
+    setFavorites(data.favorites);
   };
 
   return (
@@ -90,12 +108,20 @@ export const CategoryDetailModal = ({
                   <span className="flex-1">{book.title}</span>
                   <div>
                     <button
-                      onClick={() => handleAddToFavorite(book.title)}
-                      className="ml-2 p-1 text-gray-500 hover:text-yellow-500 transition-colors  cursor-pointer"
-                      title="Add to Favorites"
+                      onClick={() => toggleFavorite(book.title)}
+                      className={`ml-2 p-1 transition-colors cursor-pointer ${
+                        isFavorite(book.title)
+                          ? "text-yellow-400"
+                          : "text-gray-500 hover:text-yellow-500"
+                      }`}
+                      title="Toggle Favorite"
                     >
-                      <Star size={16} />
+                      <Star
+                        size={16}
+                        fill={isFavorite(book.title) ? "currentColor" : "none"}
+                      />
                     </button>
+
                     <button
                       onClick={() => openConfirmDelete(book.title)}
                       className="ml-2 p-1 text-gray-500 hover:text-red-500 transition-colors cursor-pointer"

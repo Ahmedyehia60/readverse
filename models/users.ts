@@ -36,7 +36,7 @@ export interface IUser extends Document {
   interests?: string[];
   mindMap?: ICategory[];
   bridges: IBridge[];
-  favorites?: string[];
+  favorites: string[];
 }
 
 export interface BookVolumeInfo {

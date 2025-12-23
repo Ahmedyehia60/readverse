@@ -68,7 +68,7 @@ export function AppSidebar() {
           flex
         "
       >
-        <SidebarContent className="bg-[#2c215a] text-white flex flex-col justify-between h-full">
+        <SidebarContent className="bg-[#020106] text-white flex flex-col justify-between h-full">
           {/* Menu content */}
           <div>
             <SidebarGroup>
