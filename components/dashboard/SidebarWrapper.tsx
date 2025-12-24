@@ -23,7 +23,7 @@ export const SidebarWrapper = ({ onSearchClick }: SidebarWrapperProps) => {
       ) : (
         <div className="hidden md:block">
           <ChevronsRight
-            className="absolute top-1/2 -translate-y-1/2 left-25 cursor-pointer z-50 text-white bg-[#2B1B72] rounded-full p-1"
+            className="absolute top-1/2 -translate-y-1/2 left-25 cursor-pointer z-0 text-white bg-[#2B1B72] rounded-full p-1"
             onClick={() => setShowBar(true)}
           />
           <SidebarIcon active="home" />

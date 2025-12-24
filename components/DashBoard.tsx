@@ -69,6 +69,7 @@ function DashBoard() {
     try {
       const payload = {
         title: book.volumeInfo.title,
+        description: book.volumeInfo.description || "",
         categories: book.volumeInfo.categories || [],
         image: book.volumeInfo.imageLinks?.thumbnail,
         author: book.volumeInfo.authors?.[0],
@@ -157,8 +158,10 @@ function DashBoard() {
       setShowModal(false);
       setSearchText("");
       toast.success("Book added to your mind map!");
-    } catch {
-      toast.error("Something went wrong");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to add book"
+      );
     }
   };
 

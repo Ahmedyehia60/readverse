@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongo";
-import User, { ICategory, IBookItem, IUser, IBridge } from "@/models/users";
+import User, { ICategory, IUser, IBridge } from "@/models/users";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const getRandomImage = (): string => {
   const totalImages = 7;
@@ -39,74 +40,128 @@ const generateNonOverlappingPosition = (existingCategories: ICategory[]) => {
 
   return { x, y };
 };
+async function classifyBook(
+  title: string,
+  description: string
+): Promise<string[]> {
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+
+  try {
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash-lite",
+      generationConfig: {
+        responseMimeType: "application/json",
+      },
+    });
+
+    const content =
+      description && description.length > 10
+        ? `Title: ${title}, Description: ${description}`
+        : `Title: ${title}`;
+
+    const prompt = `
+      Classify this book into exactly ONE high-level genre (e.g., Sci-Fi, Fantasy, Philosophy).
+      Book Info: ${content}
+      Return ONLY a JSON object: {"category": "GenreName"}
+    `;
+
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+
+    const parsed = JSON.parse(text);
+
+    if (parsed.category && typeof parsed.category === "string") {
+      return [parsed.category.trim()];
+    }
+    return ["General"];
+  } catch (error) {
+    return ["General"];
+  }
+}
 
 export async function POST(req: Request) {
   try {
     await connectDB();
 
     const session = await getServerSession(authOptions);
-    if (!session || !session.user?.id) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { title, categories } = (await req.json()) as {
-      title: string;
-      categories?: string[];
-    };
+    const { title, description } = await req.json();
+    const cleanTitle = title?.trim();
 
-    const categoriesToProcess = categories?.length
-      ? categories
-      : ["Uncategorized"];
+    if (!cleanTitle) {
+      return NextResponse.json(
+        { error: "Book title is required" },
+        { status: 400 }
+      );
+    }
 
-    const user = (await User.findById(session.user.id)) as IUser | null;
+    const user = await User.findById(session.user.id);
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
-    const newBookItem: IBookItem = {
-      title: title.trim(),
-    };
 
     if (!user.mindMap) user.mindMap = [];
 
-    for (const catName of categoriesToProcess) {
-      const normalizedCatName = catName.trim().toLowerCase();
+    /* 🔴 GLOBAL DUPLICATE CHECK */
+    const alreadyExists = user.mindMap.some((cat) =>
+      cat.books.some((b) => b.title.toLowerCase() === cleanTitle.toLowerCase())
+    );
 
-      const existingCategoryIndex = user.mindMap!.findIndex(
-        (c) => c.name.toLowerCase() === normalizedCatName
+    if (alreadyExists) {
+      return NextResponse.json(
+        { error: "book already exists in the mind map" },
+        { status: 400 }
+      );
+    }
+
+    /* 🧠 GEMINI CLASSIFICATION */
+    let categories = await classifyBook(cleanTitle, description || "");
+
+    // 🛑 HARD FALLBACK
+    if (!categories.length) {
+      categories = ["General"];
+    }
+
+    let isAdded = false;
+
+    for (const catName of categories.slice(0, 2)) {
+      const normalizedCat = catName.trim();
+
+      const category = user.mindMap.find(
+        (c) => c.name.toLowerCase() === normalizedCat.toLowerCase()
       );
 
-      if (existingCategoryIndex > -1) {
-        const existingCategory = user.mindMap![existingCategoryIndex];
-        const bookExists = existingCategory.books.some(
-          (book) => book.title.toLowerCase() === newBookItem.title.toLowerCase()
-        );
-
-        if (bookExists) {
-          return NextResponse.json(
-            {
-              error: `Book "${title}" already exists in category "${catName}".`,
-            },
-            { status: 400 }
-          );
-        }
-        existingCategory.books.push(newBookItem);
-        existingCategory.count += 1;
+      if (category) {
+        category.books.push({ title: cleanTitle });
+        category.count = category.books.length;
+        isAdded = true;
       } else {
-        const position = generateNonOverlappingPosition(user.mindMap!);
-        const newCategory: ICategory = {
-          name: catName.trim(),
+        const pos = generateNonOverlappingPosition(user.mindMap);
+
+        user.mindMap.push({
+          name: normalizedCat,
           image: getRandomImage(),
-          books: [newBookItem],
+          books: [{ title: cleanTitle }],
           count: 1,
-          x: position.x,
-          y: position.y,
-        };
-        user.mindMap!.push(newCategory);
+          x: pos.x,
+          y: pos.y,
+        });
+
+        isAdded = true;
       }
     }
 
-    user.markModified("mindMap");
+    if (!isAdded) {
+      return NextResponse.json(
+        { error: "Failed to add book" },
+        { status: 500 }
+      );
+    }
 
+    user.markModified("mindMap");
     await user.save();
 
     return NextResponse.json({
@@ -114,13 +169,14 @@ export async function POST(req: Request) {
       mindMap: user.mindMap,
     });
   } catch (error) {
-    console.error("Error adding book:", error);
+    console.error("POST Error:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
     );
   }
 }
+
 export async function GET(req: Request) {
   try {
     await connectDB();
