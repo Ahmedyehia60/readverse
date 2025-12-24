@@ -1,5 +1,6 @@
 "use client";
 
+
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -23,7 +24,7 @@ export default function SidebarIcon({ active }: SidebarIconProps) {
 
   return (
     <div
-      className="fixed left-5 top-1/2 -translate-y-1/2 z-40 border-3 border-[#2B1B72] py-4 px-2 rounded-lg"
+      className="fixed left-5 top-1/2 -translate-y-1/2 z-0 border-3 border-[#2B1B72] py-4 px-2 rounded-lg"
       style={{ zIndex: 1 }}
     >
       {/* Home */}

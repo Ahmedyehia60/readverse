@@ -24,29 +24,27 @@ function Profile() {
   const [numOfBooks, setNumOfBooks] = useState(0);
   const [numOfCategories, setNumOfCategories] = useState(0);
 
+  useEffect(() => {
+    const fetchBooks = async () => {
+      if (!session?.user?.id) return;
 
-useEffect(() => {
-  const fetchBooks = async () => {
-    if (!session?.user?.id) return;
+      const res = await fetch("/api/books");
+      const data = await res.json();
 
-    const res = await fetch("/api/books");
-    const data = await res.json();
-
-    const totalBooks =
-      data.mindMap?.reduce(
-        (sum: number, cat: ICategory) => sum + (cat.count || 0),
-        0
-      ) ?? 0;
+      const totalBooks =
+        data.mindMap?.reduce(
+          (sum: number, cat: ICategory) => sum + (cat.count || 0),
+          0
+        ) ?? 0;
 
       const totalCategories = data.mindMap?.length ?? 0;
-    setNumOfCategories(totalCategories);
+      setNumOfCategories(totalCategories);
 
-    setNumOfBooks(totalBooks);
-  };
+      setNumOfBooks(totalBooks);
+    };
 
-  fetchBooks();
-}, [session]);
-
+    fetchBooks();
+  }, [session]);
 
   useEffect(() => {
     if (!session?.user?.id) return;
@@ -130,14 +128,55 @@ useEffect(() => {
         <h2 className="text-2xl font-semibold mt-9 capitalize ">{user.name}</h2>
       </div>
 
-      <div className="mt-10 flex flex-row items-center justify-around flex-wrap">
-        <div className="mt-10 text-center p-10 bg-white/5 border border-white/10 rounded-2xl shadow-lg shadow-black/30">
-          <p className="text-4xl font-bold text-white">Books</p>
-          <p className="text-2xl font-medium text-purple-400 mt-5">{numOfBooks}</p>
+      <div className="mt-16 flex flex-row items-center justify-around flex-wrap gap-16">
+        {/* Books Planet */}
+        <div className="relative flex items-center justify-center">
+          {/* Orbit */}
+          <div className="absolute w-56 h-56 rounded-full border border-purple-400/20 animate-[orbit_18s_linear_infinite]"></div>
+
+          {/* Planet */}
+          <div
+            className="
+      relative z-10 w-40 h-40 rounded-full
+      flex flex-col items-center justify-center text-center
+      bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-pink-500/20
+      border border-white/10
+      shadow-[0_0_50px_rgba(139,92,246,0.45)]
+      backdrop-blur-md
+      hover:scale-110
+      transition-transform duration-300
+    "
+          >
+            <p className="text-xl font-semibold text-white">Books</p>
+            <p className="text-3xl font-bold text-purple-400 mt-2">
+              {numOfBooks}
+            </p>
+          </div>
         </div>
-        <div className="mt-10 text-center p-10 bg-white/5 border border-white/10 rounded-2xl shadow-lg shadow-black/30">
-          <p className="text-4xl font-bold text-white">Categories</p>
-          <p className="text-2xl font-medium text-purple-400 mt-5">{numOfCategories}</p>
+
+        {/* Categories Planet */}
+        <div className="relative flex items-center justify-center">
+          {/* Orbit */}
+          <div className="absolute w-56 h-56 rounded-full border border-cyan-400/20 animate-[orbit_22s_linear_infinite]"></div>
+
+          {/* Planet */}
+          <div
+            className="
+      relative z-10 w-40 h-40 rounded-full
+      flex flex-col items-center justify-center text-center
+      bg-linear-to-br from-cyan-500/20 via-blue-500/20 to-indigo-500/20
+      border border-white/10
+      shadow-[0_0_50px_rgba(56,189,248,0.45)]
+      backdrop-blur-md
+      hover:scale-110
+      transition-transform duration-300
+    "
+          >
+            <p className="text-xl font-semibold text-white">Categories</p>
+            <p className="text-3xl font-bold text-cyan-400 mt-2">
+              {numOfCategories}
+            </p>
+          </div>
         </div>
       </div>
 

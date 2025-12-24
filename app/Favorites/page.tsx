@@ -1,4 +1,6 @@
 "use client";
+
+
 import { useEffect, useState } from "react";
 import { IFavorite } from "@/models/users";
 import { motion } from "framer-motion";
@@ -44,29 +46,60 @@ export default function Page() {
       style={{ backgroundImage: "url('/Images/galaxy3.jpg')" }}
     >
       <SidebarIcon active="star" />
-      <h1 className="text-3xl font-black mb-16 flex items-center gap-3 bg-clip-text text-transparent bg-linear-to-r from-gray-600 to-cyan-400 text-center justify-center">
-        <span className="text-yellow-400 text-4xl">⭐</span> Favourite List
-      </h1>
+
+      <div className="mb-16 text-left">
+        <h1 className="text-3xl font-black flex items-center justify-start gap-3 bg-clip-text  bg-linear-to-r text-white/90">
+          Favourite List
+        </h1>
+
+        <p className="mt-2 text-xl text-white/80">
+          Stories that earned a place in your orbit
+        </p>
+      </div>
 
       {favorites.length === 0 ? (
         <p className="text-gray-400 text-center mt-20">
           Your cosmic library is empty.
         </p>
       ) : (
-        <div className="flex flex-wrap justify-center gap-x-10 gap-y-16">
+        <div className="flex flex-wrap justify-center gap-x-12 gap-y-20">
           {favorites.map((book, index) => (
             <motion.div
               key={index}
               className="relative flex flex-col items-center group"
             >
-              <div className="relative w-64 h-48 flex items-center justify-center">
-                <div className="absolute w-40 h-[60px] border-[1.2px] border-purple-500/40 rounded-[100%] rotate-[-15deg] z-0" />
+              <div className="relative w-72 h-56 flex items-center justify-center">
+                <svg
+                  width="240"
+                  height="110"
+                  viewBox="0 0 220 110"
+                  className="absolute"
+                >
+                  <ellipse
+                    cx="110"
+                    cy="55"
+                    rx="120"
+                    ry="45"
+                    fill="none"
+                    stroke="rgba(168,85,247,0.4)"
+                    strokeWidth="1.4"
+                    transform="rotate(-13 110 55)"
+                  />
 
-                <div className="absolute w-40 h-40  pointer-events-none animate-orbit-ellipse">
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-purple-400 rounded-full shadow-[0_0_10px_#22d3ee]" />
-                </div>
+                  <circle r="4.5" fill="#a855f7">
+                    <animateMotion
+                      dur="7s"
+                      repeatCount="indefinite"
+                      path="
+                        M 15 55
+                        a 95 35 -13 1 0 190 0
+                        a 95 35 -13 1 0 -190 0
+                      "
+                    />
+                  </circle>
+                </svg>
 
-                <div className="relative z-10 w-20 h-28 transition-all duration-500 group-hover:scale-105 shadow-2xl">
+                <div className="relative z-10 w-34 h-50 transition-all duration-500 group-hover:scale-105 shadow-2xl">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={book.bookImage || "/placeholder.png"}
@@ -76,8 +109,8 @@ export default function Page() {
                 </div>
               </div>
 
-              <div className="mt-4 text-center max-w-40">
-                <h3 className="text-[12px] font-bold text-white line-clamp-1 group-hover:text-purple-300 transition-colors">
+              <div className="mt-5 text-center max-w-44">
+                <h3 className="text-[13px] font-bold text-white line-clamp-1 group-hover:text-purple-300 transition-colors">
                   {book.bookTitle}
                 </h3>
                 <p className="text-[10px] text-gray-500 uppercase tracking-tighter">
@@ -88,23 +121,6 @@ export default function Page() {
           ))}
         </div>
       )}
-
-      <style jsx global>{`
-        .animate-orbit-ellipse {
-          animation: orbit 8s linear infinite;
-          transform-origin: center center;
-          transform: scaleY(0.37) rotate(-15deg);
-        }
-
-        @keyframes orbit {
-          from {
-            transform: scaleY(0.37) rotate(0deg);
-          }
-          to {
-            transform: scaleY(0.37) rotate(360deg);
-          }
-        }
-      `}</style>
     </div>
   );
 }

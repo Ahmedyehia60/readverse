@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
+
 import { ICategory, IBridge } from "@/models/users";
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+
 
 interface Props {
   mindMap: ICategory[];
@@ -19,28 +20,9 @@ export const MindMapCanvas = ({
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-transparent">
-      <TransformWrapper
-        initialScale={1}
-        minScale={0.2}
-        maxScale={3}
-        centerOnInit={false}
-        limitToBounds={false}
-        wheel={{ step: 0.1 }}
-        doubleClick={{ disabled: true }}
-        panning={{
-          velocityDisabled: false,
-        }}
-      >
-        <TransformComponent
-          wrapperStyle={{ width: "100%", height: "100vh" }}
-          contentStyle={{
-            width: "100%",
-            height: "100vh",
-            cursor: "move",
-          }}
-        >
+      
           <div className="relative w-screen h-screen">
-            {/* 1. SVG Arrows/Lines (Bridges) */}
+           
             <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
               <defs>
                 <marker
@@ -173,8 +155,7 @@ export const MindMapCanvas = ({
               );
             })}
           </div>
-        </TransformComponent>
-      </TransformWrapper>
+      
     </div>
   );
 };
