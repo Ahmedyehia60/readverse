@@ -76,9 +76,9 @@ export const SearchModal = ({ isOpen, onClose, onAddBook }: Props) => {
         <div className="mt-4 max-h-60 overflow-y-auto">
           {loading && <p className="text-center text-gray-400">Loading...</p>}
 
-          {searchResults?.items?.map((book) => (
+          {searchResults?.items?.map((book, index) => (
             <div
-              key={book.id}
+              key={index}
               className="flex items-center p-2 rounded hover:bg-[#3C288D] cursor-pointer"
               onClick={() => onAddBook(book)}
             >
