@@ -10,11 +10,16 @@ interface SidebarWrapperProps {
 export const SidebarWrapper = ({ onSearchClick }: SidebarWrapperProps) => {
   const [showBar, setShowBar] = useState(false);
 
+  const handleSearch = () => {
+    setShowBar(false);
+    onSearchClick();
+  };
+
   return (
     <>
       {showBar ? (
         <div className="hidden md:block">
-          <AppSidebar onSearchClick={onSearchClick} />
+          <AppSidebar onSearchClick={handleSearch} />
           <ChevronsLeft
             className="top-1/2 -translate-y-1/2 left-[260px] cursor-pointer z-0 fixed text-white bg-[#2B1B72] rounded-full p-1"
             onClick={() => setShowBar(false)}
