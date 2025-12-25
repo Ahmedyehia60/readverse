@@ -3,7 +3,6 @@ import connectDB from "@/lib/mongo";
 import User, { ICategory, IUser, IBridge } from "@/models/users";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const getRandomImage = (): string => {
   const totalImages = 7;
@@ -40,44 +39,6 @@ const generateNonOverlappingPosition = (existingCategories: ICategory[]) => {
 
   return { x, y };
 };
-async function classifyBook(
-  title: string,
-  description: string
-): Promise<string[]> {
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-
-  try {
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash-lite",
-      generationConfig: {
-        responseMimeType: "application/json",
-      },
-    });
-
-    const content =
-      description && description.length > 10
-        ? `Title: ${title}, Description: ${description}`
-        : `Title: ${title}`;
-
-    const prompt = `
-      Classify this book into exactly ONE high-level genre (e.g., Sci-Fi, Fantasy, Philosophy).
-      Book Info: ${content}
-      Return ONLY a JSON object: {"category": "GenreName"}
-    `;
-
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
-
-    const parsed = JSON.parse(text);
-
-    if (parsed.category && typeof parsed.category === "string") {
-      return [parsed.category.trim()];
-    }
-    return ["General"];
-  } catch (error) {
-    return ["General"];
-  }
-}
 
 export async function POST(req: Request) {
   try {
@@ -87,8 +48,7 @@ export async function POST(req: Request) {
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const { title, description } = await req.json();
+    const { title, categories: incomingCategories } = await req.json();
     const cleanTitle = title?.trim();
 
     if (!cleanTitle) {
@@ -112,22 +72,22 @@ export async function POST(req: Request) {
 
     if (alreadyExists) {
       return NextResponse.json(
-        { error: "book already exists in the mind map" },
+        { error: "book already exists" },
         { status: 400 }
       );
     }
+    let finalCategories: string[] = ["General"];
 
-    /* 🧠 GEMINI CLASSIFICATION */
-    let categories = await classifyBook(cleanTitle, description || "");
-
-    // 🛑 HARD FALLBACK
-    if (!categories.length) {
-      categories = ["General"];
+    if (
+      incomingCategories &&
+      Array.isArray(incomingCategories) &&
+      incomingCategories.length > 0
+    ) {
+      finalCategories = incomingCategories.map((c) => c.split(" / ")[0].trim());
     }
 
     let isAdded = false;
-
-    for (const catName of categories.slice(0, 2)) {
+    for (const catName of finalCategories.slice(0, 1)) {
       const normalizedCat = catName.trim();
 
       const category = user.mindMap.find(
@@ -181,19 +141,23 @@ export async function GET(req: Request) {
   try {
     await connectDB();
     const session = await getServerSession(authOptions);
+
     if (!session || !session.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
     const user = (await User.findById(session.user.id)) as IUser | null;
+
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
     return NextResponse.json({
-      mindMap: user.mindMap,
+      mindMap: user.mindMap || [],
       bridges: user.bridges || [],
+      notifications: user.notifications || [],
     });
   } catch (error) {
-    console.error("Error fetching mind map:", error);
+    console.error("Error fetching data:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
@@ -204,16 +168,33 @@ export async function PATCH(req: Request) {
   try {
     await connectDB();
     const session = await getServerSession(authOptions);
+
     if (!session || !session.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const body = await req.json();
+    if (body.action === "MARK_READ") {
+      await User.updateOne(
+        { _id: session.user.id },
+        { $set: { "notifications.$[].isRead": true } }
+      );
+      return NextResponse.json({ message: "Notifications marked as read" });
+    }
 
-    const { fromCategory, toCategory, recommendedBook, bookImage, bookLink } =
-      await req.json();
+    const {
+      fromCategory,
+      toCategory,
+      recommendedBook,
+      bookImage,
+      bookLink,
+      notification,
+    } = body;
 
     const user = await User.findById(session.user.id);
-    if (!user)
+    if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     const alreadyExists = user.bridges.some(
       (b: IBridge) =>
         (b.fromCategory === fromCategory && b.toCategory === toCategory) ||
@@ -228,16 +209,27 @@ export async function PATCH(req: Request) {
         bookImage,
         bookLink,
       });
+
+      if (notification) {
+        user.notifications.push({
+          ...notification,
+          isRead: false,
+          createdAt: new Date(),
+        });
+      }
+
       await user.save();
     }
 
     return NextResponse.json({
-      message: "Bridge saved",
+      message: "Bridge and notification saved successfully",
       bridges: user.bridges,
+      notifications: user.notifications,
     });
-  } catch {
+  } catch (error) {
+    console.error("PATCH Error:", error);
     return NextResponse.json(
-      { error: "Failed to save bridge" },
+      { error: "Failed to process the request" },
       { status: 500 }
     );
   }

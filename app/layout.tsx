@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import NextAuthProvider from "@/components/providers/NextAuthProvider";
+import { NotificationProvider } from "@/context/NotficationContext";
 
 //================== Fonts =======================
 const geistSans = Geist({
@@ -39,7 +40,7 @@ export default function RootLayout({
       >
         <NextAuthProvider>
           <Toaster />
-          {children}
+          <NotificationProvider> {children}</NotificationProvider>
         </NextAuthProvider>
       </body>
     </html>

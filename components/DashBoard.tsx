@@ -10,6 +10,8 @@ import { SearchModal } from "./dashboard/SearchModal";
 import { CategoryDetailModal } from "./dashboard/CategoryDetailModal";
 import { SidebarWrapper } from "./dashboard/SidebarWrapper";
 import { SearchOverlay } from "./dashboard/SearchOverlay";
+import { useNotifications } from "@/context/NotficationContext";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 // ==================Types==========================
 
@@ -34,28 +36,44 @@ function DashBoard() {
   const [favorites, setFavorites] = useState<IFavorite[]>([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const highlightParam = searchParams.get("highlight");
+  const [activeHighlight, setActiveHighlight] = useState<string | null>(null);
+
+  const { addNotification } = useNotifications();
+  useEffect(() => {
+    if (highlightParam) {
+      setActiveHighlight(highlightParam);
+      const timer = setTimeout(() => {
+        router.replace(pathname, { scroll: false });
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [highlightParam, pathname, router]);
 
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
-        const res = await fetch("/api/favorites");
+        const res = await fetch("/api/favorites", {
+          credentials: "include",
+        });
         if (!res.ok) return;
+
         const data = await res.json();
         setFavorites(data.favorites || []);
       } catch (err) {
         console.error(err);
       }
     };
-
     fetchFavorites();
-
     window.addEventListener("focus", fetchFavorites);
 
     return () => window.removeEventListener("focus", fetchFavorites);
   }, []);
 
-  // ==================Fetch MindMap==========================
-  // Fetch MindMap
   const fetchMindMap = async () => {
     const res = await fetch("/api/books", { method: "GET" });
     const data = await res.json();
@@ -120,6 +138,16 @@ function DashBoard() {
             const recommendedLink =
               recommended.bookLink || recommended.volumeInfo.infoLink;
 
+            const notificationData = {
+              id: crypto.randomUUID(),
+              type: "smart-link" as const,
+              title: "New Smart Link Found!",
+              bookTitle: recommendedTitle,
+              message: `Bridge created between ${c1.name} and ${c2.name}`,
+              bookImage: recommendedImage,
+              categories: [c1.name, c2.name] as [string, string],
+            };
+
             await fetch("/api/books", {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
@@ -129,6 +157,7 @@ function DashBoard() {
                 recommendedBook: recommendedTitle,
                 bookImage: recommendedImage,
                 bookLink: recommendedLink,
+                notification: notificationData,
               }),
             });
 
@@ -142,6 +171,7 @@ function DashBoard() {
                 bookLink: recommendedLink,
               },
             ]);
+
             setTimeout(() => {
               toast.info(`Smart Link Found!`, {
                 description: `We found a connection: "${recommended.volumeInfo.title}" combines your interest in ${c1.name} and ${c2.name}.`,
@@ -153,11 +183,11 @@ function DashBoard() {
                 },
               });
             }, 400);
+            addNotification(notificationData);
           }
         }
       }
 
-      // Reset UI
       setShowModal(false);
       setSearchText("");
       toast.success("Book added to your mind map!");
@@ -179,14 +209,12 @@ function DashBoard() {
       if (!res.ok) throw new Error();
 
       const data = await res.json();
-
       setMindMap(data.mindMap);
       setBridges(data.bridges);
 
       await fetch("/api/favorites", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ bookTitle }),
       });
 
@@ -199,7 +227,6 @@ function DashBoard() {
       );
 
       setActiveCategory(updatedCategory || null);
-
       toast.success("Book deleted successfully");
     } catch {
       toast.error("Failed to delete book");
@@ -220,23 +247,26 @@ function DashBoard() {
           }}
         />
       )}
+
       <UserButton className="absolute top-5 left-9 scale-110" />
 
       <Button
-        className="absolute top-4 right-4 p-5 bg-[#2B1B72] text-white hover:bg-blue-900 z-10  cursor-pointer"
+        className="absolute top-4 right-4 p-5 bg-[#2B1B72] text-white hover:bg-blue-900 z-10 cursor-pointer"
         onClick={() => setShowModal(true)}
       >
         Add Book
       </Button>
 
-      {/* DISPLAY MINDMAP IN UI */}
+      {/* 🔴 تمرير الـ activeHighlight والـ setActiveHighlight لضمان التحكم الكامل */}
       <MindMapCanvas
         mindMap={mindMap}
         bridges={bridges}
         onCategoryClick={setActiveCategory}
         searchQuery={searchQuery}
+        highlightBook={activeHighlight}
+        setHighlightBook={setActiveHighlight}
       />
-      {/* CATEGORY DETAIL MODAL */}
+
       <CategoryDetailModal
         category={activeCategory}
         favorites={favorites}
@@ -245,10 +275,8 @@ function DashBoard() {
         onDeleteBook={handleDeleteBook}
       />
 
-      {/* SIDE BAR */}
       <SidebarWrapper onSearchClick={() => setIsSearchOpen(true)} />
 
-      {/* SEARCH MODAL */}
       <SearchModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}

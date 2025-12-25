@@ -7,6 +7,8 @@ interface Props {
   bridges: IBridge[];
   onCategoryClick: (cat: ICategory) => void;
   searchQuery?: string;
+  highlightBook?: string | null;
+  setHighlightBook: (val: string | null) => void;
 }
 
 export const MindMapCanvas = ({
@@ -14,11 +16,20 @@ export const MindMapCanvas = ({
   bridges,
   onCategoryClick,
   searchQuery = "",
+  highlightBook = null,
+  setHighlightBook,
 }: Props) => {
   if (!mindMap.length) return null;
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-transparent">
+    <div
+      className="relative w-full h-screen overflow-hidden bg-transparent"
+      onClick={() => {
+        if (highlightBook) {
+          setHighlightBook(null);
+        }
+      }}
+    >
       <div className="relative w-screen h-screen">
         {/* 1. SVG Arrows/Lines (Bridges) */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
@@ -38,7 +49,10 @@ export const MindMapCanvas = ({
             const cat1 = mindMap.find((c) => c.name === bridge.fromCategory);
             const cat2 = mindMap.find((c) => c.name === bridge.toCategory);
             if (!cat1 || !cat2) return null;
-
+            const isTargetBook =
+              highlightBook &&
+              bridge.recommendedBook.toLowerCase() ===
+                highlightBook.toLowerCase();
             return (
               <line
                 key={`line-${index}`}
@@ -46,9 +60,11 @@ export const MindMapCanvas = ({
                 y1={`${cat1.y * 100}%`}
                 x2={`${cat2.x * 100}%`}
                 y2={`${cat2.y * 100}%`}
-                stroke="#8884d8"
-                strokeWidth="0.8"
-                className="opacity-40 animate-pulse"
+                stroke={isTargetBook ? "#facc15" : "#8884d8"}
+                strokeWidth={isTargetBook ? "2" : "0.8"}
+                className={`${
+                  isTargetBook ? "opacity-100" : "opacity-40"
+                } animate-pulse`}
                 markerEnd="url(#arrowhead)"
               />
             );
@@ -63,7 +79,10 @@ export const MindMapCanvas = ({
 
           const midX = ((cat1.x + cat2.x) / 2) * 100;
           const midY = ((cat1.y + cat2.y) / 2) * 100;
-
+          const isTargetBook =
+            highlightBook &&
+            bridge.recommendedBook.toLowerCase() ===
+              highlightBook.toLowerCase();
           return (
             <div
               key={`bridge-text-${index}`}
@@ -73,22 +92,34 @@ export const MindMapCanvas = ({
                 top: `${midY}%`,
                 transform: "translate(-50%, -50%)",
               }}
-              className="z-20 pointer-events-auto"
+              className={`z-20 pointer-events-auto transition-all duration-500 ${
+                isTargetBook ? "scale-150 z-50" : ""
+              }`}
             >
               <a
                 href={bridge.bookLink || "#"}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 bg-black/60 backdrop-blur-md p-1.5 rounded-lg border border-white/20 hover:scale-110 transition-transform no-underline"
+                className={`flex items-center gap-2 bg-black/60 backdrop-blur-md p-1.5 rounded-lg border transition-all no-underline ${
+                  isTargetBook
+                    ? "border-yellow-400 shadow-[0_0_20px_#facc15] bg-black/80"
+                    : "border-white/20 hover:scale-110"
+                }`}
               >
                 {bridge.bookImage && (
                   <img
                     src={bridge.bookImage}
                     alt=""
-                    className="w-8 h-10 object-cover rounded shadow-md"
+                    className={`w-8 h-10 object-cover rounded shadow-md ${
+                      isTargetBook ? "ring-1 ring-yellow-400" : ""
+                    }`}
                   />
                 )}
-                <span className="text-[9px] text-white font-medium leading-tight line-clamp-2 max-w-20">
+                <span
+                  className={`text-[9px] font-medium leading-tight line-clamp-2 max-w-20 ${
+                    isTargetBook ? "text-yellow-400 font-bold" : "text-white"
+                  }`}
+                >
                   {bridge.recommendedBook}
                 </span>
               </a>
