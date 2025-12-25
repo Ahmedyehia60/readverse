@@ -9,8 +9,6 @@ import {
   BookOpen,
   Target,
   Sparkles,
-  Shield,
-  Star,
   Crown,
 } from "lucide-react";
 import { useEffect, useState } from "react";

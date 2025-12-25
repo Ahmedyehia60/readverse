@@ -257,7 +257,6 @@ function DashBoard() {
         Add Book
       </Button>
 
-      {/* 🔴 تمرير الـ activeHighlight والـ setActiveHighlight لضمان التحكم الكامل */}
       <MindMapCanvas
         mindMap={mindMap}
         bridges={bridges}

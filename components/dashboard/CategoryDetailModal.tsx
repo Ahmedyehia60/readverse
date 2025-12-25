@@ -47,16 +47,11 @@ export const CategoryDetailModal = ({
   const isFavorite = (bookTitle: string) =>
     Array.isArray(favorites) &&
     favorites.some((fav) => fav.bookTitle === bookTitle);
-
-  // جوه ملف CategoryDetailModal.tsx
   const toggleFavorite = async (bookTitle: string) => {
     const isFav = isFavorite(bookTitle);
 
     if (isFav) {
-      // 1. تحديث الـ State محلياً فوراً عشان النجمة تنطفي في نفس اللحظة
       setFavorites((prev) => prev.filter((fav) => fav.bookTitle !== bookTitle));
-
-      // 2. إرسال طلب الحذف للسيرفر
       const res = await fetch("/api/favorites", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -64,14 +59,10 @@ export const CategoryDetailModal = ({
       });
 
       if (!res.ok) {
-        // لو السيرفر فشل، نرجع الحالة زي ما كانت عشان ميبقاش فيه تضارب
         const data = await res.json();
-        // يفضل عمل fetch جديد هنا لو حصل خطأ
       }
       return;
     }
-
-    // ... باقي كود الـ POST (الإضافة) كما هو عندك
 
     try {
       const googleRes = await fetch(

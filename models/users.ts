@@ -24,12 +24,12 @@ export interface ICategory {
 }
 export interface INotification {
   id: string;
-  type: "smart-link";
+  type: "smart-link" | "achievement";
   title: string;
   bookTitle?: string;
   bookImage?: string;
   message: string;
-  categories: [string, string];
+  categories?: [string, string];
   isRead: boolean;
   createdAt: Date;
 }
@@ -107,7 +107,7 @@ const CategorySchema = new mongoose.Schema(
 );
 const NotificationSchema = new mongoose.Schema({
   id: { type: String, required: true },
-  type: { type: String, default: "smart-link" },
+  type: { type: String, default: "" },
   title: { type: String, required: true },
   bookTitle: { type: String },
   message: { type: String, required: true },

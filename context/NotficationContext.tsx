@@ -9,11 +9,12 @@ import React, {
 
 export interface INotification {
   id: string;
-  type: "smart-link";
+  type: "smart-link" | "achievement";
   title: string;
   message: string;
+  bookTitle?: string;
   bookImage?: string;
-  categories: [string, string];
+  categories?: [string, string];
   isRead: boolean;
   createdAt: Date;
 }

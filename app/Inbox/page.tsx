@@ -27,7 +27,7 @@ export default function Inbox() {
           {notifications.map((note: INotification) => (
             <div
               key={note.id}
-              className="relative overflow-hidden group border border-white/10 bg-white/5 backdrop-blur-xl p-6 rounded-2xl transition-all hover:border-purple-500/50 hover:bg-white/[0.08]"
+              className="relative overflow-hidden group border border-white/10 bg-white/5 backdrop-blur-xl p-6 rounded-2xl transition-all hover:border-purple-500/50 hover:bg-white/8"
             >
               <div className="absolute -left-10 -top-10 w-32 h-32 bg-purple-600/10 blur-[50px] group-hover:bg-purple-600/20" />
 
@@ -57,11 +57,11 @@ export default function Inbox() {
 
                   <div className="flex items-center gap-3 text-sm text-gray-400">
                     <span className="text-blue-400 font-mono">
-                      {note.categories[0]}
+                      {note.categories?.[0]}
                     </span>
                     <ArrowRight size={14} />
                     <span className="text-pink-400 font-mono">
-                      {note.categories[1]}
+                      {note.categories?.[1]}
                     </span>
                   </div>
                 </div>
