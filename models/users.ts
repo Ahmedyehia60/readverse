@@ -26,6 +26,8 @@ export interface INotification {
   id: string;
   type: "smart-link";
   title: string;
+  bookTitle?: string;
+  bookImage?: string;
   message: string;
   categories: [string, string];
   isRead: boolean;
@@ -107,7 +109,7 @@ const NotificationSchema = new mongoose.Schema({
   id: { type: String, required: true },
   type: { type: String, default: "smart-link" },
   title: { type: String, required: true },
-
+  bookTitle: { type: String },
   message: { type: String, required: true },
   bookImage: { type: String },
   categories: { type: [String] },

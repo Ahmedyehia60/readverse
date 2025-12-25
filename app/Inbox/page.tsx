@@ -1,12 +1,13 @@
 /* eslint-disable jsx-a11y/alt-text */
 "use client";
 import { useNotifications } from "@/context/NotficationContext";
+import { INotification } from "@/models/users";
 import { Zap, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Inbox() {
   const { notifications, markAllAsRead } = useNotifications();
-
-  const viewLink = () => {};
+  const router = useRouter();
   return (
     <div className="min-h-screen bg-[#020106] p-8 text-white">
       <div className="max-w-4xl mx-auto">
@@ -23,7 +24,7 @@ export default function Inbox() {
         </header>
 
         <div className="space-y-6">
-          {notifications.map((note) => (
+          {notifications.map((note: INotification) => (
             <div
               key={note.id}
               className="relative overflow-hidden group border border-white/10 bg-white/5 backdrop-blur-xl p-6 rounded-2xl transition-all hover:border-purple-500/50 hover:bg-white/[0.08]"
@@ -35,7 +36,7 @@ export default function Inbox() {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={note.bookImage}
-                    className="w-16 h-24 object-cover rounded-lg shadow-2xl shadow-purple-500/20"
+                    className="w-16 h-24 min-w-16 object-cover rounded-lg shadow-2xl shadow-purple-500/20"
                   />
                 )}
 
@@ -44,12 +45,16 @@ export default function Inbox() {
                     <span className="text-[10px] font-bold bg-purple-500 text-white px-2 py-0.5 rounded-full uppercase tracking-widest">
                       Bridge Established
                     </span>
-                    <span className="text-[10px] text-gray-500 italic">
-                      {new Date(note.createdAt).toLocaleTimeString()}
-                    </span>
+                    {!note.isRead && (
+                      <span className="w-2 h-2 bg-pink-500 rounded-full animate-pulse" />
+                    )}
                   </div>
+                  <h3 className="text-xl font-semibold mb-1">
+                    {note.bookTitle || "New Connection Found"}
+                  </h3>
 
-                  <h3 className="text-xl font-semibold mb-1">{note.title}</h3>
+                  <p className="text-sm text-gray-400 mb-3">{note.message}</p>
+
                   <div className="flex items-center gap-3 text-sm text-gray-400">
                     <span className="text-blue-400 font-mono">
                       {note.categories[0]}
@@ -61,7 +66,14 @@ export default function Inbox() {
                   </div>
                 </div>
 
-                <button className="bg-white/5 hover:bg-purple-600 text-white px-4 py-2 rounded-xl text-sm transition-all border border-white/10 cursor-pointer">
+                <button
+                  className="bg-white/5 hover:bg-purple-600 text-white px-4 py-2 rounded-xl text-sm transition-all border border-white/10 cursor-pointer"
+                  onClick={() => {
+                    router.push(
+                      `/?highlight=${encodeURIComponent(note.bookTitle || "")}`
+                    );
+                  }}
+                >
                   View Link
                 </button>
               </div>

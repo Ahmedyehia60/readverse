@@ -151,12 +151,10 @@ export async function GET(req: Request) {
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
-
-    // 🔴 التعديل هنا: لازم نرجع الـ notifications عشان الـ Context يشوفها
     return NextResponse.json({
       mindMap: user.mindMap || [],
       bridges: user.bridges || [],
-      notifications: user.notifications || [], // السطر ده هو اللي هيشغل الـ Inbox
+      notifications: user.notifications || [],
     });
   } catch (error) {
     console.error("Error fetching data:", error);
