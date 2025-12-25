@@ -22,7 +22,15 @@ export interface ICategory {
   x: number;
   y: number;
 }
-
+export interface INotification {
+  id: string;
+  type: "smart-link";
+  title: string;
+  message: string;
+  categories: [string, string];
+  isRead: boolean;
+  createdAt: Date;
+}
 export interface IMindMapBook {
   title: string;
   categories: ICategory[];
@@ -39,6 +47,7 @@ export interface IUser extends Document {
   mindMap?: ICategory[];
   bridges: IBridge[];
   favorites: IFavorite[];
+  notifications: INotification[];
 }
 
 export interface BookVolumeInfo {
@@ -94,6 +103,17 @@ const CategorySchema = new mongoose.Schema(
   },
   { _id: false }
 );
+const NotificationSchema = new mongoose.Schema({
+  id: { type: String, required: true },
+  type: { type: String, default: "smart-link" },
+  title: { type: String, required: true },
+
+  message: { type: String, required: true },
+  bookImage: { type: String },
+  categories: { type: [String] },
+  isRead: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now },
+});
 const BridgeSchema = new mongoose.Schema(
   {
     fromCategory: { type: String, required: true },
@@ -121,6 +141,7 @@ const UserSchema: Schema<IUser> = new mongoose.Schema(
     mindMap: { type: [CategorySchema], default: [] },
     bridges: { type: [BridgeSchema], default: [] },
     favorites: { type: [FavoriteSchema], default: [] },
+    notifications: { type: [NotificationSchema], default: [] },
   },
   { timestamps: true }
 );

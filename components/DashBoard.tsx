@@ -10,6 +10,7 @@ import { SearchModal } from "./dashboard/SearchModal";
 import { CategoryDetailModal } from "./dashboard/CategoryDetailModal";
 import { SidebarWrapper } from "./dashboard/SidebarWrapper";
 import { SearchOverlay } from "./dashboard/SearchOverlay";
+import { useNotifications } from "@/context/NotficationContext";
 
 // ==================Types==========================
 
@@ -34,6 +35,7 @@ function DashBoard() {
   const [favorites, setFavorites] = useState<IFavorite[]>([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const { addNotification } = useNotifications();
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
@@ -116,7 +118,14 @@ function DashBoard() {
               recommended.volumeInfo.imageLinks?.thumbnail;
             const recommendedLink =
               recommended.bookLink || recommended.volumeInfo.infoLink;
-
+            const notificationData = {
+              id: crypto.randomUUID(),
+              type: "smart-link" as const,
+              title: "New Smart Link Found!",
+              message: `Bridge created between ${c1.name} and ${c2.name}`,
+              bookImage: recommendedImage,
+              categories: [c1.name, c2.name] as [string, string],
+            };
             await fetch("/api/books", {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
@@ -126,6 +135,7 @@ function DashBoard() {
                 recommendedBook: recommendedTitle,
                 bookImage: recommendedImage,
                 bookLink: recommendedLink,
+                notification: notificationData,
               }),
             });
 
@@ -150,6 +160,7 @@ function DashBoard() {
                 },
               });
             }, 400);
+            addNotification(notificationData);
           }
         }
       }

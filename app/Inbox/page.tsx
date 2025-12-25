@@ -1,93 +1,74 @@
+/* eslint-disable jsx-a11y/alt-text */
 "use client";
-import { useEffect, useState } from "react";
-import { IBridge } from "@/models/users";
-import { ExternalLink, ArrowRight } from "lucide-react";
+import { useNotifications } from "@/context/NotficationContext";
+import { Zap, ArrowRight } from "lucide-react";
 
-export default function BridgesPage() {
-  const [bridges, setBridges] = useState<IBridge[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function Inbox() {
+  const { notifications, markAllAsRead } = useNotifications();
 
-  useEffect(() => {
-    const fetchBridges = async () => {
-      try {
-        const res = await fetch("/api/books");
-        const data = await res.json();
-        setBridges(data.bridges || []);
-      } catch (error) {
-        console.error("Failed to fetch bridges:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchBridges();
-  }, []);
-
-  if (loading)
-    return <div className="p-10 text-white">Loading Connections...</div>;
-
+  const viewLink = () => {};
   return (
-    <div
-      className="min-h-screen  text-white p-8"
-      style={{ backgroundImage: "url('/Images/galaxy3.jpg')" }}
-    >
-      <h1 className="text-3xl font-bold mb-8 text-transparent bg-clip-text bg-linear-to-r from-purple-400 to-blue-500">
-        Smart Connections (Bridges)
-      </h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {bridges.map((bridge) => (
-          <div
-            key={bridge.recommendedBook}
-            className="bg-[#1a1438] border border-white/10 rounded-2xl p-5 hover:border-purple-500 transition-all shadow-xl"
+    <div className="min-h-screen bg-[#020106] p-8 text-white">
+      <div className="max-w-4xl mx-auto">
+        <header className="flex justify-between items-center mb-10">
+          <h1 className="text-3xl font-bold tracking-tighter flex items-center gap-3">
+            <Zap className="text-yellow-400 fill-yellow-400" /> GALACTIC LOG
+          </h1>
+          <button
+            onClick={markAllAsRead}
+            className="text-xs text-gray-500 hover:text-purple-400 uppercase tracking-widest cursor-pointer"
           >
-            <div className="flex items-center justify-between mb-4 bg-black/20 p-3 rounded-xl">
-              <span className="text-purple-400 font-semibold">
-                {bridge.fromCategory}
-              </span>
-              <ArrowRight size={16} className="text-white/40" />
-              <span className="text-blue-400 font-semibold">
-                {bridge.toCategory}
-              </span>
-            </div>
+            Clear Transmissions
+          </button>
+        </header>
 
-            <div className="flex gap-4">
-              <div className="w-20 h-28 shrink-0">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={bridge.bookImage || "/placeholder.png"}
-                  alt={bridge.recommendedBook}
-                  className="w-full h-full object-cover rounded-lg shadow-md"
-                />
-              </div>
-              <div className="flex flex-col justify-between">
-                <div>
-                  <h3 className="text-sm font-bold leading-tight mb-2">
-                    {bridge.recommendedBook}
-                  </h3>
-                  <p className="text-[10px] text-white/50">
-                    This book connects your interest in {bridge.fromCategory}
-                    and {bridge.toCategory}.
-                  </p>
+        <div className="space-y-6">
+          {notifications.map((note) => (
+            <div
+              key={note.id}
+              className="relative overflow-hidden group border border-white/10 bg-white/5 backdrop-blur-xl p-6 rounded-2xl transition-all hover:border-purple-500/50 hover:bg-white/[0.08]"
+            >
+              <div className="absolute -left-10 -top-10 w-32 h-32 bg-purple-600/10 blur-[50px] group-hover:bg-purple-600/20" />
+
+              <div className="flex gap-6 items-center">
+                {note.bookImage && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={note.bookImage}
+                    className="w-16 h-24 object-cover rounded-lg shadow-2xl shadow-purple-500/20"
+                  />
+                )}
+
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-[10px] font-bold bg-purple-500 text-white px-2 py-0.5 rounded-full uppercase tracking-widest">
+                      Bridge Established
+                    </span>
+                    <span className="text-[10px] text-gray-500 italic">
+                      {new Date(note.createdAt).toLocaleTimeString()}
+                    </span>
+                  </div>
+
+                  <h3 className="text-xl font-semibold mb-1">{note.title}</h3>
+                  <div className="flex items-center gap-3 text-sm text-gray-400">
+                    <span className="text-blue-400 font-mono">
+                      {note.categories[0]}
+                    </span>
+                    <ArrowRight size={14} />
+                    <span className="text-pink-400 font-mono">
+                      {note.categories[1]}
+                    </span>
+                  </div>
                 </div>
 
-                <a
-                  href={bridge.bookLink}
-                  target="_blank"
-                  className="flex items-center gap-2 text-xs text-purple-400 hover:text-purple-300 transition-colors"
-                >
-                  View Book <ExternalLink size={12} />
-                </a>
+                <button className="bg-white/5 hover:bg-purple-600 text-white px-4 py-2 rounded-xl text-sm transition-all border border-white/10 cursor-pointer">
+                  View Link
+                </button>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
-
-      {bridges.length === 0 && (
-        <div className="text-center py-20 text-white/30">
-          No connections found yet. Add more books to discover smart links!
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -16,6 +16,9 @@ import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { FaBook } from "react-icons/fa";
 import UserButton from "./UserButton";
+import { INotification } from "@/models/users";
+import { useNotifications } from "@/context/NotficationContext";
+import React from "react";
 
 interface AppSidebarProps {
   onSearchClick?: () => void;
@@ -28,8 +31,11 @@ const items = [
   { title: "Search", url: "#", icon: Search },
   { title: "Settings", url: "/Settings", icon: Settings },
 ];
-
 export function AppSidebar({ onSearchClick }: AppSidebarProps) {
+  const { notifications } = useNotifications();
+  const unreadCount = notifications.filter(
+    (n: INotification) => !n.isRead
+  ).length;
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -68,6 +74,20 @@ export function AppSidebar({ onSearchClick }: AppSidebarProps) {
                             <span>{item.title}</span>
                             <item.icon />
                           </button>
+                        ) : item.title === "Inbox" && unreadCount > 0 ? (
+                          <React.Fragment key={item.title}>
+                            <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                              <span className=" absolute inline-flex h-full w-full rounded-full bg-pink-500 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-3 w-3 bg-pink-600 border border-white/20"></span>
+                            </span>
+                            <a
+                              href={item.url}
+                              className="flex items-center gap-2 justify-between "
+                            >
+                              <span>{item.title}</span>
+                              <item.icon />
+                            </a>
+                          </React.Fragment>
                         ) : (
                           <a
                             href={item.url}
