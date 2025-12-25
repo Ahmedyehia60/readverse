@@ -49,7 +49,7 @@ export const SearchModal = ({ isOpen, onClose, onAddBook }: Props) => {
       onClick={onClose}
     >
       <div
-        className="bg-[#20193f] p-6 rounded-xl shadow-2xl w-full max-w-lg mx-4"
+        className="bg-[#231852] p-6 rounded-xl shadow-2xl w-full max-w-lg mx-4"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-4">
