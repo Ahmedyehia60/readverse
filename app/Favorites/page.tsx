@@ -8,6 +8,7 @@ import SidebarIcon from "@/components/SideBarIcon";
 import Loader from "@/components/Loader";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import Link from "next/link"; 
 
 export default function Page() {
   const [favorites, setFavorites] = useState<IFavorite[]>([]);
@@ -86,11 +87,11 @@ export default function Page() {
         </p>
       ) : (
         <div className="flex flex-wrap justify-center gap-x-12 gap-y-20">
-          <AnimatePresence>
-            {" "}
+          <AnimatePresence mode="popLayout">
             {favorites.map((book) => (
               <motion.div
                 key={book.bookTitle}
+                layout
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.3 } }}
@@ -120,33 +121,35 @@ export default function Page() {
                       strokeWidth="1.4"
                       transform="rotate(-13 110 55)"
                     />
-
                     <circle r="4.5" fill="#a855f7">
                       <animateMotion
                         dur="7s"
                         repeatCount="indefinite"
-                        path="
-                          M 15 55
-                          a 95 35 -13 1 0 190 0
-                          a 95 35 -13 1 0 -190 0
-                        "
+                        path="M 15 55 a 95 35 -13 1 0 190 0 a 95 35 -13 1 0 -190 0"
                       />
                     </circle>
                   </svg>
 
-                  <div className="relative z-10 w-34 h-50 transition-all duration-500 group-hover:scale-105 shadow-2xl">
+                 
+                  <Link
+                    href={`/book/${encodeURIComponent(book.bookTitle)}`}
+                    className="relative z-10 w-34 h-50 block transition-all duration-500 group-hover:scale-110 shadow-2xl cursor-pointer"
+                  >
                     <img
                       src={book.bookImage || "/placeholder.png"}
                       className="w-full h-full object-cover rounded-sm border border-white/10"
                       alt={book.bookTitle}
                     />
-                  </div>
+                  </Link>
                 </div>
 
                 <div className="mt-5 text-center max-w-44">
-                  <h3 className="text-[13px] font-bold text-white line-clamp-1 group-hover:text-purple-300 transition-colors">
-                    {book.bookTitle}
-                  </h3>
+                
+                  <Link href={`/book/${encodeURIComponent(book.bookTitle)}`}>
+                    <h3 className="text-[13px] font-bold text-white line-clamp-1 group-hover:text-purple-300 transition-colors cursor-pointer hover:underline">
+                      {book.bookTitle}
+                    </h3>
+                  </Link>
                   <p className="text-[10px] text-gray-500 uppercase tracking-tighter">
                     {book.bookAuthors?.[0] || "Unknown Author"}
                   </p>

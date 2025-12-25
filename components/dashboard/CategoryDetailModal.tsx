@@ -4,6 +4,7 @@ import { ICategory, IFavorite } from "@/models/users";
 import { Star, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface Props {
   category: ICategory | null;
@@ -47,11 +48,13 @@ export const CategoryDetailModal = ({
   const isFavorite = (bookTitle: string) =>
     Array.isArray(favorites) &&
     favorites.some((fav) => fav.bookTitle === bookTitle);
+
   const toggleFavorite = async (bookTitle: string) => {
     const isFav = isFavorite(bookTitle);
 
     if (isFav) {
       setFavorites((prev) => prev.filter((fav) => fav.bookTitle !== bookTitle));
+
       const res = await fetch("/api/favorites", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -133,7 +136,13 @@ export const CategoryDetailModal = ({
                   key={index}
                   className="p-3 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition text-sm text-gray-200 justify-between flex items-center group"
                 >
-                  <span className="flex-1">{book.title}</span>
+                  <Link
+                    href={`/book/${encodeURIComponent(book.title)}`}
+                    className="flex-1 hover:text-purple-400 hover:underline transition-colors cursor-pointer"
+                  >
+                    {book.title}
+                  </Link>
+
                   <div>
                     <button
                       onClick={() => toggleFavorite(book.title)}
