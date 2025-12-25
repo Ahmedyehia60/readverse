@@ -35,30 +35,24 @@ function DashBoard() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      try {
+        const res = await fetch("/api/favorites");
+        if (!res.ok) return;
+        const data = await res.json();
+        setFavorites(data.favorites || []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
 
-// في ملف الداشبورد
-useEffect(() => {
-  const fetchFavorites = async () => {
-    try {
-      const res = await fetch("/api/favorites");
-      if (!res.ok) return;
-      const data = await res.json();
-      setFavorites(data.favorites || []);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+    fetchFavorites();
 
-  // 1. جلب البيانات عند التحميل لأول مرة
-  fetchFavorites();
+    window.addEventListener("focus", fetchFavorites);
 
-  // 2. مزامنة البيانات لما المستخدم يرجع للتبويب ده تاني
-  window.addEventListener("focus", fetchFavorites);
-  
-  return () => window.removeEventListener("focus", fetchFavorites);
-}, []);
-
-
+    return () => window.removeEventListener("focus", fetchFavorites);
+  }, []);
 
   // ==================Fetch MindMap==========================
   // Fetch MindMap

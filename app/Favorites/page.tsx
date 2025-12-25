@@ -9,6 +9,8 @@ import Loader from "@/components/Loader";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
+
+
 export default function Page() {
   const [favorites, setFavorites] = useState<IFavorite[]>([]);
   const [loading, setLoading] = useState(true);
