@@ -4,6 +4,7 @@ import { ICategory, IFavorite } from "@/models/users";
 import { Star, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface Props {
   category: ICategory | null;
@@ -48,15 +49,12 @@ export const CategoryDetailModal = ({
     Array.isArray(favorites) &&
     favorites.some((fav) => fav.bookTitle === bookTitle);
 
-  // جوه ملف CategoryDetailModal.tsx
   const toggleFavorite = async (bookTitle: string) => {
     const isFav = isFavorite(bookTitle);
 
     if (isFav) {
-      // 1. تحديث الـ State محلياً فوراً عشان النجمة تنطفي في نفس اللحظة
       setFavorites((prev) => prev.filter((fav) => fav.bookTitle !== bookTitle));
 
-      // 2. إرسال طلب الحذف للسيرفر
       const res = await fetch("/api/favorites", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -64,14 +62,10 @@ export const CategoryDetailModal = ({
       });
 
       if (!res.ok) {
-        // لو السيرفر فشل، نرجع الحالة زي ما كانت عشان ميبقاش فيه تضارب
         const data = await res.json();
-        // يفضل عمل fetch جديد هنا لو حصل خطأ
       }
       return;
     }
-
-    // ... باقي كود الـ POST (الإضافة) كما هو عندك
 
     try {
       const googleRes = await fetch(
@@ -142,7 +136,13 @@ export const CategoryDetailModal = ({
                   key={index}
                   className="p-3 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition text-sm text-gray-200 justify-between flex items-center group"
                 >
-                  <span className="flex-1">{book.title}</span>
+                  <Link
+                    href={`/book/${encodeURIComponent(book.title)}`}
+                    className="flex-1 hover:text-purple-400 hover:underline transition-colors cursor-pointer"
+                  >
+                    {book.title}
+                  </Link>
+
                   <div>
                     <button
                       onClick={() => toggleFavorite(book.title)}
