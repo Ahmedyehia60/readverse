@@ -16,6 +16,7 @@ import { useSession } from "next-auth/react";
 import Loader from "@/components/Loader";
 import SidebarIcon from "@/components/SideBarIcon";
 import { ICategory } from "@/models/users";
+import { useNotifications } from "@/context/NotficationContext";
 
 function Profile() {
   type UserType = { name: string; image: string };
@@ -27,7 +28,7 @@ function Profile() {
   const [newName, setNewName] = useState("");
   const [newImage, setNewImage] = useState<File | null>(null);
   const [uploadPreview, setUploadPreview] = useState<string | null>(null);
-
+  const { addNotification } = useNotifications();
   const [numOfBooks, setNumOfBooks] = useState(0);
   const [numOfCategories, setNumOfCategories] = useState(0);
   const [topCategory, setTopCategory] = useState<TopCategoryType>({
@@ -136,9 +137,25 @@ function Profile() {
       setNumOfCategories(totalCategories);
       setNumOfBooks(totalBooks);
       setTopCategory({ title: maxCatName, count: maxCatCount });
+
+      if (totalBooks > 0) {
+        const currentRank = getRank(totalBooks);
+        const lastNotifiedRank = localStorage.getItem("last_notified_rank");
+
+        if (lastNotifiedRank !== currentRank.name) {
+          addNotification({
+            type: "achievement",
+            title: "PROMOTION DETECTED",
+            message: `Commander ${user?.name}, your orbital status has been upgraded to [${currentRank.name}]. Keep analyzing the cosmos!`,
+            categories: [currentRank.name, currentRank.label],
+          });
+          localStorage.setItem("last_notified_rank", currentRank.name);
+        }
+      }
+      // ------------------------------------
     };
     fetchBooks();
-  }, [session]);
+  }, [addNotification, session, user?.name]); 
 
   useEffect(() => {
     if (!session?.user?.id) return;
