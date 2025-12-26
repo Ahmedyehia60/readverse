@@ -1,0 +1,69 @@
+import { SettingsLogicType } from "@/hooks/useSettingsLogic";
+import { Loader2 } from "lucide-react";
+
+export const PasswordModal = ({ logic }: { logic: SettingsLogicType }) => (
+  <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
+    <div className="bg-[#0b081a] border border-emerald-500/30 p-10 rounded-[3rem] max-w-md w-full shadow-2xl animate-in zoom-in duration-300">
+      <h2 className="text-2xl font-black text-white uppercase mb-2">
+        Security Override
+      </h2>
+      <p className="text-[10px] text-emerald-500/60 font-bold uppercase tracking-widest mb-8">
+        Update Access Credentials
+      </p>
+
+      {logic.passwordStatus.text && (
+        <div
+          className={`mb-6 p-4 rounded-2xl text-[10px] font-bold uppercase border ${
+            logic.passwordStatus.type === "success"
+              ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+              : "bg-red-500/10 border-red-500/20 text-red-400"
+          }`}
+        >
+          {logic.passwordStatus.text}
+        </div>
+      )}
+
+      <form onSubmit={logic.handleUpdatePassword} className="space-y-4">
+        {(["current", "new", "confirm"] as const).map((field) => (
+          <input
+            key={field}
+            type="password"
+            placeholder={`${field.toUpperCase()} ${
+              field === "current" ? "ACCESS KEY" : "KEY"
+            }`}
+            required
+            className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:border-emerald-500/50 outline-none transition-all"
+            value={logic.passwords[field]}
+            onChange={(e) =>
+              logic.setPasswords({
+                ...logic.passwords,
+                [field]: e.target.value,
+              })
+            }
+          />
+        ))}
+
+        <div className="flex gap-3 pt-4">
+          <button
+            type="button"
+            onClick={() => logic.setIsPasswordModalOpen(false)}
+            className="flex-1 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase hover:bg-white/10 cursor-pointer"
+          >
+            Abort
+          </button>
+          <button
+            type="submit"
+            disabled={logic.loading}
+            className="flex-2 py-4 bg-emerald-600 rounded-2xl text-[10px] font-black uppercase hover:bg-emerald-500 shadow-lg disabled:opacity-50 cursor-pointer"
+          >
+            {logic.loading ? (
+              <Loader2 className="animate-spin mx-auto" size={18} />
+            ) : (
+              "Authorize Change"
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+);
