@@ -8,12 +8,13 @@ import SidebarIcon from "@/components/SideBarIcon";
 import Loader from "@/components/Loader";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import Link from "next/link"; 
+import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export default function Page() {
   const [favorites, setFavorites] = useState<IFavorite[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const t = useTranslations("Favourite");
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
@@ -72,19 +73,13 @@ export default function Page() {
       <SidebarIcon active="star" />
 
       <div className="mb-16 text-left">
-        <h1 className="text-3xl font-black flex items-center justify-start gap-3 bg-clip-text bg-linear-to-r text-white/90">
-          Favourite List
-        </h1>
-
-        <p className="mt-2 text-xl text-white/80">
-          Stories that earned a place in your orbit
-        </p>
+        <h1 className="text-3xl font-black flex items-center justify-start gap-3 bg-clip-text bg-linear-to-r text-white/90"></h1>
+        {t("title")}
+        <p className="mt-2 text-xl text-white/80">{t("description")}</p>
       </div>
 
       {favorites.length === 0 ? (
-        <p className="text-gray-400 text-center mt-20">
-          Your cosmic library is empty.
-        </p>
+        <p className="text-gray-400 text-center mt-20">{t("emptyState")}</p>
       ) : (
         <div className="flex flex-wrap justify-center gap-x-12 gap-y-20">
           <AnimatePresence mode="popLayout">
@@ -130,7 +125,6 @@ export default function Page() {
                     </circle>
                   </svg>
 
-                 
                   <Link
                     href={`/book/${encodeURIComponent(book.bookTitle)}`}
                     className="relative z-10 w-34 h-50 block transition-all duration-500 group-hover:scale-110 shadow-2xl cursor-pointer"
@@ -144,7 +138,6 @@ export default function Page() {
                 </div>
 
                 <div className="mt-5 text-center max-w-44">
-                
                   <Link href={`/book/${encodeURIComponent(book.bookTitle)}`}>
                     <h3 className="text-[13px] font-bold text-white line-clamp-1 group-hover:text-purple-300 transition-colors cursor-pointer hover:underline">
                       {book.bookTitle}

@@ -1,0 +1,35 @@
+{
+  "Sidebar": {
+    "home": "الرئيسية",
+    "inbox": "الوارِد",
+    "favorite": "المفضلة",
+    "search": "بحث",
+    "settings": "الإعدادات"
+  },
+  "Settings": {
+    "title": "الإعدادات",
+    "sections": {
+      "interface": "الواجهة",
+      "security": "التصريح الأمني",
+      "critical": "إجراء حرج"
+    },
+    "labels": {
+      "galaxyEnv": "بيئة المجرة",
+      "theme": "الثيم",
+      "deepSpace": "الفضاء العميق",
+      "nebula": "سديم",
+      "uplinkLanguage": "لغة الاتصال",
+      "protocol": "البروتوكول",
+      "updateKeys": "تحديث مفاتيح الوصول",
+      "changePass": "تغيير كلمة المرور",
+      "selfDestruct": "بدء التدمير الذاتي",
+      "destructInfo": "يؤدي إلى انهيار كونك بالكامل ومحو جميع البيانات",
+      "terminateBtn": "تدمير المجرة"
+    }
+  },
+  "Favourite": {
+    "title": "قائمة المفضلة",
+    "empty": "قائمة المفضلة الخاصة بك فارغة.",
+    "description": "القصص التي حصلت على مكان في مدارك."
+  }
+}

@@ -8,10 +8,11 @@ import { SecuritySection } from "@/components/settings/SecuritySection";
 import { CriticalActionSection } from "@/components/settings/CriticalActionSection";
 import { PasswordModal } from "@/components/settings/PasswordModal";
 import { DeleteModal } from "@/components/settings/DeleteModal";
+import { useTranslations } from "next-intl";
 
 export default function SettingsPage() {
   const logic = useSettingsLogic();
-
+  const t = useTranslations("Settings");
   return (
     <div
       className={`min-h-screen transition-colors duration-700  text-white p-6 lg:pl-24 relative overflow-x-hidden  bg-center bg-repeat  `}
@@ -26,7 +27,7 @@ export default function SettingsPage() {
             className={logic.isDeepSpace ? "text-indigo-400" : "text-pink-400"}
             size={32}
           />
-          <h1 className="text-4xl font-extrabold uppercase">Settings</h1>
+          <h1 className="text-4xl font-extrabold uppercase">{t("title")}</h1>
         </div>
 
         <div className="space-y-6 pb-20">

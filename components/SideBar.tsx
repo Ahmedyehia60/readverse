@@ -18,27 +18,26 @@ import { FaBook } from "react-icons/fa";
 import UserButton from "./UserButton";
 import { INotification } from "@/models/users";
 import { useNotifications } from "@/context/NotficationContext";
-import React from "react";
-import Link from "next/link";
-
+import { Link } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 export function AppSidebar({ onSearchClick }: { onSearchClick?: () => void }) {
   const { notifications } = useNotifications();
   const unreadCount = notifications.filter(
     (n: INotification) => !n.isRead
   ).length;
   const router = useRouter();
-
+  const t = useTranslations("Sidebar");
   const handleSignOut = async () => {
     await signOut({ redirect: false });
     router.push("/Login");
   };
 
   const items = [
-    { title: "Home", url: "/", icon: Home },
-    { title: "Inbox", url: "/Inbox", icon: Inbox },
-    { title: "Favorite", url: "/Favorites", icon: Star },
-    { title: "Search", url: "#", icon: Search },
-    { title: "Settings", url: "/Settings", icon: Settings },
+    { title: t("home"), url: "/", icon: Home },
+    { title: t("inbox"), url: "/Inbox", icon: Inbox },
+    { title: t("favorite"), url: "/Favorites", icon: Star },
+    { title: t("search"), url: "#", icon: Search },
+    { title: t("settings"), url: "/Settings", icon: Settings },
   ];
   const addBtnColor = "#4c3ba8";
 
@@ -64,7 +63,7 @@ export function AppSidebar({ onSearchClick }: { onSearchClick?: () => void }) {
               <SidebarGroupContent className="px-2 pt-4">
                 <SidebarMenu className="gap-2">
                   {items.map((item) => (
-                    <SidebarMenuItem key={item.title}>
+                    <SidebarMenuItem key={item.url}>
                       <SidebarMenuButton
                         asChild
                         className="hover:bg-white/5 transition-all duration-300 rounded-xl h-12 group"
