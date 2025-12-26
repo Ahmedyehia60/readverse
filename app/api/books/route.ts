@@ -65,7 +65,7 @@ export async function POST(req: Request) {
 
     if (!user.mindMap) user.mindMap = [];
 
-    /* 🔴 GLOBAL DUPLICATE CHECK */
+   
     const alreadyExists = user.mindMap.some((cat) =>
       cat.books.some((b) => b.title.toLowerCase() === cleanTitle.toLowerCase())
     );
@@ -172,7 +172,9 @@ export async function PATCH(req: Request) {
     if (!session || !session.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
     const body = await req.json();
+
     if (body.action === "MARK_READ") {
       await User.updateOne(
         { _id: session.user.id },
@@ -181,6 +183,19 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ message: "Notifications marked as read" });
     }
 
+  
+    if (body.action === "MARK_SINGLE_READ") {
+      const { notificationId } = body;
+      await User.updateOne(
+        { _id: session.user.id, "notifications.id": notificationId },
+        { $set: { "notifications.$.isRead": true } }
+      );
+      return NextResponse.json({
+        message: "Single notification marked as read",
+      });
+    }
+
+  
     const {
       fromCategory,
       toCategory,

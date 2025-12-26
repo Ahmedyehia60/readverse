@@ -25,6 +25,7 @@ interface NotificationContextType {
     notification: Omit<INotification, "id" | "isRead" | "createdAt">
   ) => void;
   markAllAsRead: () => void;
+  markAsRead: (id: string) => Promise<void>;
   unreadCount: number;
   isLoading: boolean;
 }
@@ -61,6 +62,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
     fetchExistingNotifications();
   }, []);
+
   const addNotification = (
     note: Omit<INotification, "id" | "isRead" | "createdAt">
   ) => {
@@ -71,6 +73,20 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
       createdAt: new Date(),
     };
     setNotifications((prev) => [newNotification, ...prev]);
+  };
+
+  const markAsRead = async (id: string) => {
+    
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+    );
+
+
+    fetch("/api/books", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "MARK_SINGLE_READ", notificationId: id }),
+    }).catch((error) => console.error("Failed to sync status:", error));
   };
 
   const markAllAsRead = async () => {
@@ -94,6 +110,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
         notifications,
         addNotification,
         markAllAsRead,
+        markAsRead,
         unreadCount,
         isLoading,
       }}
