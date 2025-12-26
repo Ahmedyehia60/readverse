@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 
 const getRandomImage = (): string => {
-  const totalImages = 7;
+  const totalImages = 25;
   const randomIndex = Math.floor(Math.random() * totalImages);
   return `/images/${randomIndex}.png`;
 };
