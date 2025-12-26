@@ -4,7 +4,6 @@ import connectToDatabase from "@/lib/mongo";
 import User from "@/models/users";
 import { getServerSession } from "next-auth";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function GET(req: Request) {
   try {
     await connectToDatabase();
@@ -17,7 +16,9 @@ export async function GET(req: Request) {
       );
     }
 
-    const user = await User.findById(session.user.id).select("name image");
+    const user = await User.findById(session.user.id).select(
+      "name image provider email"
+    );
 
     if (!user) {
       return NextResponse.json(
@@ -26,10 +27,20 @@ export async function GET(req: Request) {
       );
     }
 
-    return NextResponse.json({ success: true, user });
-  } catch (error: unknown) {
+    return NextResponse.json({
+      success: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        image: user.image,
+        email: user.email,
+        provider: user.provider,
+      },
+    });
+  } catch (error) {
+    console.error("API Error:", error);
     return NextResponse.json(
-      { success: false, message: "Server error", error: error.message },
+      { success: false, message: "Server error" },
       { status: 500 }
     );
   }
