@@ -267,65 +267,83 @@ export async function DELETE(req: Request) {
   try {
     await connectDB();
     const session = await getServerSession(authOptions);
+
     if (!session || !session.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
     const { categoryName, bookTitle } = await req.json();
 
-    if (!categoryName || !bookTitle) {
+    if (!categoryName) {
       return NextResponse.json(
-        { error: "Missing category name or book title" },
+        { error: "Missing category name" },
         { status: 400 }
       );
     }
+
     const user = (await User.findById(session.user.id)) as IUser | null;
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    if (!user.mindMap) {
-      user.mindMap = [];
-    }
-    const categoryIndex = user.mindMap.findIndex(
-      (c) => c.name.toLowerCase() === categoryName.toLowerCase()
-    );
+    if (!user.mindMap) user.mindMap = [];
 
-    if (categoryIndex === -1) {
-      return NextResponse.json(
-        { error: "Category not found" },
-        { status: 404 }
+  
+    if (!bookTitle) {
+    
+      user.mindMap = user.mindMap.filter(
+        (c) => c.name.toLowerCase() !== categoryName.toLowerCase()
       );
-    }
 
-    const category = user.mindMap[categoryIndex];
-    category.books = category.books.filter(
-      (b) => b.title.toLowerCase() !== bookTitle.toLowerCase()
-    );
-
-    category.count = category.books.length;
-    if (category.books.length === 0) {
-      const removedCategoryName = category.name;
-
-      user.mindMap.splice(categoryIndex, 1);
-
+      
       user.bridges = user.bridges.filter(
         (b: IBridge) =>
-          b.fromCategory !== removedCategoryName &&
-          b.toCategory !== removedCategoryName
+          b.fromCategory.toLowerCase() !== categoryName.toLowerCase() &&
+          b.toCategory.toLowerCase() !== categoryName.toLowerCase()
       );
     }
+    
+    else {
+      const categoryIndex = user.mindMap.findIndex(
+        (c) => c.name.toLowerCase() === categoryName.toLowerCase()
+      );
+
+      if (categoryIndex !== -1) {
+        const category = user.mindMap[categoryIndex];
+
+        category.books = category.books.filter(
+          (b) => b.title.toLowerCase() !== bookTitle.toLowerCase()
+        );
+        category.count = category.books.length;
+
+        
+        if (category.books.length === 0) {
+          user.mindMap.splice(categoryIndex, 1);
+          user.bridges = user.bridges.filter(
+            (b: IBridge) =>
+              b.fromCategory.toLowerCase() !== categoryName.toLowerCase() &&
+              b.toCategory.toLowerCase() !== categoryName.toLowerCase()
+          );
+        }
+      } else {
+        return NextResponse.json(
+          { error: "Category not found" },
+          { status: 404 }
+        );
+      }
+    }
+
     user.markModified("mindMap");
     user.markModified("bridges");
     await user.save();
 
-    // 9️⃣ Response
     return NextResponse.json({
-      message: "Book deleted successfully",
+      message: bookTitle ? "Book deleted" : "Category deleted",
       mindMap: user.mindMap,
       bridges: user.bridges,
     });
   } catch (error) {
-    console.error("Error deleting book:", error);
+    console.error("Error deleting:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
