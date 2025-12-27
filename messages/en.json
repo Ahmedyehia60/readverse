@@ -119,6 +119,13 @@
       "promotionTitle": "PROMOTION DETECTED",
       "promotionMessage": "Commander {name}, your orbital status has been upgraded to [{rank}]. Keep analyzing the cosmos!"
     },
+    "smartLink": {
+      "title": "New Smart Link Found!",
+      "message": "Bridge created between {cat1} and {cat2}",
+      "toastTitle": "Smart Link Found!",
+      "toastDesc": "We found a connection: \"{title}\" combines your interest in {cat1} and {cat2}.",
+      "viewBook": "View Book"
+    },
     "status": {
       "archived": "Archived",
       "achievement": "Achievement Unlocked",

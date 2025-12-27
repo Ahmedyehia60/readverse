@@ -15,7 +15,6 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 // ==================Types==========================
-
 // Fetch mapped books from API
 const fetchMappedBooks = async (cat1: string, cat2: string) => {
   const res = await fetch(
@@ -42,6 +41,7 @@ function DashBoard() {
   const searchParams = useSearchParams();
   const highlightParam = searchParams.get("highlight");
   const [activeHighlight, setActiveHighlight] = useState<string | null>(null);
+  const s = useTranslations("Notifications.smartLink");
   const t = useTranslations("Dashboard");
   const { addNotification } = useNotifications();
   useEffect(() => {

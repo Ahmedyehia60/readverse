@@ -59,7 +59,6 @@ const Profile: React.FC = () => {
         }
 
         const currentRank = getRank(totalBooks);
-        const translatedRankName = t(currentRank.name);
         const userNotifications = data.notifications || [];
         const lastAchievement = userNotifications
           .filter((n: INotification) => n.type === "achievement")
@@ -81,7 +80,7 @@ const Profile: React.FC = () => {
             title: s("promotionTitle"),
             message: s("promotionMessage", {
               name: commanderName,
-              rank: translatedRankName,
+              rank: currentRank.name,
             }),
             categories: [currentRank.name, currentRank.label],
           });
