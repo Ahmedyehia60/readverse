@@ -111,5 +111,25 @@
       "title": "ابحث عن الكتب",
       "description": "ابحث بعنوان الكتاب"
     }
+  },
+  "Notifications": {
+    "title": "السجل المجري",
+    "empty": "صمت في هذا القطاع",
+    "description": "نقل البيانات",
+    "clear": "مسح الكل",
+    "status": {
+      "archived": "مؤرشف",
+      "achievement": "تم فتح إنجاز",
+      "newSignal": "إشارة جديدة"
+    },
+    "achievement": {
+      "promotionTitle": "تم رصد ترقية",
+      "promotionMessage": "أيها القائد {name}، تم رفع حالتك المدارية إلى [{rank}]. استمر في تحليل الكون!"
+    },
+    "actions": {
+      "open": "فتح",
+      "engage": "اشتباك"
+    },
+    "incomingData": "بيانات واردة"
   }
 }

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { Pencil } from "lucide-react";
@@ -12,8 +12,9 @@ import MissionControl from "@/components/profile/MissionControl";
 import PlanetStats from "@/components/profile/PlanetStats";
 
 import { UserType, TopCategoryType } from "@/constants/ranks";
-import { ICategory } from "@/models/users";
 import { getRank } from "@/constants/ranks";
+import { useNotifications } from "@/context/NotficationContext";
+import { ICategory, INotification } from "@/models/users";
 
 const Profile: React.FC = () => {
   const { data: session, status } = useSession();
@@ -25,52 +26,99 @@ const Profile: React.FC = () => {
     title: "",
     count: 0,
   });
-
+  const { addNotification, notifications } = useNotifications();
   const t = useTranslations("Profile");
+  const s = useTranslations("Notifications.achievement");
+  const hasNotified = useRef(false);
 
   const rank = useMemo(() => getRank(numOfBooks), [numOfBooks]);
 
   useEffect(() => {
-    if (!session?.user?.id) return;
-
-    const fetchData = async () => {
+    const fetchBooksAndNotify = async () => {
+      if (!session?.user?.id || hasNotified.current) return;
       try {
-        const [booksRes, userRes] = await Promise.all([
-          fetch("/api/books"),
-          fetch(`/api/get-user?userId=${session.user.id}`),
-        ]);
-
-        const booksData = await booksRes.json();
-        const userData = await userRes.json();
+        hasNotified.current = true;
+        const res = await fetch("/api/books");
+        const data = await res.json();
 
         const totalBooks =
-          booksData.mindMap?.reduce(
+          data.mindMap?.reduce(
             (sum: number, cat: ICategory) => sum + (cat.count || 0),
             0
           ) ?? 0;
-        setNumOfBooks(totalBooks);
-        setNumOfCategories(booksData.mindMap?.length ?? 0);
-        setUser(userData.user);
 
-        if (booksData.mindMap && booksData.mindMap.length > 0) {
-          const top = booksData.mindMap.reduce((p: ICategory, c: ICategory) =>
-            (p.count || 0) > (c.count || 0) ? p : c
+        setNumOfCategories(data.mindMap?.length ?? 0);
+        setNumOfBooks(totalBooks);
+
+        if (data.mindMap && data.mindMap.length > 0) {
+          const top = data.mindMap.reduce(
+            (prev: ICategory, current: ICategory) =>
+              (prev.count || 0) > (current.count || 0) ? prev : current
           );
-          setTopCategory({
-            title: top.title || top.name || "Unknown",
-            count: top.count || 0,
+          setTopCategory({ title: top.name, count: top.count });
+        }
+
+        const currentRank = getRank(totalBooks);
+        const translatedRankName = t(currentRank.name);
+        const userNotifications = data.notifications || [];
+        const lastAchievement = userNotifications
+          .filter((n: INotification) => n.type === "achievement")
+          .sort(
+            (a: INotification, b: INotification) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )[0];
+
+        if (
+          totalBooks > 0 &&
+          (!lastAchievement ||
+            lastAchievement.categories?.[0] !== currentRank.name)
+        ) {
+          const commanderName =
+            user?.name || session?.user?.name || "Ahmed Yehia";
+
+          await addNotification({
+            type: "achievement",
+            title: s("promotionTitle"),
+            message: s("promotionMessage", {
+              name: commanderName,
+              rank: translatedRankName,
+            }),
+            categories: [currentRank.name, currentRank.label],
           });
         }
       } catch (error) {
-        console.error("Failed to fetch profile data", error);
+        console.error("Failed to fetch books:", error);
+        hasNotified.current = false;
+      }
+    };
+    fetchBooksAndNotify();
+    return () => {
+      hasNotified.current = false;
+    };
+  }, [session?.user?.id, addNotification, user?.name, session?.user?.name]);
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!session?.user?.id) return;
+      try {
+        const res = await fetch(`/api/get-user?userId=${session.user.id}`);
+        const data = await res.json();
+        setUser(data.user);
+      } catch (error) {
+        console.error("User fetch failed", error);
       }
     };
 
-    fetchData();
-  }, [session]);
-
+    fetchUserData();
+  }, [session?.user?.id]);
   if (status === "loading" || !user)
-    return <Loader text="Initializing HUD..." />;
+    return (
+      <Loader
+        bookScale={1.6}
+        bookTop={-100}
+        bookLeft={-40}
+        text="Loading worlds..."
+      />
+    );
 
   return (
     <div

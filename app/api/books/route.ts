@@ -174,7 +174,6 @@ export async function PATCH(req: Request) {
 
     const body = await req.json();
 
-   
     if (body.action === "MARK_READ") {
       await User.updateOne(
         { _id: session.user.id },
@@ -211,7 +210,6 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ message: "Achievement added successfully" });
     }
 
-    
     const {
       fromCategory,
       toCategory,

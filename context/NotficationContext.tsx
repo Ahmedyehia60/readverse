@@ -66,7 +66,6 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const addNotification = async (
     note: Omit<INotification, "id" | "isRead" | "createdAt">
   ) => {
-
     const newNotification: INotification = {
       ...note,
       id: Math.random().toString(36).substring(7),
@@ -76,7 +75,6 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
     setNotifications((prev) => [newNotification, ...prev]);
 
-    
     try {
       const response = await fetch("/api/books", {
         method: "PATCH",

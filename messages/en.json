@@ -102,7 +102,32 @@
         "The Chosen One": "The Chosen One"
       }
     }
-  },"Dashboard":{
-    "addBook":"Add Book"
+  },
+  "Dashboard": {
+    "addBook": "Add Book",
+    "addBookModal": {
+      "title": "Search Books",
+      "description": "Search by book title"
+    }
+  },
+  "Notifications": {
+    "title": "Galactic Log",
+    "empty": "Silence in this Sector",
+    "description": "Data Transmission",
+    "clear": "Clear All",
+    "achievement": {
+      "promotionTitle": "PROMOTION DETECTED",
+      "promotionMessage": "Commander {name}, your orbital status has been upgraded to [{rank}]. Keep analyzing the cosmos!"
+    },
+    "status": {
+      "archived": "Archived",
+      "achievement": "Achievement Unlocked",
+      "newSignal": "New Signal"
+    },
+    "actions": {
+      "open": "Open",
+      "engage": "Engage"
+    },
+    "incomingData": "Incoming Data"
   }
 }

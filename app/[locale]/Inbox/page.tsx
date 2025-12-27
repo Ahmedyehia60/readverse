@@ -4,12 +4,14 @@
 import { useNotifications } from "@/context/NotficationContext";
 import { INotification } from "@/models/users";
 import { ArrowRight, Sparkles, Bell, Trophy } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 export default function Inbox() {
   const { notifications, markAllAsRead, markAsRead } = useNotifications();
   const router = useRouter();
-
+  const t = useTranslations("Notifications");
+  const s = useTranslations("Profile");
   const handleNotificationClick = async (note: INotification) => {
     if (!note.isRead && markAsRead) {
       await markAsRead(note.id);
@@ -26,20 +28,20 @@ export default function Inbox() {
     <div className="min-h-screen bg-[#020106] p-8 text-white selection:bg-[#4c3ba8]/30">
       <div className="max-w-4xl mx-auto">
         <header className="flex justify-between items-end mb-10 border-b border-white/5 pb-6">
-          <div> 
+          <div>
             <h1 className="text-3xl font-black tracking-tighter flex items-center gap-3 italic uppercase">
               <Sparkles className="text-[#4c3ba8]" size={28} />
-              Galactic Log
+              {t("title")}
             </h1>
             <p className="text-gray-500 text-[10px] mt-2 font-mono tracking-[0.3em] uppercase opacity-70">
-              Data Transmissions
+              {t("description")}
             </p>
           </div>
           <button
             onClick={markAllAsRead}
             className="text-[10px] text-gray-500 hover:text-white transition-colors uppercase font-bold tracking-widest cursor-pointer border border-white/10 px-4 py-2 rounded-lg hover:bg-white/5"
           >
-            Clear All
+            {t("clear")}
           </button>
         </header>
 
@@ -101,10 +103,10 @@ export default function Inbox() {
                         }`}
                       >
                         {note.isRead
-                          ? "Archived"
+                          ? t("status.archived")
                           : note.type === "achievement"
-                          ? "Achievement Unlocked"
-                          : "New Signal"}
+                          ? t("status.achievement")
+                          : t("status.newSignal")}
                       </span>
                     </div>
 
@@ -135,7 +137,7 @@ export default function Inbox() {
                           }`}
                         >
                           <span className="uppercase">
-                            {note.categories[0]}
+                            {s(note.categories[0])}
                           </span>
                           {note.categories[1] && (
                             <>
@@ -149,7 +151,7 @@ export default function Inbox() {
                                     : "text-[#4c3ba8]"
                                 }`}
                               >
-                                {note.categories[1]}
+                                {s(`ranks.labels.${note.categories[1]}`)}
                               </span>
                             </>
                           )}
@@ -167,7 +169,7 @@ export default function Inbox() {
                       }`}
                     onClick={() => handleNotificationClick(note)}
                   >
-                    {note.isRead ? "Open" : "Engage"}
+                    {note.isRead ? t("actions.open") : t("actions.engage")}
                   </button>
                 </div>
               </div>
@@ -176,7 +178,7 @@ export default function Inbox() {
             <div className="flex flex-col items-center justify-center py-32 border border-dashed border-white/5 rounded-4xl opacity-30">
               <Bell size={40} className="mb-4 text-gray-600" />
               <p className="font-bold text-sm uppercase tracking-[0.4em]">
-                Silence in this Sector
+                {t("empty")}
               </p>
             </div>
           )}
