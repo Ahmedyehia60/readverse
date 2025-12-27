@@ -13,7 +13,7 @@ export const CriticalActionSection = ({ onOpen }: CriticalActionProps) => {
             <AlertCircle size={14} className="animate-pulse" />
             {t("sections.critical")}
           </h2>
-          <p className="text-[15px] font-bold text-red-100 tracking-tight">
+          <p className="text-[15px] font-bold text-red-100 tracking-tight text-start">
             {t("labels.selfDestruct")}
           </p>
           <p className="text-[11px] text-red-500/60 uppercase mt-1 tracking-wider font-bold">

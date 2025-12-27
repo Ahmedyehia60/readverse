@@ -31,5 +31,78 @@
     "title": "Favourite List",
     "empty": "Your favourite list is empty.",
     "description": "Stories that earned a place in your orbit."
+  },
+  "PasswordModal": {
+    "title": "Security Override",
+    "description": "Update Access Credentials",
+    "fields": {
+      "current": "Current Access Key",
+      "new": "New Key",
+      "confirm": "Confirm Key"
+    },
+    "buttons": {
+      "abort": "Abort",
+      "authorize": "Authorize Change"
+    }
+  },
+  "deleteModal": {
+    "title": "Total Collapse",
+    "description": "Your galaxy will be erased in {count} seconds. \n This action is permanent.",
+    "abort": "Abort Mission"
+  },
+  "Profile": {
+    "interfaceTitle": "COMMANDER INTERFACE",
+    "modifyBtn": "MODIFY PROFILE",
+    "missionControl": {
+      "title": "Mission Progress",
+      "status": "Awaiting higher orbital status",
+      "nextMilestone": "Next Milestone",
+      "dataSync": "Data Sync",
+      "books": "BOOKS",
+      "remaining": "Analyze {count} more books to achieve {label} status",
+      "peakTitle": "Universal Peak: Galactic Overlord",
+      "peakDesc": "You have reached the ultimate cosmic knowledge"
+    },
+    "stats": {
+      "knowledge": "Knowledge",
+      "dominantSector": "Dominant Sector",
+      "activeObjects": "Active Objects",
+      "sectors": "Sectors",
+      "noData": "No Data"
+    },
+    "editModal": {
+      "title": "Edit Profile",
+      "description": "Update your commander credentials.",
+      "nameLabel": "Commander Name",
+      "avatarLabel": "Avatar Uplink",
+      "cancel": "CANCEL",
+      "save": "SAVE CHANGES"
+    },
+    "ranks": {
+      "Novice": "Novice",
+      "Voyager": "Voyager",
+      "Explorer": "Explorer",
+      "Pilot": "Pilot",
+      "Commander": "Commander",
+      "Captain": "Captain",
+      "Veteran": "Veteran",
+      "Legend": "Legend",
+      "Mythic": "Mythic",
+      "Galactic Overlord": "Galactic Overlord",
+      "labels": {
+        "Space Cadet": "Space Cadet",
+        "Pathfinder": "Pathfinder",
+        "Star Tracker": "Star Tracker",
+        "Flight Lead": "Flight Lead",
+        "Fleet Officer": "Fleet Officer",
+        "Galaxy Guard": "Galaxy Guard",
+        "Cosmic Knight": "Cosmic Knight",
+        "Star Master": "Star Master",
+        "Universe Sage": "Universe Sage",
+        "The Chosen One": "The Chosen One"
+      }
+    }
+  },"Dashboard":{
+    "addBook":"Add Book"
   }
 }

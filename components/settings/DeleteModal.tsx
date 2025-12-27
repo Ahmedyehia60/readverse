@@ -2,7 +2,7 @@ import { SettingsLogicType } from "@/hooks/useSettingsLogic";
 import { useTranslations } from "next-intl";
 
 export const DeleteModal = ({ logic }: { logic: SettingsLogicType }) => {
-  const t = useTranslations("Settings");
+  const t = useTranslations("deleteModal");
   return (
     <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
       <div className="bg-[#0b081a] border border-red-500/30 p-10 rounded-[3rem] max-w-sm w-full text-center shadow-2xl animate-in zoom-in duration-300">
@@ -13,17 +13,16 @@ export const DeleteModal = ({ logic }: { logic: SettingsLogicType }) => {
           </span>
         </div>
         <h2 className="text-2xl font-extrabold text-white uppercase mb-3">
-          Total Collapse
+          {t("title")}
         </h2>
-        <p className="text-[10px] text-gray-500 font-bold uppercase mb-10">
-          Your galaxy will be erased in {logic.countdown} seconds. <br /> This
-          action is permanent.
+        <p className="text-[10px] text-gray-500 font-bold uppercase mb-10 whitespace-pre-line">
+          {t("description", { count: logic.countdown })}
         </p>
         <button
           onClick={logic.cancelDelete}
-          className="w-full py-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-3xl text-[10px] font-black uppercase tracking-[0.4em] text-white"
+          className="w-full py-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-3xl text-[10px] font-black uppercase tracking-[0.4em] text-white cursor-pointer transition-all"
         >
-          Abort Mission
+          {t("abort")}
         </button>
       </div>
     </div>

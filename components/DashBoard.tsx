@@ -12,6 +12,7 @@ import { SidebarWrapper } from "./dashboard/SidebarWrapper";
 import { SearchOverlay } from "./dashboard/SearchOverlay";
 import { useNotifications } from "@/context/NotficationContext";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 // ==================Types==========================
 
@@ -41,7 +42,7 @@ function DashBoard() {
   const searchParams = useSearchParams();
   const highlightParam = searchParams.get("highlight");
   const [activeHighlight, setActiveHighlight] = useState<string | null>(null);
-
+  const t = useTranslations("Dashboard");
   const { addNotification } = useNotifications();
   useEffect(() => {
     if (highlightParam) {
@@ -254,7 +255,7 @@ function DashBoard() {
         className="absolute top-4 right-4 p-5 bg-[#2B1B72] text-white hover:bg-blue-900 z-10 cursor-pointer"
         onClick={() => setShowModal(true)}
       >
-        Add Book
+        {t("addBook")}
       </Button>
 
       <MindMapCanvas

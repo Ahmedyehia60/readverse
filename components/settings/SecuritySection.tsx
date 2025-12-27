@@ -41,7 +41,7 @@ export const SecuritySection = ({
             >
               {isSocial ? "Managed by Provider" : t("labels.updateKeys")}
             </p>
-            <p className="text-[11px] text-emerald-500/50 mt-1 uppercase tracking-wider font-black">
+            <p className="text-[11px] text-emerald-500/50 mt-1 uppercase tracking-wider font-black text-start">
               {isSocial
                 ? "Account synced with Google/FB"
                 : t("labels.changePass")}

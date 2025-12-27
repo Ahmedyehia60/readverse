@@ -31,5 +31,85 @@
     "title": "قائمة المفضلة",
     "empty": "قائمة المفضلة الخاصة بك فارغة.",
     "description": "القصص التي حصلت على مكان في مدارك."
+  },
+
+  "PasswordModal": {
+    "title": "تجاوز النظام الأمني",
+    "description": "تحديث بيانات الوصول السرية",
+    "fields": {
+      "current": "مفتاح الوصول الحالي",
+      "new": "المفتاح الجديد",
+      "confirm": "تأكيد المفتاح"
+    },
+    "buttons": {
+      "abort": "إلغاء العملية",
+      "authorize": "تفويض التغيير"
+    }
+  },
+  "deleteModal": {
+    "title": "انهيار كلي",
+    "description": "سيتم محو مجرتك خلال {count} ثوانٍ.\nهذا الإجراء دائم ولا يمكن التراجع عنه.",
+    "abort": "إلغاء المهمة"
+  },
+  "Profile": {
+    "interfaceTitle": "واجهة القائد",
+    "modifyBtn": "تعديل الملف الشخصي",
+    "missionControl": {
+      "title": "تقدم المهمة",
+      "status": "في انتظار حالة مدارية أعلى",
+      "nextMilestone": "المرحلة القادمة",
+      "dataSync": "مزامنة البيانات",
+      "books": "كتب",
+      "remaining": "حلل {count} من الكتب الإضافية لتحقيق رتبة {label}",
+      "peakTitle": "ذروة الكون: سيد المجرة",
+      "peakDesc": "لقد وصلت إلى أقصى درجات المعرفة الكونية"
+    },
+
+    "stats": {
+      "knowledge": "المعرفة",
+      "dominantSector": "القطاع المهيمن",
+      "activeObjects": "كائنات نشطة",
+      "sectors": "القطاعات",
+      "noData": "لا توجد بيانات"
+    },
+    "editModal": {
+      "title": "تعديل الملف الشخصي",
+      "description": "تحديث بيانات القائد الخاصة بك",
+      "nameLabel": "اسم القائد",
+      "avatarLabel": "تحديث الصورة الشخصية",
+      "cancel": "إلغاء",
+      "save": "حفظ التغييرات"
+    },
+    "ranks": {
+      "Novice": "مبتدئ",
+      "Voyager": "مسافر",
+      "Explorer": "مستكشف",
+      "Pilot": "طيار",
+      "Commander": "قائد",
+      "Captain": "كابتن",
+      "Veteran": "محارب قديم",
+      "Legend": "أسطورة",
+      "Mythic": "خرافي",
+      "Galactic Overlord": "سيد المجرة",
+      "labels": {
+        "Space Cadet": "كاديت فضاء",
+        "Pathfinder": "كاشف المسار",
+        "Star Tracker": "متعقب النجوم",
+        "Flight Lead": "قائد رحلة",
+        "Fleet Officer": "ضابط أسطول",
+        "Galaxy Guard": "حارس المجرة",
+        "Cosmic Knight": "فارس كوني",
+        "Star Master": "سيد النجوم",
+        "Universe Sage": "حكيم الكون",
+        "The Chosen One": "المختار"
+      }
+    }
+  },
+  "Dashboard": {
+    "addBook": "إضافة كتاب",
+    "addBookModal": {
+      "title": "ابحث عن الكتب",
+      "description": "ابحث بعنوان الكتاب"
+    }
   }
 }

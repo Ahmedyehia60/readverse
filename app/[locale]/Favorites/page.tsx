@@ -72,14 +72,14 @@ export default function Page() {
     >
       <SidebarIcon active="star" />
 
-      <div className="mb-16 text-left">
+      <div className="mb-16 text-start">
         <h1 className="text-3xl font-black flex items-center justify-start gap-3 bg-clip-text bg-linear-to-r text-white/90"></h1>
         {t("title")}
         <p className="mt-2 text-xl text-white/80">{t("description")}</p>
       </div>
 
       {favorites.length === 0 ? (
-        <p className="text-gray-400 text-center mt-20">{t("emptyState")}</p>
+        <p className="text-gray-400 text-center mt-20">{t("empty")}</p>
       ) : (
         <div className="flex flex-wrap justify-center gap-x-12 gap-y-20">
           <AnimatePresence mode="popLayout">

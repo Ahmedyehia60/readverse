@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Search, X, CirclePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BookItem, SearchResults } from "@/models/users";
+import { useTranslations } from "next-intl";
 
 interface Props {
   isOpen: boolean;
@@ -17,7 +18,7 @@ export const SearchModal = ({ isOpen, onClose, onAddBook }: Props) => {
     null
   );
   const [loading, setLoading] = useState(false);
-
+  const t = useTranslations("Dashboard");
   const handleSearch = useCallback(async (query: string) => {
     if (!query.trim()) {
       setSearchResults(null);
@@ -53,9 +54,11 @@ export const SearchModal = ({ isOpen, onClose, onAddBook }: Props) => {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-white">Search Books</h2>
+          <h2 className="text-xl font-bold text-white">
+            {t("addBookModal.title")}
+          </h2>
           <Button
-            className="p-1 bg-white/10 hover:bg-white/30 rounded-full"
+            className="p-1 bg-white/10 hover:bg-white/30 rounded-full cursor-pointer"
             onClick={onClose}
           >
             <X className="w-4 h-4 text-white" />
@@ -68,7 +71,7 @@ export const SearchModal = ({ isOpen, onClose, onAddBook }: Props) => {
             type="text"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
-            placeholder="Search by the title..."
+            placeholder={t("addBookModal.description")}
             className="w-full p-3 pl-10 rounded-lg bg-[#454350] text-white focus:outline-none focus:ring-2 focus:ring-[#2B1B72]"
           />
         </div>
