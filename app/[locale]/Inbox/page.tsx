@@ -16,7 +16,7 @@ export default function Inbox() {
     }
 
     if (note.type === "achievement") {
-      router.push("/profile");
+      router.push("/Profile");
     } else {
       router.push(`/?highlight=${encodeURIComponent(note.bookTitle || "")}`);
     }
@@ -26,7 +26,7 @@ export default function Inbox() {
     <div className="min-h-screen bg-[#020106] p-8 text-white selection:bg-[#4c3ba8]/30">
       <div className="max-w-4xl mx-auto">
         <header className="flex justify-between items-end mb-10 border-b border-white/5 pb-6">
-          <div>
+          <div> 
             <h1 className="text-3xl font-black tracking-tighter flex items-center gap-3 italic uppercase">
               <Sparkles className="text-[#4c3ba8]" size={28} />
               Galactic Log

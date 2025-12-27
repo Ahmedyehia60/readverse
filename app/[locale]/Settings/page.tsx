@@ -1,4 +1,5 @@
-/* eslint-disable jsx-a11y/alt-text */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 "use client";
 
 import SidebarIcon from "@/components/SideBarIcon";
@@ -9,10 +10,11 @@ import { SecuritySection } from "@/components/settings/SecuritySection";
 import { CriticalActionSection } from "@/components/settings/CriticalActionSection";
 import { PasswordModal } from "@/components/settings/PasswordModal";
 import { DeleteModal } from "@/components/settings/DeleteModal";
+import { useTranslations } from "next-intl";
 
 export default function SettingsPage() {
   const logic = useSettingsLogic();
-
+  const t = useTranslations("Settings");
   return (
     <div className="min-h-screen text-white p-6 lg:pl-28 relative overflow-hidden bg-[#020106]">
 

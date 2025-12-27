@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
@@ -11,11 +12,11 @@ import {
   Sparkles,
   Crown,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import Loader from "@/components/Loader";
 import SidebarIcon from "@/components/SideBarIcon";
-import { ICategory } from "@/models/users";
+
 import { useNotifications } from "@/context/NotficationContext";
 
 function Profile() {
@@ -28,14 +29,17 @@ function Profile() {
   const [newName, setNewName] = useState("");
   const [newImage, setNewImage] = useState<File | null>(null);
   const [uploadPreview, setUploadPreview] = useState<string | null>(null);
-  const { addNotification } = useNotifications();
+
   const [numOfBooks, setNumOfBooks] = useState(0);
   const [numOfCategories, setNumOfCategories] = useState(0);
+  const { addNotification, notifications } = useNotifications();
+  const hasNotified = useRef(false);
   const [topCategory, setTopCategory] = useState<TopCategoryType>({
     title: "N/A",
     count: 0,
   });
 
+  //=================================================fetch books and handle rank==================================
   const getRank = (count: number) => {
     if (count < 2)
       return {
@@ -110,53 +114,68 @@ function Profile() {
 
   const rank = getRank(numOfBooks);
 
+  //=================================================fetch books and handle rank==================================
+
   useEffect(() => {
-    const fetchBooks = async () => {
-      if (!session?.user?.id) return;
-      const res = await fetch("/api/books");
-      const data = await res.json();
+    const fetchBooksAndNotify = async () => {
+      if (!session?.user?.id || hasNotified.current) return;
+      try {
+        hasNotified.current = true;
+        const res = await fetch("/api/books");
+        const data = await res.json();
 
-      const totalBooks =
-        data.mindMap?.reduce(
-          (sum: number, cat: ICategory) => sum + (cat.count || 0),
-          0
-        ) ?? 0;
-      const totalCategories = data.mindMap?.length ?? 0;
+        const totalBooks =
+          data.mindMap?.reduce(
+            (sum: number, cat: any) => sum + (cat.count || 0),
+            0
+          ) ?? 0;
 
-      let maxCatName = "No Data";
-      let maxCatCount = 0;
-      if (data.mindMap && data.mindMap.length > 0) {
-        const topCat = data.mindMap.reduce(
-          (prev: ICategory, current: ICategory) =>
+        setNumOfCategories(data.mindMap?.length ?? 0);
+        setNumOfBooks(totalBooks);
+
+        if (data.mindMap && data.mindMap.length > 0) {
+          const top = data.mindMap.reduce((prev: any, current: any) =>
             (prev.count || 0) > (current.count || 0) ? prev : current
-        );
-        maxCatName = topCat.title || topCat.name || "Unknown";
-        maxCatCount = topCat.count || 0;
-      }
+          );
+          setTopCategory({ title: top.name, count: top.count });
+        }
 
-      setNumOfCategories(totalCategories);
-      setNumOfBooks(totalBooks);
-      setTopCategory({ title: maxCatName, count: maxCatCount });
-
-      if (totalBooks > 0) {
         const currentRank = getRank(totalBooks);
-        const lastNotifiedRank = localStorage.getItem("last_notified_rank");
+        const userNotifications = data.notifications || [];
+        const lastAchievement = userNotifications
+          .filter((n: any) => n.type === "achievement")
+          .sort(
+            (a: any, b: any) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )[0];
 
-        if (lastNotifiedRank !== currentRank.name) {
-          addNotification({
+        if (
+          totalBooks > 0 &&
+          (!lastAchievement ||
+            lastAchievement.categories?.[0] !== currentRank.name)
+        ) {
+          const commanderName =
+            user?.name || session?.user?.name || "Ahmed Yehia";
+
+          await addNotification({
             type: "achievement",
             title: "PROMOTION DETECTED",
-            message: `Commander ${user?.name}, your orbital status has been upgraded to [${currentRank.name}]. Keep analyzing the cosmos!`,
+            message: `Commander ${commanderName}, your orbital status has been upgraded to [${currentRank.name}]. Keep analyzing the cosmos!`,
             categories: [currentRank.name, currentRank.label],
           });
-          localStorage.setItem("last_notified_rank", currentRank.name);
         }
+      } catch (error) {
+        console.error("Failed to fetch books:", error);
+        hasNotified.current = false;
       }
-      // ------------------------------------
     };
-    fetchBooks();
-  }, [addNotification, session, user?.name]); 
+    fetchBooksAndNotify();
+    return () => {
+      hasNotified.current = false;
+    };
+  }, [session?.user?.id, addNotification, user?.name, session?.user?.name]);
 
+  //=================================================fetch top category==================================
   useEffect(() => {
     if (!session?.user?.id) return;
     const fetchUser = async () => {
@@ -167,6 +186,8 @@ function Profile() {
     };
     fetchUser();
   }, [session]);
+
+  //=================================================determine top category==================================
 
   const handleSave = async () => {
     const formData = new FormData();
@@ -196,6 +217,7 @@ function Profile() {
       />
     );
 
+  //=================================================MAIN RETURN JSX==================================
   return (
     <div
       className="min-h-screen bg-center bg-repeat text-white relative overflow-x-hidden"

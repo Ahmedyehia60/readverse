@@ -1,0 +1,35 @@
+{
+  "Sidebar": {
+    "home": "Home",
+    "inbox": "Inbox",
+    "favorite": "Favorite",
+    "search": "Search",
+    "settings": "Settings"
+  },
+  "Settings": {
+    "title": "SETTINGS",
+    "sections": {
+      "interface": "INTERFACE",
+      "security": "SECURITY CLEARANCE",
+      "critical": "CRITICAL ACTION"
+    },
+    "labels": {
+      "galaxyEnv": "Galaxy Environment",
+      "theme": "Theme",
+      "deepSpace": "Deep Space",
+      "nebula": "Nebula",
+      "uplinkLanguage": "Uplink Language",
+      "protocol": "Protocol",
+      "updateKeys": "Update Access Keys",
+      "changePass": "Change Password",
+      "selfDestruct": "Initiate Self-Destruct",
+      "destructInfo": "COLLAPSES YOUR ENTIRE UNIVERSE AND ERASES ALL DATA",
+      "terminateBtn": "Terminate Galaxy"
+    }
+  },
+  "Favourite": {
+    "title": "Favourite List",
+    "empty": "Your favourite list is empty.",
+    "description": "Stories that earned a place in your orbit."
+  }
+}
