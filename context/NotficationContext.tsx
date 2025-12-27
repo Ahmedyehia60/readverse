@@ -63,30 +63,54 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     fetchExistingNotifications();
   }, []);
 
-  const addNotification = (
+  const addNotification = async (
     note: Omit<INotification, "id" | "isRead" | "createdAt">
   ) => {
+
     const newNotification: INotification = {
       ...note,
       id: Math.random().toString(36).substring(7),
       isRead: false,
       createdAt: new Date(),
     };
-    setNotifications((prev) => [newNotification, ...prev]);
-  };
 
-  const markAsRead = async (id: string) => {
+    setNotifications((prev) => [newNotification, ...prev]);
+
     
+    try {
+      const response = await fetch("/api/books", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "ADD_ACHIEVEMENT",
+          notification: newNotification,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to save notification to DB");
+      }
+    } catch (error) {
+      console.error("Network error while saving notification:", error);
+    }
+  };
+  const markAsRead = async (id: string) => {
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
     );
 
-
-    fetch("/api/books", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "MARK_SINGLE_READ", notificationId: id }),
-    }).catch((error) => console.error("Failed to sync status:", error));
+    try {
+      await fetch("/api/books", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "MARK_SINGLE_READ",
+          notificationId: id,
+        }),
+      });
+    } catch (error) {
+      console.error("Failed to sync status:", error);
+    }
   };
 
   const markAllAsRead = async () => {

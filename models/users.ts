@@ -105,14 +105,18 @@ const CategorySchema = new mongoose.Schema(
   },
   { _id: false }
 );
-const NotificationSchema = new mongoose.Schema({
-  id: { type: String, required: true },
-  type: { type: String, default: "" },
+const NotificationSchema = new Schema({
+  id: { type: String, default: () => Math.random().toString(36).substring(7) },
+  type: {
+    type: String,
+    enum: ["smart-link", "achievement"],
+    default: "smart-link",
+  },
   title: { type: String, required: true },
-  bookTitle: { type: String },
   message: { type: String, required: true },
+  bookTitle: { type: String },
   bookImage: { type: String },
-  categories: { type: [String] },
+  categories: { type: [String], default: [] },
   isRead: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
 });

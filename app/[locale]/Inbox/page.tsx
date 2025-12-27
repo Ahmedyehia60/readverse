@@ -3,25 +3,30 @@
 "use client";
 import { useNotifications } from "@/context/NotficationContext";
 import { INotification } from "@/models/users";
-import { ArrowRight, Sparkles, Bell } from "lucide-react";
+import { ArrowRight, Sparkles, Bell, Trophy } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function Inbox() {
   const { notifications, markAllAsRead, markAsRead } = useNotifications();
   const router = useRouter();
 
-  const handleNotificationClick = (note: INotification) => {
+  const handleNotificationClick = async (note: INotification) => {
     if (!note.isRead && markAsRead) {
-      markAsRead(note.id);
+      await markAsRead(note.id);
     }
-    router.push(`/?highlight=${encodeURIComponent(note.bookTitle || "")}`);
+
+    if (note.type === "achievement") {
+      router.push("/Profile");
+    } else {
+      router.push(`/?highlight=${encodeURIComponent(note.bookTitle || "")}`);
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#020106] p-8 text-white selection:bg-[#4c3ba8]/30">
       <div className="max-w-4xl mx-auto">
         <header className="flex justify-between items-end mb-10 border-b border-white/5 pb-6">
-          <div>
+          <div> 
             <h1 className="text-3xl font-black tracking-tighter flex items-center gap-3 italic uppercase">
               <Sparkles className="text-[#4c3ba8]" size={28} />
               Galactic Log
@@ -46,23 +51,41 @@ export default function Inbox() {
                 className={`relative overflow-hidden group border transition-all duration-300 p-5 rounded-2xl
                   ${
                     note.isRead
-                      ? "border-white/5 bg-white/[0.01]"
-                      : "border-white/10 bg-white/[0.03] hover:border-[#4c3ba8]/40 hover:bg-[#4c3ba8]/5 shadow-lg shadow-purple-900/5"
+                      ? "border-white/5 bg-white/1"
+                      : "border-white/10 bg-white/3 hover:border-[#4c3ba8]/40 hover:bg-[#4c3ba8]/5 shadow-lg shadow-purple-900/5"
                   }`}
               >
                 <div className="flex gap-6 items-start relative z-10">
-                  {note.bookImage && (
-                    <div className="relative shrink-0">
-                      <img
-                        src={note.bookImage}
-                        className={`w-16 h-24 object-cover rounded-xl shadow-2xl border border-white/10 transition-all duration-500
-                          ${
-                            note.isRead
-                              ? "opacity-60 grayscale-[0.5]"
-                              : "group-hover:scale-105 group-hover:border-[#4c3ba8]/50"
-                          }`}
+                  {note.type === "achievement" ? (
+                    <div
+                      className={`p-4 rounded-xl border shrink-0 transition-all duration-500 
+                      ${
+                        note.isRead
+                          ? "border-white/5 bg-white/5 opacity-50"
+                          : "border-yellow-500/30 bg-yellow-500/10 shadow-[0_0_20px_rgba(234,179,8,0.1)] group-hover:scale-105"
+                      }`}
+                    >
+                      <Trophy
+                        className={
+                          note.isRead ? "text-gray-500" : "text-yellow-500"
+                        }
+                        size={32}
                       />
                     </div>
+                  ) : (
+                    note.bookImage && (
+                      <div className="relative shrink-0">
+                        <img
+                          src={note.bookImage}
+                          className={`w-16 h-24 object-cover rounded-xl shadow-2xl border border-white/10 transition-all duration-500
+                            ${
+                              note.isRead
+                                ? "opacity-60 grayscale-[0.5]"
+                                : "group-hover:scale-105 group-hover:border-[#4c3ba8]/50"
+                            }`}
+                        />
+                      </div>
+                    )
                   )}
 
                   <div className="flex-1">
@@ -72,10 +95,16 @@ export default function Inbox() {
                         ${
                           note.isRead
                             ? "bg-white/10 text-gray-500"
+                            : note.type === "achievement"
+                            ? "bg-yellow-600 text-white shadow-[0_0_10px_rgba(202,138,4,0.3)]"
                             : "bg-[#4c3ba8] text-white shadow-[0_0_10px_rgba(76,59,168,0.3)]"
                         }`}
                       >
-                        {note.isRead ? "Archived" : "New Signal"}
+                        {note.isRead
+                          ? "Archived"
+                          : note.type === "achievement"
+                          ? "Achievement Unlocked"
+                          : "New Signal"}
                       </span>
                     </div>
 
@@ -84,7 +113,7 @@ export default function Inbox() {
                         note.isRead ? "text-gray-400" : "text-white"
                       }`}
                     >
-                      {note.bookTitle || "Incoming Data"}
+                      {note.title || note.bookTitle || "Incoming Data"}
                     </h3>
 
                     <p
@@ -115,6 +144,8 @@ export default function Inbox() {
                                 className={`uppercase ${
                                   note.isRead
                                     ? "text-gray-700"
+                                    : note.type === "achievement"
+                                    ? "text-yellow-500"
                                     : "text-[#4c3ba8]"
                                 }`}
                               >

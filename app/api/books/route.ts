@@ -65,7 +65,6 @@ export async function POST(req: Request) {
 
     if (!user.mindMap) user.mindMap = [];
 
-   
     const alreadyExists = user.mindMap.some((cat) =>
       cat.books.some((b) => b.title.toLowerCase() === cleanTitle.toLowerCase())
     );
@@ -175,6 +174,7 @@ export async function PATCH(req: Request) {
 
     const body = await req.json();
 
+   
     if (body.action === "MARK_READ") {
       await User.updateOne(
         { _id: session.user.id },
@@ -183,7 +183,6 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ message: "Notifications marked as read" });
     }
 
-  
     if (body.action === "MARK_SINGLE_READ") {
       const { notificationId } = body;
       await User.updateOne(
@@ -195,7 +194,24 @@ export async function PATCH(req: Request) {
       });
     }
 
-  
+    if (body.action === "ADD_ACHIEVEMENT") {
+      const { notification } = body;
+      await User.updateOne(
+        { _id: session.user.id },
+        {
+          $push: {
+            notifications: {
+              ...notification,
+              isRead: false,
+              createdAt: new Date(),
+            },
+          },
+        }
+      );
+      return NextResponse.json({ message: "Achievement added successfully" });
+    }
+
+    
     const {
       fromCategory,
       toCategory,
@@ -237,7 +253,7 @@ export async function PATCH(req: Request) {
     }
 
     return NextResponse.json({
-      message: "Bridge and notification saved successfully",
+      message: "Operation successful",
       bridges: user.bridges,
       notifications: user.notifications,
     });
