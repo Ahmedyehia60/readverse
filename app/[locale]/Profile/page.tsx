@@ -26,13 +26,15 @@ const Profile: React.FC = () => {
     title: "",
     count: 0,
   });
+
   const { addNotification, notifications } = useNotifications();
   const t = useTranslations("Profile");
   const s = useTranslations("Notifications.achievement");
   const hasNotified = useRef(false);
-
   const rank = useMemo(() => getRank(numOfBooks), [numOfBooks]);
 
+
+  
   useEffect(() => {
     const fetchBooksAndNotify = async () => {
       if (!session?.user?.id || hasNotified.current) return;
@@ -96,6 +98,8 @@ const Profile: React.FC = () => {
       hasNotified.current = false;
     };
   }, [session?.user?.id, addNotification, user?.name, session?.user?.name]);
+
+
   useEffect(() => {
     const fetchUserData = async () => {
       if (!session?.user?.id) return;

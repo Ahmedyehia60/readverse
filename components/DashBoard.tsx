@@ -234,6 +234,37 @@ function DashBoard() {
     }
   };
 
+  // ==================Handle Delete Category==========================
+  const handleDeleteCategory = async (categoryName: string) => {
+    if (
+      !confirm(
+        `Are you sure you want to delete the entire "${categoryName}" category?`
+      )
+    )
+      return;
+
+    try {
+      const res = await fetch("/api/books", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+
+        body: JSON.stringify({ categoryName }),
+      });
+
+      if (!res.ok) throw new Error();
+
+      const data = await res.json();
+
+      setMindMap(data.mindMap);
+      setBridges(data.bridges);
+
+      setActiveCategory(null);
+      toast.success(`Category "${categoryName}" deleted successfully`);
+    } catch (error) {
+      toast.error("Failed to delete category");
+    }
+  };
+
   return (
     <div
       className="min-h-screen bg-center bg-repeat text-white relative"
@@ -273,8 +304,8 @@ function DashBoard() {
         setFavorites={setFavorites}
         onClose={() => setActiveCategory(null)}
         onDeleteBook={handleDeleteBook}
+        onDeleteCategory={handleDeleteCategory} 
       />
-
       <SidebarWrapper onSearchClick={() => setIsSearchOpen(true)} />
 
       <SearchModal
