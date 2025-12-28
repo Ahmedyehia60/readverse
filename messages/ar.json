@@ -4,10 +4,21 @@
     "inbox": "الوارِد",
     "favorite": "المفضلة",
     "search": "بحث",
-    "settings": "الإعدادات"
+    "settings": "الإعدادات",
+    "star": "قائمة المفضلة",
+    "user": "الملف الشخصي",
+    "Search": {
+      "placeholder": "ابحث في المكتبة السماوية..."
+    }
   },
   "Settings": {
     "title": "الإعدادات",
+    "core": "الاساسيه",
+    "desc": "حالة النظام: مثالية",
+    "env": "البيئه",
+    "auth": "أمن المصادقة",
+    "terminate": "إنهاء البروتوكول",
+    "back": "رجوع",
     "sections": {
       "interface": "الواجهة",
       "security": "التصريح الأمني",
@@ -109,7 +120,8 @@
     "addBook": "إضافة كتاب",
     "addBookModal": {
       "title": "ابحث عن الكتب",
-      "description": "ابحث بعنوان الكتاب"
+      "description": "ابحث بعنوان الكتاب",
+      "scanMessage": "جارٍ مسح الكون بحثاً عن كتب جديدة..."
     }
   },
   "Notifications": {

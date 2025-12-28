@@ -3,7 +3,7 @@
 "use client";
 import { useNotifications } from "@/context/NotficationContext";
 import { INotification } from "@/models/users";
-import { ArrowRight, Sparkles, Bell, Trophy } from "lucide-react";
+import { ArrowRight, Sparkles, Bell, Trophy, ArrowLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -13,6 +13,7 @@ export default function Inbox() {
   const { data: session } = useSession();
   const router = useRouter();
   const t = useTranslations("Notifications");
+  const s = useTranslations("Settings");
   const s_profile = useTranslations("Profile");
   const s_smartLink = useTranslations("Notifications.smartLink");
 
@@ -30,6 +31,20 @@ export default function Inbox() {
 
   return (
     <div className="min-h-screen bg-[#020106] p-8 text-white selection:bg-[#4c3ba8]/30">
+      <button
+        onClick={() => router.back()}
+        className="group mb-6 flex items-center gap-2 text-gray-400 hover:text-white transition-colors cursor-pointer w-fit"
+      >
+        <div className="p-2 rounded-full bg-white/5 border border-white/10 group-hover:border-[#4c3ba8]/50 group-hover:bg-[#4c3ba8]/20 transition-all">
+          <ArrowLeft
+            size={18}
+            className="group-hover:-translate-x-1 transition-transform rtl:-scale-x-100"
+          />
+        </div>
+        <span className="text-xs font-bold uppercase tracking-[0.2em]">
+          {s("back")}
+        </span>
+      </button>
       <div className="max-w-4xl mx-auto">
         <header className="flex justify-between items-end mb-10 border-b border-white/5 pb-6">
           <div>

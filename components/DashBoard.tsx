@@ -41,7 +41,7 @@ function DashBoard() {
   const searchParams = useSearchParams();
   const highlightParam = searchParams.get("highlight");
   const [activeHighlight, setActiveHighlight] = useState<string | null>(null);
-  const s = useTranslations("Notifications.smartLink");
+
   const t = useTranslations("Dashboard");
   const { addNotification } = useNotifications();
   useEffect(() => {
@@ -260,7 +260,7 @@ function DashBoard() {
 
       setActiveCategory(null);
       toast.success(`Category "${categoryName}" deleted successfully`);
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete category");
     }
   };
@@ -304,7 +304,7 @@ function DashBoard() {
         setFavorites={setFavorites}
         onClose={() => setActiveCategory(null)}
         onDeleteBook={handleDeleteBook}
-        onDeleteCategory={handleDeleteCategory} 
+        onDeleteCategory={handleDeleteCategory}
       />
       <SidebarWrapper onSearchClick={() => setIsSearchOpen(true)} />
 

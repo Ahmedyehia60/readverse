@@ -5,21 +5,14 @@ import { usePathname, useRouter } from "next/navigation";
 
 export const InterfaceSection = ({ logic }: { logic: SettingsLogicType }) => {
   const t = useTranslations("Settings");
-  const pathname = usePathname(); // بيجيب المسار الحالي زي /en/settings
-  const router = useRouter(); // عشان نغير المسار
+  const pathname = usePathname();
+  const router = useRouter();
 
   const handleLanguageChange = (newLocale: string) => {
-    // 1. بنحدد اللغة الجديدة (ar أو en)
     const locale = newLocale.toLowerCase();
-
-    // 2. بنغير المسار الحالي باللغة الجديدة
-    // بنشيل أول جزء من المسار (اللغة القديمة) ونحط الجديدة
     const newPath = pathname.replace(/^\/(en|ar)/, `/${locale}`);
-
-    // 3. بنوجه المستخدم للمسار الجديد
     router.push(newPath);
 
-    // 4. (اختياري) تحديث الـ Logic المحلي لو محتاجة
     logic.setLanguage(newLocale);
   };
   return (

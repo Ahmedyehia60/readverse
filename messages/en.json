@@ -4,10 +4,21 @@
     "inbox": "Inbox",
     "favorite": "Favorite",
     "search": "Search",
-    "settings": "Settings"
+    "settings": "Settings",
+    "star": "Favorite List",
+    "user": "Profile",
+    "Search": {
+      "placeholder": "Search the celestial library..."
+    }
   },
   "Settings": {
     "title": "SETTINGS",
+    "core": "CORE",
+    "desc": "System Status: Optimal",
+    "env": "Environment",
+    "auth": "Auth Security",
+    "terminate": "protocol termination",
+    "back": "Back",
     "sections": {
       "interface": "INTERFACE",
       "security": "SECURITY CLEARANCE",
@@ -107,7 +118,8 @@
     "addBook": "Add Book",
     "addBookModal": {
       "title": "Search Books",
-      "description": "Search by book title"
+      "description": "Search by book title",
+      "scanMessage": "Scan the universe for new books..."
     }
   },
   "Notifications": {
