@@ -72,7 +72,7 @@ export interface BookItem {
 export interface IFavorite {
   bookTitle: string;
   bookAuthors?: string[];
-  bookImage?: string;
+  bookImage?: string | null;
 }
 export interface SearchResults {
   items?: BookItem[];

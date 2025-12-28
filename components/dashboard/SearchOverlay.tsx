@@ -15,7 +15,7 @@ export const SearchOverlay = ({
   return (
     <>
       <div
-        className="fixed inset-0 z-90 bg-black/5 backdrop-blur-[2px]"
+        className="fixed inset-0 z-90 bg-black/5"
         onClick={onClose}
       />
 
