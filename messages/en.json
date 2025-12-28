@@ -4,10 +4,21 @@
     "inbox": "Inbox",
     "favorite": "Favorite",
     "search": "Search",
-    "settings": "Settings"
+    "settings": "Settings",
+    "star": "Favorite List",
+    "user": "Profile",
+    "Search": {
+      "placeholder": "Search the celestial library..."
+    }
   },
   "Settings": {
     "title": "SETTINGS",
+    "core": "CORE",
+    "desc": "System Status: Optimal",
+    "env": "Environment",
+    "auth": "Auth Security",
+    "terminate": "protocol termination",
+    "back": "Back",
     "sections": {
       "interface": "INTERFACE",
       "security": "SECURITY CLEARANCE",
@@ -107,7 +118,8 @@
     "addBook": "Add Book",
     "addBookModal": {
       "title": "Search Books",
-      "description": "Search by book title"
+      "description": "Search by book title",
+      "scanMessage": "Scan the universe for new books..."
     }
   },
   "Notifications": {
@@ -118,6 +130,13 @@
     "achievement": {
       "promotionTitle": "PROMOTION DETECTED",
       "promotionMessage": "Commander {name}, your orbital status has been upgraded to [{rank}]. Keep analyzing the cosmos!"
+    },
+    "smartLink": {
+      "title": "New Smart Link Found!",
+      "message": "Bridge created between {cat1} and {cat2}",
+      "toastTitle": "Smart Link Found!",
+      "toastDesc": "We found a connection: \"{title}\" combines your interest in {cat1} and {cat2}.",
+      "viewBook": "View Book"
     },
     "status": {
       "archived": "Archived",

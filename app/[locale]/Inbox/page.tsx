@@ -3,15 +3,20 @@
 "use client";
 import { useNotifications } from "@/context/NotficationContext";
 import { INotification } from "@/models/users";
-import { ArrowRight, Sparkles, Bell, Trophy } from "lucide-react";
+import { ArrowRight, Sparkles, Bell, Trophy, ArrowLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function Inbox() {
   const { notifications, markAllAsRead, markAsRead } = useNotifications();
+  const { data: session } = useSession();
   const router = useRouter();
   const t = useTranslations("Notifications");
-  const s = useTranslations("Profile");
+  const s = useTranslations("Settings");
+  const s_profile = useTranslations("Profile");
+  const s_smartLink = useTranslations("Notifications.smartLink");
+
   const handleNotificationClick = async (note: INotification) => {
     if (!note.isRead && markAsRead) {
       await markAsRead(note.id);
@@ -26,6 +31,20 @@ export default function Inbox() {
 
   return (
     <div className="min-h-screen bg-[#020106] p-8 text-white selection:bg-[#4c3ba8]/30">
+      <button
+        onClick={() => router.back()}
+        className="group mb-6 flex items-center gap-2 text-gray-400 hover:text-white transition-colors cursor-pointer w-fit"
+      >
+        <div className="p-2 rounded-full bg-white/5 border border-white/10 group-hover:border-[#4c3ba8]/50 group-hover:bg-[#4c3ba8]/20 transition-all">
+          <ArrowLeft
+            size={18}
+            className="group-hover:-translate-x-1 transition-transform rtl:-scale-x-100"
+          />
+        </div>
+        <span className="text-xs font-bold uppercase tracking-[0.2em]">
+          {s("back")}
+        </span>
+      </button>
       <div className="max-w-4xl mx-auto">
         <header className="flex justify-between items-end mb-10 border-b border-white/5 pb-6">
           <div>
@@ -109,23 +128,34 @@ export default function Inbox() {
                           : t("status.newSignal")}
                       </span>
                     </div>
-
                     <h3
                       className={`text-xl font-bold mb-1 tracking-tight transition-colors ${
                         note.isRead ? "text-gray-400" : "text-white"
                       }`}
                     >
-                      {note.title || note.bookTitle || "Incoming Data"}
+                      {note.type === "achievement"
+                        ? t("achievement.promotionTitle")
+                        : note.type === "smart-link"
+                        ? s_smartLink("title")
+                        : note.title || note.bookTitle || "Incoming Data"}
                     </h3>
-
                     <p
                       className={`text-sm leading-relaxed mb-4 max-w-2xl transition-colors ${
                         note.isRead ? "text-gray-500" : "text-gray-300"
                       }`}
                     >
-                      {note.message}
+                      {note.type === "achievement"
+                        ? t("achievement.promotionMessage", {
+                            name: session?.user?.name || "Commander",
+                            rank: s_profile(`${note.categories?.[0]}`),
+                          })
+                        : note.type === "smart-link"
+                        ? s_smartLink("message", {
+                            cat1: note.categories?.[0] || "",
+                            cat2: note.categories?.[1] || "",
+                          })
+                        : note.message}
                     </p>
-
                     {note.categories && note.categories.length > 0 && (
                       <div className="flex items-center gap-2">
                         <div
@@ -137,8 +167,11 @@ export default function Inbox() {
                           }`}
                         >
                           <span className="uppercase">
-                            {s(note.categories[0])}
+                            {note.type === "achievement"
+                              ? s_profile(`${note.categories[0]}`)
+                              : note.categories[0]}
                           </span>
+
                           {note.categories[1] && (
                             <>
                               <ArrowRight size={10} className="opacity-20" />
@@ -151,7 +184,11 @@ export default function Inbox() {
                                     : "text-[#4c3ba8]"
                                 }`}
                               >
-                                {s(`ranks.labels.${note.categories[1]}`)}
+                                {note.type === "achievement"
+                                  ? s_profile(
+                                      `ranks.labels.${note.categories[1]}`
+                                    )
+                                  : note.categories[1]}
                               </span>
                             </>
                           )}
@@ -159,7 +196,6 @@ export default function Inbox() {
                       </div>
                     )}
                   </div>
-
                   <button
                     className={`shrink-0 self-center px-6 py-2.5 rounded-xl text-[10px] font-black transition-all border cursor-pointer uppercase tracking-widest
                       ${

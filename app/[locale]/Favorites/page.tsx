@@ -67,8 +67,8 @@ export default function Page() {
 
   return (
     <div
-      className="min-h-screen p-10 text-white bg-fixed bg-cover bg-center"
-      style={{ backgroundImage: "url('/Images/galaxy3.jpg')" }}
+      className="min-h-screen p-10 text-white  bg-repeat bg-center"
+      style={{ backgroundImage: "url('/Images/galaxy5.jpg')" }}
     >
       <SidebarIcon active="star" />
 

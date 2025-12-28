@@ -33,13 +33,13 @@ const Profile: React.FC = () => {
   const hasNotified = useRef(false);
   const rank = useMemo(() => getRank(numOfBooks), [numOfBooks]);
 
-
-  
   useEffect(() => {
     const fetchBooksAndNotify = async () => {
-      if (!session?.user?.id || hasNotified.current) return;
+      if (!session?.user?.id || !user?.name || hasNotified.current) return;
+
       try {
         hasNotified.current = true;
+
         const res = await fetch("/api/books");
         const data = await res.json();
 
@@ -61,29 +61,29 @@ const Profile: React.FC = () => {
         }
 
         const currentRank = getRank(totalBooks);
-        const translatedRankName = t(currentRank.name);
         const userNotifications = data.notifications || [];
+
         const lastAchievement = userNotifications
           .filter((n: INotification) => n.type === "achievement")
-          .sort(
-            (a: INotification, b: INotification) =>
-              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          )[0];
+          .sort((a: INotification, b: INotification) => {
+            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+            return dateB - dateA;
+          })[0];
 
         if (
           totalBooks > 0 &&
           (!lastAchievement ||
             lastAchievement.categories?.[0] !== currentRank.name)
         ) {
-          const commanderName =
-            user?.name || session?.user?.name || "Ahmed Yehia";
+          const commanderName = user.name;
 
           await addNotification({
             type: "achievement",
             title: s("promotionTitle"),
             message: s("promotionMessage", {
               name: commanderName,
-              rank: translatedRankName,
+              rank: currentRank.name,
             }),
             categories: [currentRank.name, currentRank.label],
           });
@@ -93,12 +93,9 @@ const Profile: React.FC = () => {
         hasNotified.current = false;
       }
     };
-    fetchBooksAndNotify();
-    return () => {
-      hasNotified.current = false;
-    };
-  }, [session?.user?.id, addNotification, user?.name, session?.user?.name]);
 
+    fetchBooksAndNotify();
+  }, [session?.user?.id, user?.name]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -127,7 +124,7 @@ const Profile: React.FC = () => {
   return (
     <div
       className="min-h-screen bg-center bg-repeat text-white relative overflow-x-hidden"
-      style={{ backgroundImage: "url('/Images/galaxy3.jpg')" }}
+      style={{ backgroundImage: "url('/Images/galaxy5.jpg')" }}
     >
       <SidebarIcon active="user" />
 

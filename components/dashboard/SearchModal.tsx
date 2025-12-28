@@ -54,7 +54,6 @@ export const SearchModal = ({ isOpen, onClose, onAddBook }: Props) => {
         className="relative bg-[#0d0925]/80 border border-white/10 p-8 rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-2xl mx-4 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-      
         <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-600/20 rounded-full blur-[80px]"></div>
         <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-600/20 rounded-full blur-[80px]"></div>
 
@@ -76,7 +75,6 @@ export const SearchModal = ({ isOpen, onClose, onAddBook }: Props) => {
           </button>
         </div>
 
-      
         <div className="relative group z-10">
           <div className="absolute inset-0 bg-linear-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-20 group-focus-within:opacity-40 transition-opacity"></div>
           <div className="relative flex items-center bg-[#1a1435] rounded-2xl border border-white/10 overflow-hidden">
@@ -103,7 +101,7 @@ export const SearchModal = ({ isOpen, onClose, onAddBook }: Props) => {
                 <Search size={32} />
               </div>
               <p className="text-sm font-medium">
-                Scan the universe for new books...
+                {t("addBookModal.scanMessage")}
               </p>
             </div>
           )}

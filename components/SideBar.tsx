@@ -124,7 +124,7 @@ export function AppSidebar({ onSearchClick }: { onSearchClick?: () => void }) {
                 variant="ghost"
                 className="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white w-10 h-10 p-0 rounded-xl transition-all duration-300 shrink-0"
               >
-                <LogOut size={18} className="rtl:rotate-180" />
+                <LogOut size={18} />
               </Button>
             </div>
           </div>
