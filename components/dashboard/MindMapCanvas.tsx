@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-
+"use client";
 import { ICategory, IBridge } from "@/models/users";
 
 interface Props {
@@ -23,17 +23,19 @@ export const MindMapCanvas = ({
 
   return (
     <div
-      className="relative w-full h-screen overflow-hidden bg-transparent"
-      onClick={() => {
-        if (highlightBook) {
-          setHighlightBook(null);
-        }
-      }}
+      className="relative w-full h-screen overflow-hidden bg-transparent select-none"
+      onClick={() => highlightBook && setHighlightBook(null)}
     >
-      <div className="relative w-screen h-screen">
-        {/* 1. SVG Arrows/Lines (Bridges) */}
+      <div className="relative w-full h-full">
         <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
           <defs>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="2.5" result="coloredBlur" />
+              <feMerge>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
             <marker
               id="arrowhead"
               markerWidth="10"
@@ -42,17 +44,23 @@ export const MindMapCanvas = ({
               refY="3.5"
               orient="auto"
             >
-              <polygon points="0 0, 10 3.5, 0 7" fill="#8884d8" />
+              <polygon
+                points="0 0, 10 3.5, 0 7"
+                fill="#8884d8"
+                className="opacity-50"
+              />
             </marker>
           </defs>
           {bridges.map((bridge, index) => {
             const cat1 = mindMap.find((c) => c.name === bridge.fromCategory);
             const cat2 = mindMap.find((c) => c.name === bridge.toCategory);
             if (!cat1 || !cat2) return null;
+
             const isTargetBook =
               highlightBook &&
               bridge.recommendedBook.toLowerCase() ===
                 highlightBook.toLowerCase();
+
             return (
               <line
                 key={`line-${index}`}
@@ -61,17 +69,18 @@ export const MindMapCanvas = ({
                 x2={`${cat2.x * 100}%`}
                 y2={`${cat2.y * 100}%`}
                 stroke={isTargetBook ? "#facc15" : "#8884d8"}
-                strokeWidth={isTargetBook ? "2" : "0.8"}
-                className={`${
-                  isTargetBook ? "opacity-100" : "opacity-40"
-                } animate-pulse`}
-                markerEnd="url(#arrowhead)"
+                strokeWidth={isTargetBook ? "3" : "4"}
+                className={`transition-all duration-700 ${
+                  isTargetBook ? "opacity-100" : "opacity-20"
+                }`}
+                strokeDasharray={isTargetBook ? "none" : "0"}
+                filter={isTargetBook ? "url(#glow)" : "none"}
+                markerEnd={isTargetBook ? "" : "url(#arrowhead)"}
               />
             );
           })}
         </svg>
 
-        {/* 2. Recommended Books on Bridges */}
         {bridges.map((bridge, index) => {
           const cat1 = mindMap.find((c) => c.name === bridge.fromCategory);
           const cat2 = mindMap.find((c) => c.name === bridge.toCategory);
@@ -83,6 +92,7 @@ export const MindMapCanvas = ({
             highlightBook &&
             bridge.recommendedBook.toLowerCase() ===
               highlightBook.toLowerCase();
+
           return (
             <div
               key={`bridge-text-${index}`}
@@ -92,32 +102,32 @@ export const MindMapCanvas = ({
                 top: `${midY}%`,
                 transform: "translate(-50%, -50%)",
               }}
-              className={`z-20 pointer-events-auto transition-all duration-500 ${
-                isTargetBook ? "scale-150 z-50" : ""
+              className={`z-20 transition-all duration-500 ${
+                isTargetBook ? "scale-125 z-40" : "hover:scale-110"
               }`}
             >
               <a
                 href={bridge.bookLink || "#"}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`flex items-center gap-2 bg-black/60 backdrop-blur-md p-1.5 rounded-lg border transition-all no-underline ${
+                className={`flex items-center gap-2 bg-black/40 backdrop-blur-xl p-1.5 rounded-xl border transition-all ${
                   isTargetBook
-                    ? "border-yellow-400 shadow-[0_0_20px_#facc15] bg-black/80"
-                    : "border-white/20 hover:scale-110"
+                    ? "border-yellow-400 shadow-[0_0_25px_rgba(250,204,21,0.4)] bg-black/80"
+                    : "border-white/10"
                 }`}
               >
                 {bridge.bookImage && (
                   <img
                     src={bridge.bookImage}
                     alt=""
-                    className={`w-8 h-10 object-cover rounded shadow-md ${
-                      isTargetBook ? "ring-1 ring-yellow-400" : ""
+                    className={`w-7 h-9 object-cover rounded-md shadow-lg ${
+                      isTargetBook ? "ring-2 ring-yellow-400" : ""
                     }`}
                   />
                 )}
                 <span
-                  className={`text-[9px] font-medium leading-tight line-clamp-2 max-w-20 ${
-                    isTargetBook ? "text-yellow-400 font-bold" : "text-white"
+                  className={`text-[10px] font-bold leading-tight line-clamp-2 max-w-[90px] ${
+                    isTargetBook ? "text-yellow-400" : "text-gray-300"
                   }`}
                 >
                   {bridge.recommendedBook}
@@ -127,7 +137,6 @@ export const MindMapCanvas = ({
           );
         })}
 
-        {/* 3. Categories (Nodes) with Search Highlight */}
         {mindMap.map((cat) => {
           const isHighlighted =
             searchQuery.length > 0 &&
@@ -142,40 +151,36 @@ export const MindMapCanvas = ({
                 left: `${cat.x * 100}%`,
                 transform: "translate(-50%, -50%)",
               }}
-              className={`flex flex-col items-center cursor-pointer transition-all duration-500 z-10 
-                    ${
-                      isHighlighted
-                        ? "scale-125 z-50"
-                        : "hover:z-30 hover:scale-105"
-                    }`}
+              className={`flex flex-col items-center cursor-pointer transition-all duration-500 z-10 ${
+                isHighlighted ? "scale-110 z-50" : "hover:z-30 hover:scale-105"
+              }`}
               onClick={(e) => {
                 e.stopPropagation();
                 onCategoryClick(cat);
               }}
             >
-              <p
-                className={`text-[11px] text-center max-w-[120px] truncate mb-2 px-2 rounded-full backdrop-blur-sm transition-colors duration-300
-                    ${
-                      isHighlighted
-                        ? "bg-yellow-400 text-black font-bold shadow-[0_0_2px_#facc15]"
-                        : "bg-black/20 text-white"
-                    }`}
+              <div
+                className={`mb-3 px-4 py-1 rounded-full backdrop-blur-md border transition-all duration-300 ${
+                  isHighlighted
+                    ? "bg-yellow-400 border-yellow-500 text-black font-black shadow-xl"
+                    : "bg-black/40 border-white/10 text-white font-medium"
+                }`}
               >
-                {cat.name}
-              </p>
+                <p className="text-[12px] whitespace-nowrap">{cat.name}</p>
+              </div>
 
               <div
-                className={`w-[110px] h-[110px] rounded-2xl overflow-hidden border-2 transition-all duration-500
-                    ${
-                      isHighlighted
-                        ? "border-none shadow-[0_0_30px_rgba(250,204,21,0.8)] ring-4 ring-yellow-400/20"
-                        : "border-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
-                    }`}
+                className={`relative group w-[100px] h-[100px] md:w-[120px] md:h-[120px] rounded-[2.5rem] overflow-hidden border-2 transition-all duration-700 ${
+                  isHighlighted
+                    ? "border-yellow-400 shadow-[0_0_40px_rgba(250,204,21,0.3)] ring-8 ring-yellow-400/10"
+                    : "border-white/10"
+                }`}
               >
+                <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10" />
                 <img
                   src={cat.image || "/placeholder.png"}
                   alt={cat.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
               </div>
             </div>
