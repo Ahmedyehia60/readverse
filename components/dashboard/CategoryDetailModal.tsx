@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import { ICategory, IFavorite } from "@/models/users";
-import { Star, Trash2, X, AlertTriangle, Atom, Book } from "lucide-react";
+import { Star, Trash2, X, AlertTriangle, Atom} from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -103,7 +103,7 @@ export const CategoryDetailModal = ({
         onClick={onClose}
       >
         <div
-          className="flex flex-col md:flex-row gap-10 p-1 rounded-[2.5rem] max-w-4xl w-full mx-4 relative overflow-hidden bg-gradient-to-b from-white/10 to-transparent shadow-[0_0_80px_rgba(0,0,0,0.8)] border border-white/10"
+          className="flex flex-col md:flex-row gap-10 p-1 rounded-[2.5rem] max-w-4xl w-full mx-4 relative overflow-hidden bg-linear-to-b from-white/10 to-transparent shadow-[0_0_80px_rgba(0,0,0,0.8)] border border-white/10"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="absolute inset-0 bg-black/40 z-0"></div>

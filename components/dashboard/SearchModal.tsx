@@ -2,7 +2,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { Search, X, CirclePlus, Loader2, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
 import { BookItem, SearchResults } from "@/models/users";
 import { useTranslations } from "next-intl";
 
@@ -47,14 +47,14 @@ export const SearchModal = ({ isOpen, onClose, onAddBook }: Props) => {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-start justify-center pt-20 bg-black/40 backdrop-blur-md transition-all duration-500"
+      className="fixed inset-0 z-100 flex items-start justify-center pt-20 bg-black/40 backdrop-blur-md transition-all duration-500"
       onClick={onClose}
     >
       <div
         className="relative bg-[#0d0925]/80 border border-white/10 p-8 rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-2xl mx-4 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* تأثيرات الإضاءة الخلفية */}
+      
         <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-600/20 rounded-full blur-[80px]"></div>
         <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-600/20 rounded-full blur-[80px]"></div>
 
@@ -76,9 +76,9 @@ export const SearchModal = ({ isOpen, onClose, onAddBook }: Props) => {
           </button>
         </div>
 
-        {/* Search Input Box */}
+      
         <div className="relative group z-10">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-20 group-focus-within:opacity-40 transition-opacity"></div>
+          <div className="absolute inset-0 bg-linear-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-20 group-focus-within:opacity-40 transition-opacity"></div>
           <div className="relative flex items-center bg-[#1a1435] rounded-2xl border border-white/10 overflow-hidden">
             <Search className="ml-4 w-5 h-5 text-gray-400 group-focus-within:text-purple-400 transition-colors" />
             <input
@@ -112,7 +112,7 @@ export const SearchModal = ({ isOpen, onClose, onAddBook }: Props) => {
             {searchResults?.items?.map((book, index) => (
               <div
                 key={index}
-                className="group flex items-center p-4 rounded-2xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.08] hover:border-white/20 transition-all cursor-pointer relative overflow-hidden"
+                className="group flex items-center p-4 rounded-2xl bg-white/3 border border-white/5 hover:bg-white/8 hover:border-white/20 transition-all cursor-pointer relative overflow-hidden"
                 onClick={() => onAddBook(book)}
               >
                 {/* Book Cover */}
