@@ -117,15 +117,15 @@ export default function Inbox() {
                           note.isRead
                             ? "bg-white/10 text-gray-500"
                             : note.type === "achievement"
-                            ? "bg-yellow-600 text-white shadow-[0_0_10px_rgba(202,138,4,0.3)]"
-                            : "bg-[#4c3ba8] text-white shadow-[0_0_10px_rgba(76,59,168,0.3)]"
+                              ? "bg-yellow-600 text-white shadow-[0_0_10px_rgba(202,138,4,0.3)]"
+                              : "bg-[#4c3ba8] text-white shadow-[0_0_10px_rgba(76,59,168,0.3)]"
                         }`}
                       >
                         {note.isRead
                           ? t("status.archived")
                           : note.type === "achievement"
-                          ? t("status.achievement")
-                          : t("status.newSignal")}
+                            ? t("status.achievement")
+                            : t("status.newSignal")}
                       </span>
                     </div>
                     <h3
@@ -136,8 +136,8 @@ export default function Inbox() {
                       {note.type === "achievement"
                         ? t("achievement.promotionTitle")
                         : note.type === "smart-link"
-                        ? s_smartLink("title")
-                        : note.title || note.bookTitle || "Incoming Data"}
+                          ? s_smartLink("title")
+                          : note.title || note.bookTitle || "Incoming Data"}
                     </h3>
                     <p
                       className={`text-sm leading-relaxed mb-4 max-w-2xl transition-colors ${
@@ -150,11 +150,11 @@ export default function Inbox() {
                             rank: s_profile(`${note.categories?.[0]}`),
                           })
                         : note.type === "smart-link"
-                        ? s_smartLink("message", {
-                            cat1: note.categories?.[0] || "",
-                            cat2: note.categories?.[1] || "",
-                          })
-                        : note.message}
+                          ? s_smartLink("message", {
+                              cat1: note.categories?.[0] || "",
+                              cat2: note.categories?.[1] || "",
+                            })
+                          : note.message}
                     </p>
                     {note.categories && note.categories.length > 0 && (
                       <div className="flex items-center gap-2">
@@ -180,13 +180,13 @@ export default function Inbox() {
                                   note.isRead
                                     ? "text-gray-700"
                                     : note.type === "achievement"
-                                    ? "text-yellow-500"
-                                    : "text-[#4c3ba8]"
+                                      ? "text-yellow-500"
+                                      : "text-[#4c3ba8]"
                                 }`}
                               >
                                 {note.type === "achievement"
                                   ? s_profile(
-                                      `ranks.labels.${note.categories[1]}`
+                                      `ranks.labels.${note.categories[1]}`,
                                     )
                                   : note.categories[1]}
                               </span>

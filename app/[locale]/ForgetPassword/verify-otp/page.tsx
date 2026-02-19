@@ -39,8 +39,8 @@ export default function VerifyOtpPage() {
 
         router.push(
           `/ForgetPassword/reset-password?email=${encodeURIComponent(
-            email
-          )}&otp=${encodeURIComponent(otp)}`
+            email,
+          )}&otp=${encodeURIComponent(otp)}`,
         );
       }
     } catch (error) {
@@ -53,7 +53,7 @@ export default function VerifyOtpPage() {
   return (
     <div
       className="min-h-screen flex items-center justify-center bg-[#0d1a2d] px-4"
-      style={{ backgroundImage: "url('/Images/login-bg.jpg')" }}
+      style={{ backgroundImage: "url('/images/login-bg.jpg')" }}
     >
       <form
         onSubmit={handleSubmit}

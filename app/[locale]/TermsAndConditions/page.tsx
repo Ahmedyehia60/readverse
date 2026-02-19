@@ -6,7 +6,7 @@ export default function PrivacyPolicyPage() {
   return (
     <div
       className="min-h-screen flex items-center justify-center bg-[#0d1a2d] px-4"
-      style={{ backgroundImage: "url('/Images/login-bg.jpg')" }}
+      style={{ backgroundImage: "url('/images/login-bg.jpg')" }}
     >
       <div className="bg-[#0b0b0b] p-10 rounded-2xl w-full max-w-[800px] border border-white/10 shadow-[0_0_25px_rgba(0,0,0,0.4)]">
         <h1 className="text-white text-3xl font-bold text-center mb-6">

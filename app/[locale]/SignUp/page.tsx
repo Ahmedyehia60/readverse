@@ -74,7 +74,7 @@ function Page() {
   //===============================handelprovider=========================
   const handleProvider = (
     event: React.MouseEvent<HTMLButtonElement>,
-    value: "google-signup" | "apple" | "facebook-signup"
+    value: "google-signup" | "apple" | "facebook-signup",
   ) => {
     event.preventDefault();
     signIn(value, { callbackUrl: "/" });
@@ -83,7 +83,7 @@ function Page() {
   useEffect(() => {
     if (errorType === "AlreadyExists") {
       toast.error(
-        "An account with this Google email already exists. Please log in instead."
+        "An account with this Google email already exists. Please log in instead.",
       );
     }
   }, [errorType]);
@@ -256,7 +256,7 @@ function Page() {
           text-white
         "
         style={{
-          backgroundImage: "url('/Images/login-bg.jpg')",
+          backgroundImage: "url('/images/login-bg.jpg')",
         }}
       >
         <h1

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useMemo, useRef } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { Pencil } from "lucide-react";
@@ -11,10 +11,8 @@ import UserProfileHeader from "@/components/profile/UserProfileHeader";
 import MissionControl from "@/components/profile/MissionControl";
 import PlanetStats from "@/components/profile/PlanetStats";
 
-import { UserType, TopCategoryType } from "@/constants/ranks";
-import { getRank } from "@/constants/ranks";
-import { useNotifications } from "@/context/NotficationContext";
-import { ICategory, INotification } from "@/models/users";
+import { UserType, TopCategoryType, getRank } from "@/constants/ranks";
+import { ICategory } from "@/models/users";
 
 const Profile: React.FC = () => {
   const { data: session, status } = useSession();
@@ -27,26 +25,21 @@ const Profile: React.FC = () => {
     count: 0,
   });
 
-  const { addNotification, notifications } = useNotifications();
   const t = useTranslations("Profile");
-  const s = useTranslations("Notifications.achievement");
-  const hasNotified = useRef(false);
   const rank = useMemo(() => getRank(numOfBooks), [numOfBooks]);
 
+  // Fetch Stats Only
   useEffect(() => {
-    const fetchBooksAndNotify = async () => {
-      if (!session?.user?.id || !user?.name || hasNotified.current) return;
-
+    const fetchStats = async () => {
+      if (!session?.user?.id) return;
       try {
-        hasNotified.current = true;
-
         const res = await fetch("/api/books");
         const data = await res.json();
 
         const totalBooks =
           data.mindMap?.reduce(
             (sum: number, cat: ICategory) => sum + (cat.count || 0),
-            0
+            0,
           ) ?? 0;
 
         setNumOfCategories(data.mindMap?.length ?? 0);
@@ -55,48 +48,18 @@ const Profile: React.FC = () => {
         if (data.mindMap && data.mindMap.length > 0) {
           const top = data.mindMap.reduce(
             (prev: ICategory, current: ICategory) =>
-              (prev.count || 0) > (current.count || 0) ? prev : current
+              (prev.count || 0) > (current.count || 0) ? prev : current,
           );
           setTopCategory({ title: top.name, count: top.count });
         }
-
-        const currentRank = getRank(totalBooks);
-        const userNotifications = data.notifications || [];
-
-        const lastAchievement = userNotifications
-          .filter((n: INotification) => n.type === "achievement")
-          .sort((a: INotification, b: INotification) => {
-            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-            return dateB - dateA;
-          })[0];
-
-        if (
-          totalBooks > 0 &&
-          (!lastAchievement ||
-            lastAchievement.categories?.[0] !== currentRank.name)
-        ) {
-          const commanderName = user.name;
-
-          await addNotification({
-            type: "achievement",
-            title: s("promotionTitle"),
-            message: s("promotionMessage", {
-              name: commanderName,
-              rank: currentRank.name,
-            }),
-            categories: [currentRank.name, currentRank.label],
-          });
-        }
       } catch (error) {
-        console.error("Failed to fetch books:", error);
-        hasNotified.current = false;
+        console.error("Failed to fetch stats:", error);
       }
     };
+    fetchStats();
+  }, [session?.user?.id]);
 
-    fetchBooksAndNotify();
-  }, [session?.user?.id, user?.name]);
-
+  // Fetch User Info
   useEffect(() => {
     const fetchUserData = async () => {
       if (!session?.user?.id) return;
@@ -108,9 +71,9 @@ const Profile: React.FC = () => {
         console.error("User fetch failed", error);
       }
     };
-
     fetchUserData();
   }, [session?.user?.id]);
+
   if (status === "loading" || !user)
     return (
       <Loader
@@ -124,7 +87,7 @@ const Profile: React.FC = () => {
   return (
     <div
       className="min-h-screen bg-center bg-repeat text-white relative overflow-x-hidden"
-      style={{ backgroundImage: "url('/Images/galaxy5.jpg')" }}
+      style={{ backgroundImage: "url('/images/galaxy5.jpg')" }}
     >
       <SidebarIcon active="user" />
 

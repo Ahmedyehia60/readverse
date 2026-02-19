@@ -22,7 +22,7 @@ export interface INotification {
 interface NotificationContextType {
   notifications: INotification[];
   addNotification: (
-    notification: Omit<INotification, "id" | "isRead" | "createdAt">
+    notification: Omit<INotification, "id" | "isRead" | "createdAt">,
   ) => void;
   markAllAsRead: () => void;
   markAsRead: (id: string) => Promise<void>;
@@ -31,7 +31,7 @@ interface NotificationContextType {
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const NotificationProvider = ({ children }: { children: ReactNode }) => {
@@ -48,7 +48,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
             const sorted = data.notifications.sort(
               (a: INotification, b: INotification) =>
                 new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime()
+                new Date(a.createdAt).getTime(),
             );
             setNotifications(sorted);
           }
@@ -64,7 +64,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const addNotification = async (
-    note: Omit<INotification, "id" | "isRead" | "createdAt">
+    note: Omit<INotification, "id" | "isRead" | "createdAt">,
   ) => {
     const newNotification: INotification = {
       ...note,
@@ -94,7 +94,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   };
   const markAsRead = async (id: string) => {
     setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
     );
 
     try {
@@ -146,7 +146,7 @@ export const useNotifications = () => {
   const context = useContext(NotificationContext);
   if (!context) {
     throw new Error(
-      "useNotifications must be used within a NotificationProvider"
+      "useNotifications must be used within a NotificationProvider",
     );
   }
   return context;

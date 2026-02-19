@@ -65,7 +65,7 @@ export default function ResetPasswordPage() {
   return (
     <div
       className="min-h-screen flex items-center justify-center bg-[#0d1a2d] px-4"
-      style={{ backgroundImage: "url('/Images/login-bg.jpg')" }}
+      style={{ backgroundImage: "url('/images/login-bg.jpg')" }}
     >
       <form
         onSubmit={handleSubmit}

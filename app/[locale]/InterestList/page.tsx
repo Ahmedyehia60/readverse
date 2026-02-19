@@ -87,7 +87,7 @@ export default function InterestList() {
 
       toast.success("Profile updated — redirecting...");
       router.push("/");
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       toast.error("Something went wrong");
     } finally {
@@ -103,7 +103,7 @@ export default function InterestList() {
   return (
     <div
       className="min-h-screen flex items-center justify-center bg-[#0d1a2d] px-4"
-      style={{ backgroundImage: "url('/Images/login-bg.jpg')" }}
+      style={{ backgroundImage: "url('/images/login-bg.jpg')" }}
     >
       <form
         onSubmit={onFormSubmit}
