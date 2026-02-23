@@ -20,7 +20,7 @@ export default function SettingsPage() {
     <div className="min-h-screen text-white p-6 lg:pl-28 relative overflow-hidden bg-[#020106]">
       <div
         className="absolute inset-0 z-0 bg-repeat bg-center opacity-40"
-        style={{ backgroundImage: "url('/Images/galaxy5.jpg')" }}
+        style={{ backgroundImage: "url('/images/galaxy5.jpg')" }}
       />
 
       <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#4c3ba8]/10 blur-[120px] rounded-full pointer-events-none" />

@@ -59,7 +59,7 @@ function Page() {
 
   const handleProvider = (
     event: React.MouseEvent<HTMLButtonElement>,
-    value: "google-signin" | "apple" | "facebook-signin"
+    value: "google-signin" | "apple" | "facebook-signin",
   ) => {
     event.preventDefault();
     signIn(value, { callbackUrl: "/" });
@@ -83,7 +83,7 @@ function Page() {
           text-white
         "
         style={{
-          backgroundImage: "url('/Images/login-bg.jpg')",
+          backgroundImage: "url('/images/login-bg.jpg')",
         }}
       >
         <h1

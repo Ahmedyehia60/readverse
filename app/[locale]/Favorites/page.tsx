@@ -37,7 +37,7 @@ export default function Page() {
   const handleDelete = async (bookTitle: string) => {
     try {
       setFavorites((prev) =>
-        prev.filter((book) => book.bookTitle !== bookTitle)
+        prev.filter((book) => book.bookTitle !== bookTitle),
       );
 
       const res = await fetch("/api/favorites", {
@@ -68,7 +68,7 @@ export default function Page() {
   return (
     <div
       className="min-h-screen p-10 text-white  bg-repeat bg-center"
-      style={{ backgroundImage: "url('/Images/galaxy5.jpg')" }}
+      style={{ backgroundImage: "url('/images/galaxy5.jpg')" }}
     >
       <SidebarIcon active="star" />
 

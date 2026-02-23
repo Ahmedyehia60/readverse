@@ -29,7 +29,7 @@ export default function ForgotPassword() {
         toast.success("OTP has been sent to your email.");
 
         router.push(
-          `/ForgetPassword/verify-otp?email=${encodeURIComponent(email)}`
+          `/ForgetPassword/verify-otp?email=${encodeURIComponent(email)}`,
         );
       }
     } catch (error) {
@@ -42,7 +42,7 @@ export default function ForgotPassword() {
   return (
     <div
       className="min-h-screen flex items-center justify-center bg-[#0d1a2d] px-4"
-      style={{ backgroundImage: "url('/Images/login-bg.jpg')" }}
+      style={{ backgroundImage: "url('/images/login-bg.jpg')" }}
     >
       <form
         onSubmit={handleSubmit}
@@ -61,7 +61,8 @@ export default function ForgotPassword() {
         </h2>
 
         <p className="text-gray-400 text-center mb-8 leading-relaxed">
-          Enter the email associated with your account and we&apos;ll send you a one-time verification code.
+          Enter the email associated with your account and we&apos;ll send you a
+          one-time verification code.
         </p>
 
         <label className="text-gray-300 text-sm mb-1 block">

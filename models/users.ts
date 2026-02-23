@@ -84,7 +84,7 @@ const BookItemSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
   },
-  { _id: false }
+  { _id: false },
 );
 const FavoriteSchema = new mongoose.Schema(
   {
@@ -92,7 +92,7 @@ const FavoriteSchema = new mongoose.Schema(
     bookAuthors: { type: [String], default: [] },
     bookImage: { type: String, default: null },
   },
-  { _id: false }
+  { _id: false },
 );
 const CategorySchema = new mongoose.Schema(
   {
@@ -103,7 +103,7 @@ const CategorySchema = new mongoose.Schema(
     x: { type: Number, default: 0 },
     y: { type: Number, default: 0 },
   },
-  { _id: false }
+  { _id: false },
 );
 const NotificationSchema = new Schema({
   id: { type: String, default: () => Math.random().toString(36).substring(7) },
@@ -128,7 +128,7 @@ const BridgeSchema = new mongoose.Schema(
     bookImage: { type: String, default: null },
     bookLink: { type: String, default: null },
   },
-  { _id: false }
+  { _id: false },
 );
 const UserSchema: Schema<IUser> = new mongoose.Schema(
   {
@@ -149,7 +149,7 @@ const UserSchema: Schema<IUser> = new mongoose.Schema(
     favorites: { type: [FavoriteSchema], default: [] },
     notifications: { type: [NotificationSchema], default: [] },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // -------------------- MODEL --------------------

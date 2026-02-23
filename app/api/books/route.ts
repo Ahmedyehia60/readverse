@@ -10,12 +10,16 @@ const getRandomImage = (): string => {
   return `/images/${randomIndex}.png`;
 };
 const generateNonOverlappingPosition = (existingCategories: ICategory[]) => {
-  const MIN_DIST = 0.18;
-  const MAX_ATTEMPTS = 100;
-  const MIN_HEIGHT = 0.1;
-  const MAX_HEIGHT = 0.9;
-  const MIN_WIDTH = 0.1;
-  const MAX_WIDTH = 0.9;
+  const MIN_DIST = 0.22;
+  const MAX_ATTEMPTS = 200;
+  const MIN_X = 0.3;
+  const MIN_Y = 0.15;
+  const MAX_Y = 0.85;
+  const currentMaxX =
+    existingCategories.length > 0
+      ? Math.max(...existingCategories.map((c) => c.x))
+      : 0.85;
+  const dynamicLimitX = Math.max(0.95, currentMaxX + 0.35);
 
   let x: number;
   let y: number;
@@ -24,11 +28,13 @@ const generateNonOverlappingPosition = (existingCategories: ICategory[]) => {
 
   do {
     overlap = false;
-    x = Math.random() * (MAX_WIDTH - MIN_WIDTH) + MIN_WIDTH;
-    y = Math.random() * (MAX_HEIGHT - MIN_HEIGHT) + MIN_HEIGHT;
-
+    x = Math.random() * (dynamicLimitX - MIN_X) + MIN_X;
+    y = Math.random() * (MAX_Y - MIN_Y) + MIN_Y;
     for (const cat of existingCategories) {
-      if (Math.abs(cat.x - x) < MIN_DIST && Math.abs(cat.y - y) < MIN_DIST) {
+      const dx = Math.abs(cat.x - x);
+      const dy = Math.abs(cat.y - y);
+
+      if (dx < MIN_DIST && dy < MIN_DIST) {
         overlap = true;
         break;
       }
@@ -37,9 +43,13 @@ const generateNonOverlappingPosition = (existingCategories: ICategory[]) => {
     attempts++;
   } while (overlap && attempts < MAX_ATTEMPTS);
 
+  if (attempts >= MAX_ATTEMPTS) {
+    x = dynamicLimitX + 0.1;
+    y = Math.random() * (MAX_Y - MIN_Y) + MIN_Y;
+  }
+
   return { x, y };
 };
-
 export async function POST(req: Request) {
   try {
     await connectDB();
@@ -54,7 +64,7 @@ export async function POST(req: Request) {
     if (!cleanTitle) {
       return NextResponse.json(
         { error: "Book title is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -66,13 +76,13 @@ export async function POST(req: Request) {
     if (!user.mindMap) user.mindMap = [];
 
     const alreadyExists = user.mindMap.some((cat) =>
-      cat.books.some((b) => b.title.toLowerCase() === cleanTitle.toLowerCase())
+      cat.books.some((b) => b.title.toLowerCase() === cleanTitle.toLowerCase()),
     );
 
     if (alreadyExists) {
       return NextResponse.json(
         { error: "book already exists" },
-        { status: 400 }
+        { status: 400 },
       );
     }
     let finalCategories: string[] = ["General"];
@@ -90,7 +100,7 @@ export async function POST(req: Request) {
       const normalizedCat = catName.trim();
 
       const category = user.mindMap.find(
-        (c) => c.name.toLowerCase() === normalizedCat.toLowerCase()
+        (c) => c.name.toLowerCase() === normalizedCat.toLowerCase(),
       );
 
       if (category) {
@@ -116,7 +126,7 @@ export async function POST(req: Request) {
     if (!isAdded) {
       return NextResponse.json(
         { error: "Failed to add book" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -126,12 +136,13 @@ export async function POST(req: Request) {
     return NextResponse.json({
       message: "Book added successfully",
       mindMap: user.mindMap,
+      notifications: user.notifications || [],
     });
   } catch (error) {
     console.error("POST Error:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -159,7 +170,7 @@ export async function GET(req: Request) {
     console.error("Error fetching data:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -177,7 +188,7 @@ export async function PATCH(req: Request) {
     if (body.action === "MARK_READ") {
       await User.updateOne(
         { _id: session.user.id },
-        { $set: { "notifications.$[].isRead": true } }
+        { $set: { "notifications.$[].isRead": true } },
       );
       return NextResponse.json({ message: "Notifications marked as read" });
     }
@@ -186,7 +197,7 @@ export async function PATCH(req: Request) {
       const { notificationId } = body;
       await User.updateOne(
         { _id: session.user.id, "notifications.id": notificationId },
-        { $set: { "notifications.$.isRead": true } }
+        { $set: { "notifications.$.isRead": true } },
       );
       return NextResponse.json({
         message: "Single notification marked as read",
@@ -205,7 +216,7 @@ export async function PATCH(req: Request) {
               createdAt: new Date(),
             },
           },
-        }
+        },
       );
       return NextResponse.json({ message: "Achievement added successfully" });
     }
@@ -227,7 +238,7 @@ export async function PATCH(req: Request) {
     const alreadyExists = user.bridges.some(
       (b: IBridge) =>
         (b.fromCategory === fromCategory && b.toCategory === toCategory) ||
-        (b.fromCategory === toCategory && b.toCategory === fromCategory)
+        (b.fromCategory === toCategory && b.toCategory === fromCategory),
     );
 
     if (!alreadyExists) {
@@ -259,7 +270,7 @@ export async function PATCH(req: Request) {
     console.error("PATCH Error:", error);
     return NextResponse.json(
       { error: "Failed to process the request" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -277,7 +288,7 @@ export async function DELETE(req: Request) {
     if (!categoryName) {
       return NextResponse.json(
         { error: "Missing category name" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -288,47 +299,41 @@ export async function DELETE(req: Request) {
 
     if (!user.mindMap) user.mindMap = [];
 
-  
     if (!bookTitle) {
-    
       user.mindMap = user.mindMap.filter(
-        (c) => c.name.toLowerCase() !== categoryName.toLowerCase()
+        (c) => c.name.toLowerCase() !== categoryName.toLowerCase(),
       );
 
-      
       user.bridges = user.bridges.filter(
         (b: IBridge) =>
           b.fromCategory.toLowerCase() !== categoryName.toLowerCase() &&
-          b.toCategory.toLowerCase() !== categoryName.toLowerCase()
+          b.toCategory.toLowerCase() !== categoryName.toLowerCase(),
       );
-    }
-    
-    else {
+    } else {
       const categoryIndex = user.mindMap.findIndex(
-        (c) => c.name.toLowerCase() === categoryName.toLowerCase()
+        (c) => c.name.toLowerCase() === categoryName.toLowerCase(),
       );
 
       if (categoryIndex !== -1) {
         const category = user.mindMap[categoryIndex];
 
         category.books = category.books.filter(
-          (b) => b.title.toLowerCase() !== bookTitle.toLowerCase()
+          (b) => b.title.toLowerCase() !== bookTitle.toLowerCase(),
         );
         category.count = category.books.length;
 
-        
         if (category.books.length === 0) {
           user.mindMap.splice(categoryIndex, 1);
           user.bridges = user.bridges.filter(
             (b: IBridge) =>
               b.fromCategory.toLowerCase() !== categoryName.toLowerCase() &&
-              b.toCategory.toLowerCase() !== categoryName.toLowerCase()
+              b.toCategory.toLowerCase() !== categoryName.toLowerCase(),
           );
         }
       } else {
         return NextResponse.json(
           { error: "Category not found" },
-          { status: 404 }
+          { status: 404 },
         );
       }
     }
@@ -346,7 +351,7 @@ export async function DELETE(req: Request) {
     console.error("Error deleting:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
