@@ -2,8 +2,7 @@
 "use client";
 
 import { ICategory, IBridge } from "@/models/users";
-import { Maximize2, Minimize2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 interface Props {
   mindMap: ICategory[];
@@ -22,35 +21,20 @@ export const MindMapCanvas = ({
   highlightBook = null,
   setHighlightBook,
 }: Props) => {
-  // ---------- Hooks must always be called first ----------
-  const { maxX, minX, dynamicWidth, contentWidth, zoomScale, xOffset } =
-    useMemo(() => {
-      if (!mindMap.length) {
-        return {
-          maxX: 1,
-          minX: 0,
-          dynamicWidth: "100vw",
-          contentWidth: 1,
-          zoomScale: 1,
-          xOffset: 0,
-        };
-      }
+  const { maxX, dynamicWidth } = useMemo(() => {
+    if (!mindMap.length) {
+      return {
+        maxX: 1,
+        dynamicWidth: "100vw",
+      };
+    }
 
-      const maxX = Math.max(1, ...mindMap.map((c) => c.x)) + 0.1;
-      const minX = Math.min(...mindMap.map((c) => c.x));
-      const dynamicWidth = `${maxX * 100}vw`;
+    const maxX = Math.max(1, ...mindMap.map((c) => c.x)) + 0.1;
+    const dynamicWidth = `${maxX * 100}vw`;
 
-      const contentWidth = maxX - minX + 0.2;
-      const zoomScale = 1.1 / contentWidth;
-      const xOffset = -(minX - 0.1) * 100;
+    return { maxX, dynamicWidth };
+  }, [mindMap]);
 
-      return { maxX, minX, dynamicWidth, contentWidth, zoomScale, xOffset };
-    }, [mindMap]);
-
-  // Start in Wide Angle (Zoomed Out)
-  const [isZoomedOut, setIsZoomedOut] = useState(true);
-
-  // Safe early return AFTER hooks
   if (!mindMap.length) return null;
 
   return (
@@ -59,29 +43,21 @@ export const MindMapCanvas = ({
       onClick={() => highlightBook && setHighlightBook(null)}
     >
       <div
-        className={`w-full h-full transition-all duration-700 ease-in-out ${
-          isZoomedOut
-            ? "overflow-hidden"
-            : "overflow-x-auto overflow-y-hidden custom-scrollbar"
-        }`}
+        className="w-full h-full overflow-x-auto overflow-y-hidden custom-scrollbar"
         style={{
           width: `${maxX * 100}vw`,
           minWidth: "100vw",
-          transform: isZoomedOut
-            ? `scale(${zoomScale}) translateX(${xOffset}vw)`
-            : "scale(1) translateX(0vw)",
+          transform: "scale(1) translateX(0vw)",
           transformOrigin: "left center",
         }}
         onClick={() => highlightBook && setHighlightBook(null)}
       >
         <div
-          className="relative h-full transition-transform duration-1000 ease-in-out origin-left"
+          className="relative h-full origin-left"
           style={{
             width: dynamicWidth,
             minWidth: "100vw",
-            transform: isZoomedOut
-              ? `scale(${zoomScale}) translateX(${(maxX - 1) * 50}%)`
-              : "scale(1) translateX(0)",
+            transform: "scale(1) translateX(0)",
             transformOrigin: "left center",
           }}
         >
@@ -252,23 +228,6 @@ export const MindMapCanvas = ({
           })}
         </div>
       </div>
-
-      <button
-        onClick={() => setIsZoomedOut(!isZoomedOut)}
-        className="fixed bottom-10 right-10 z-100 p-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl hover:bg-white/20 transition-all active:scale-90 group"
-      >
-        {isZoomedOut ? (
-          <Minimize2 className="w-6 h-6 text-yellow-400 group-hover:rotate-90 transition-transform" />
-        ) : (
-          <Maximize2 className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
-        )}
-      </button>
-
-      {isZoomedOut && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 px-6 py-2 bg-yellow-400 text-black font-bold rounded-full text-xs shadow-lg animate-bounce">
-          Global View Mode
-        </div>
-      )}
     </div>
   );
 };
