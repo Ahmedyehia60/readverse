@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📚 Readverse
 
-## Getting Started
+Readverse is a modern web application designed to enhance the reading experience for book lovers. It allows users to track their reading progress, discover new books tailored to their interests, and interact with a community of readers through reviews and ratings. The platform focuses on simplicity, personalization, and engagement.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Live Demo
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🔗 Deployment Link:  
+[https://readverse-eta.vercel.app/en/Login]
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🧠 Project Overview
 
-## Learn More
+Many readers struggle to stay consistent or discover books that truly match their taste. Readverse solves this by combining progress tracking, smart book discovery, and social interaction in one seamless platform.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## ✨ Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 📖 Reading Tracker
+- Track current, completed, and planned books
+- Update reading progress easily
+- Visual overview of your reading journey
 
-## Deploy on Vercel
+### 🔍 Book Discovery
+- Discover books based on user preferences
+- Explore trending and popular titles
+- Personalized recommendations
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 💬 Community Reviews
+- Write and publish book reviews
+- Read reviews from other users
+- Rate books to help the community
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 👤 User Profiles
+- Personalized user accounts
+- Display reading history and favorite books
+- Showcase reviews and activity
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+- React.js
+- CSS
+- Bootstrap
+
+### Backend
+- Node.js
+- Express.js
+
+### Database
+- MongoDB
+
+---
+
+## 📁 Project Structure
