@@ -1,12 +1,39 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
-import { useState, useEffect, useCallback, useRef } from "react";
-import { Search, X, CirclePlus, Loader2, Sparkles } from "lucide-react";
-import { BookItem, SearchResults } from "@/models/users";
+
+import { useEffect, useState } from "react";
+import { CirclePlus, Loader2, Search, Sparkles, X } from "lucide-react";
+import type { BookItem } from "@/models/users";
+import { getBookCategories } from "@/lib/book-categories";
 import { useTranslations } from "next-intl";
 
+type OpenLibraryDoc = {
+  key?: string;
+  title?: string;
+  author_name?: string[];
+  first_publish_year?: number;
+  cover_i?: number;
+  subject?: string[];
+};
 
-const searchCache: Record<string, SearchResults> = {};
+const searchCache = new Map<string, BookItem[]>();
+const toBookItem = (doc: OpenLibraryDoc): BookItem | null => {
+  if (!doc.key || !doc.title) return null;
+  const cover = doc.cover_i
+    ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`
+    : "";
+
+  return {
+    id: doc.key,
+    volumeInfo: {
+      title: doc.title,
+      authors: doc.author_name ?? [],
+      categories: getBookCategories(doc.title, doc.subject),
+      description: doc.first_publish_year ? `First published ${doc.first_publish_year}` : "",
+      infoLink: `https://openlibrary.org${doc.key}`,
+      imageLinks: cover ? { smallThumbnail: cover, thumbnail: cover } : undefined,
+    },
+  };
+};
 
 interface Props {
   isOpen: boolean;
@@ -16,185 +43,168 @@ interface Props {
 
 export const SearchModal = ({ isOpen, onClose, onAddBook }: Props) => {
   const [searchText, setSearchText] = useState("");
-  const [searchResults, setSearchResults] = useState<SearchResults | null>(
-    null
-  );
+  const [results, setResults] = useState<BookItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const t = useTranslations("Dashboard");
+  const query = searchText.trim().toLocaleLowerCase();
 
-  
-  const lastRequestQuery = useRef("");
-
-  const handleSearch = useCallback(async (query: string) => {
-    const trimmedQuery = query.trim().toLowerCase();
-
-    if (!trimmedQuery) {
-      setSearchResults(null);
+  useEffect(() => {
+    if (!isOpen || !query) {
+      setResults([]);
+      setError(null);
       setLoading(false);
       return;
     }
 
-    
-    if (searchCache[trimmedQuery]) {
-      setSearchResults(searchCache[trimmedQuery]);
+    const cached = searchCache.get(query);
+    if (cached) {
+      setResults(cached);
+      setError(null);
       setLoading(false);
       return;
     }
 
-    setLoading(true);
-    lastRequestQuery.current = trimmedQuery;
-
-    try {
-      const response = await fetch(
-        `/api/search?q=${encodeURIComponent(trimmedQuery)}`
-      );
-      const data: SearchResults = await response.json();
-
-    
-      if (lastRequestQuery.current === trimmedQuery) {
-        const results = data.error ? { error: data.error } : data;
-
-       
-        if (!data.error) searchCache[trimmedQuery] = results;
-
-        setSearchResults(results);
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const fields = "key,title,author_name,first_publish_year,cover_i,subject";
+        const search = async (q: string) => {
+          const params = new URLSearchParams({ q, fields, limit: "20" });
+          const response = await fetch(`https://openlibrary.org/search.json?${params}`, { signal: controller.signal });
+          if (!response.ok) throw new Error("Book search is temporarily unavailable.");
+          return (await response.json() as { docs?: OpenLibraryDoc[] }).docs ?? [];
+        };
+        // A title-prefix query helps Open Library find partial words, including short fragments.
+        let docs = await search(`title:${query}*`);
+        if (docs.length < 5) {
+          const broader = await search(query);
+          const seen = new Set(docs.map((doc) => doc.key));
+          docs = [...docs, ...broader.filter((doc) => !seen.has(doc.key))];
+        }
+        const books = docs.map(toBookItem).filter((book): book is BookItem => book !== null);
+        searchCache.set(query, books);
+        setResults(books);
+      } catch (cause) {
+        if (controller.signal.aborted) return;
+        setError(cause instanceof Error ? cause.message : "Failed to connect to Open Library.");
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
       }
-    } catch {
-      if (lastRequestQuery.current === trimmedQuery) {
-        setSearchResults({ error: "Failed to connect to search service." });
-      }
-    } finally {
-      if (lastRequestQuery.current === trimmedQuery) {
-        setLoading(false);
-      }
-    }
-  }, []);
+    }, 350);
 
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [isOpen, query]);
 
   useEffect(() => {
     if (!isOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
-    const timer = setTimeout(() => {
-      handleSearch(searchText);
-    }, 400);
-
-    return () => clearTimeout(timer);
-  }, [searchText, isOpen, handleSearch]);
+  useEffect(() => {
+    if (!isOpen) setSearchText("");
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   return (
     <div
-      className="fixed inset-0 z-100 flex items-start justify-center pt-20 bg-black/60 backdrop-blur-xl transition-all"
-      onClick={onClose}
+      className="fixed inset-0 z-100 flex items-start justify-center bg-black/60 pt-20 backdrop-blur-xl"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
     >
-      <div
-        className="relative bg-[#0d0925]/90 border border-white/10 p-8 rounded-[2.5rem] shadow-2xl w-full max-w-2xl mx-4 overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="book-search-title"
+        className="relative mx-4 w-full max-w-2xl overflow-hidden rounded-[2.5rem] border border-white/10 bg-[#0d0925]/90 p-6 shadow-2xl sm:p-8"
       >
-        
-        <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-600/30 rounded-full blur-[80px] pointer-events-none"></div>
-        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-600/30 rounded-full blur-[80px] pointer-events-none"></div>
+        <div className="pointer-events-none absolute -right-24 -top-24 size-48 rounded-full bg-blue-600/30 blur-[80px]" />
+        <div className="pointer-events-none absolute -bottom-24 -left-24 size-48 rounded-full bg-purple-600/30 blur-[80px]" />
 
-     
-        <div className="flex justify-between items-center mb-8 relative z-10">
+        <header className="relative z-10 mb-8 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-500/20 rounded-lg">
-              <Sparkles className="w-5 h-5 text-purple-400 animate-pulse" />
-            </div>
-            <h2 className="text-2xl font-black text-white tracking-tight italic">
+            <span className="rounded-lg bg-purple-500/20 p-2">
+              <Sparkles aria-hidden="true" className="size-5 animate-pulse text-purple-400" />
+            </span>
+            <h2 id="book-search-title" className="text-2xl font-black italic tracking-tight text-white">
               {t("addBookModal.title")}
             </h2>
           </div>
           <button
-            className="p-2 hover:bg-white/10 rounded-full transition-colors cursor-pointer text-gray-400 hover:text-white"
+            type="button"
+            aria-label={t("addBookModal.close") || "Close search"}
+            className="rounded-full p-2 text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
             onClick={onClose}
           >
-            <X className="w-6 h-6" />
+            <X aria-hidden="true" className="size-6" />
           </button>
-        </div>
+        </header>
 
-        
-        <div className="relative group z-10">
-          <div className="absolute inset-0 bg-linear-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-20 group-focus-within:opacity-50 transition-opacity"></div>
-          <div className="relative flex items-center bg-[#1a1435]/80 rounded-2xl border border-white/10 overflow-hidden backdrop-blur-md">
-            <Search className="ml-4 w-5 h-5 text-gray-400 group-focus-within:text-purple-400 transition-colors" />
-            <input
-              type="text"
-              autoFocus
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              placeholder={t("addBookModal.description")}
-              className="w-full p-5 bg-transparent text-white placeholder:text-gray-400 focus:outline-none text-lg"
-            />
-            {loading && (
-              <div className="mr-4">
-                <Loader2 className="w-5 h-5 text-purple-400 animate-spin" />
-              </div>
-            )}
-          </div>
-        </div>
+        <label className="group relative z-10 flex items-center overflow-hidden rounded-2xl border border-white/10 bg-[#1a1435]/80 backdrop-blur-md">
+          <Search aria-hidden="true" className="ml-4 size-5 shrink-0 text-gray-400 transition-colors group-focus-within:text-purple-400" />
+          <input
+            type="search"
+            autoFocus
+            value={searchText}
+            onChange={(event) => setSearchText(event.target.value)}
+            placeholder={t("addBookModal.description")}
+            className="w-full bg-transparent p-5 text-lg text-white outline-none placeholder:text-gray-400"
+          />
+        </label>
 
-       
-        <div className="mt-8 max-h-[450px] overflow-y-auto pr-2 custom-scrollbar relative z-10">
-       
-          {!loading && !searchResults?.items && !searchResults?.error && (
-            <div className="text-center py-12 opacity-50">
-              <div className="mb-4 inline-block p-5 rounded-full bg-white/5 border border-white/5 animate-bounce">
-                <Search size={40} className="text-purple-400" />
-              </div>
-              <p className="text-sm font-bold tracking-widest text-gray-400">
-                {t("addBookModal.scanMessage")}
-              </p>
+        <div className="relative z-10 mt-8 max-h-[450px] overflow-y-auto pr-2">
+          {loading && <div className="mb-4 flex items-center justify-center gap-2 text-sm text-purple-300"><Loader2 aria-hidden="true" className="size-4 animate-spin" /> Searching Open Library…</div>}
+          {!query ? (
+            <div className="py-12 text-center text-gray-400">
+              <Search aria-hidden="true" className="mx-auto mb-4 size-10 text-purple-400" />
+              <p className="text-sm font-bold tracking-widest">{t("addBookModal.scanMessage")}</p>
             </div>
-          )}
-
-          <div className="grid gap-3">
-            {searchResults?.items?.map((book) => (
-              <button
-                key={book.id}
-                className="group w-full flex items-center p-4 rounded-2xl bg-white/3 border border-white/5 hover:bg-white/8 hover:border-purple-500/30 transition-all text-left relative overflow-hidden active:scale-95"
-                onClick={() => onAddBook(book)}
-              >
-                {/* Book Cover */}
-                <div className="relative w-14 h-20 mr-5 shrink-0 shadow-2xl overflow-hidden rounded-lg group-hover:rotate-3 transition-transform">
-                  <img
-                    src={
-                      book.volumeInfo.imageLinks?.smallThumbnail ||
-                      "/placeholder.png"
-                    }
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    alt="cover"
-                  />
-                  <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent"></div>
-                </div>
-
-                {/* Book Info */}
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-white truncate text-base mb-1 group-hover:text-purple-300 transition-colors">
-                    {book.volumeInfo.title}
-                  </h4>
-                  <p className="text-xs text-gray-400 truncate tracking-wide font-medium">
-                    {book.volumeInfo.authors?.join(", ") || "Unknown Author"}
-                  </p>
-                </div>
-
-                {/* Add Icon */}
-                <div className="ml-4 p-2 bg-purple-500/20 rounded-xl text-purple-400 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
-                  <CirclePlus className="w-6 h-6" />
-                </div>
-              </button>
-            ))}
-          </div>
-
-          {searchResults?.error && (
-            <div className="text-center py-8 text-red-400 text-sm bg-red-500/5 rounded-2xl border border-red-500/20 animate-in fade-in zoom-in duration-300">
-              {searchResults.error}
+          ) : results.length ? (
+            <div className="grid gap-3">
+              {results.map((book) => (
+                <button
+                  key={book.id}
+                  type="button"
+                  className="group flex w-full items-center rounded-2xl border border-white/5 bg-white/[0.03] p-4 text-left transition hover:border-purple-500/30 hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
+                  onClick={() => {
+                    onAddBook(book);
+                    onClose();
+                  }}
+                >
+                  <div className="mr-5 grid size-14 shrink-0 place-items-center rounded-xl bg-purple-500/15 text-purple-300">
+                    <Search aria-hidden="true" className="size-6" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="mb-1 truncate text-base font-bold text-white transition-colors group-hover:text-purple-300">
+                      {book.volumeInfo.title}
+                    </h3>
+                    <p className="truncate text-xs font-medium tracking-wide text-gray-400">
+                      {book.volumeInfo.authors?.join(", ") || "Unknown Author"}
+                    </p>
+                  </div>
+                  <CirclePlus aria-hidden="true" className="ml-4 size-6 shrink-0 text-purple-400 transition-transform group-hover:scale-110" />
+                </button>
+              ))}
             </div>
-          )}
+          ) : !loading && !error ? (
+            <p className="rounded-2xl border border-white/10 bg-white/[0.03] py-8 text-center text-sm text-gray-400">
+              {t("addBookModal.noResults") || "No books found."}
+            </p>
+          ) : null}
+          {error && <p role="alert" className="rounded-2xl border border-red-500/20 bg-red-500/5 py-8 text-center text-sm text-red-300">{error}</p>}
         </div>
-      </div>
+      </section>
     </div>
   );
 };
