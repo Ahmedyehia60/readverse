@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
@@ -32,7 +31,7 @@ import { LegacyPlanetMap } from "@/components/dashboard/LegacyPlanetMap";
 import { findSmartLink } from "@/lib/smart-links";
 import { getRank } from "@/constants/ranks";
 import { getBookCategories } from "@/lib/book-categories";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/context/LocaleContext";
 import UserProfileHeader from "@/components/profile/UserProfileHeader";
 import MissionControl from "@/components/profile/MissionControl";
 import PlanetStats from "@/components/profile/PlanetStats";
@@ -671,83 +670,97 @@ export default function StaticApp() {
     );
   if (!currentUser) {
     const isSignup = active === "signup";
-    return (
-      <main
-        dir={isAr ? "rtl" : "ltr"}
-        className="grid min-h-screen place-items-center bg-[#050507] px-5 text-gray-100"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(5,5,8,.72), rgba(5,5,8,.9)), url(/images/login-bg.jpg)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
+    const galaxyPanel = (
+      <aside
+        className="relative hidden min-h-screen w-1/2 items-center justify-center overflow-hidden bg-cover bg-center text-white lg:flex"
+        style={{ backgroundImage: "url('/images/login-bg.jpg')" }}
       >
+        <div className="absolute inset-0 bg-[#0d1a2d]/55" />
+        <h2 className="relative z-10 max-w-xl px-12 text-center text-3xl font-bold leading-relaxed drop-shadow-lg">
+          {isSignup
+            ? "Welcome to your personal book galaxy. Sign up to save, track, and explore your favorite reads."
+            : "WELCOME BACK!"}
+        </h2>
+      </aside>
+    );
+    return (
+      <div dir={isAr ? "rtl" : "ltr"} className="min-h-screen bg-[#0b0b0b] lg:flex">
+        {!isSignup && galaxyPanel}
+        <main className="relative flex min-h-screen w-full items-center justify-center px-5 py-24 text-gray-100 lg:w-1/2">
         <form
           onSubmit={submitAuth}
-          className="w-full max-w-md rounded-[2rem] border border-white/10 bg-[#100d1c] p-8 shadow-xl"
+          className="w-full max-w-[450px] bg-transparent p-2 sm:p-8"
         >
           <Link
             href={`/${locale}`}
-            className="mb-8 flex items-center gap-3 text-xl font-semibold"
+            className="absolute left-4 top-4 flex items-center gap-2 text-xl font-semibold sm:left-8"
           >
             <span className="grid size-10 place-items-center rounded-2xl bg-[#2B1B72]/50">
               <BookOpen size={20} />
             </span>{" "}
             Readverse
           </Link>
-          <h1 className="mb-2 text-3xl font-semibold">
+          <h1 className="mb-2 text-center text-3xl font-bold">
             {isSignup
               ? isAr
                 ? "إنشاء حساب"
-                : "Create your account"
+                : "Create Your Book Galaxy"
               : isAr
                 ? "أهلًا بعودتك"
-                : "Welcome back"}
+                : "Login"}
           </h1>
-          <p className="mb-7 text-sm text-gray-400">
+          <p className="mb-7 text-center text-sm text-gray-300">
             {isAr
               ? "سجّل الدخول لمزامنة مكتبتك عبر الأجهزة."
-              : "Sign in to sync your library across devices."}
+              : isSignup
+                ? "Map your literary journey across the stars."
+                : "Welcome back! Please login to your account."}
           </p>
           {isSignup && (
-            <label className="mb-4 block text-sm">
+                <label className="mb-4 block text-sm text-gray-300">
               {isAr ? "الاسم" : "Name"}
               <input
                 required
                 maxLength={80}
+                placeholder={isAr ? "Ø§ÙƒØªØ¨ÙŠ Ø§Ø³Ù…Ùƒ" : "Enter your name"}
+                disabled={authBusy}
                 value={authName}
                 onChange={(event) => setAuthName(event.target.value)}
-                className="mt-2 w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-white outline-none focus:border-purple-400"
+                className="mt-2 h-12 w-full rounded-md border border-white/20 bg-white/10 px-4 text-white placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-[#2B1B72]"
               />
             </label>
           )}
-          <label className="mb-4 block text-sm">
-            Email
+          <label className="mb-4 block text-sm text-gray-300">
+            {isAr ? "Email" : "Email Address"}
             <input
               required
               type="email"
               autoComplete="email"
+              placeholder={isAr ? "Ø§ÙƒØªØ¨ÙŠ Ø¨Ø±ÙŠØ¯Ùƒ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ" : "Enter your email"}
+              disabled={authBusy}
               value={authEmail}
               onChange={(event) => setAuthEmail(event.target.value)}
-              className="mt-2 w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-white outline-none focus:border-purple-400"
+              className="mt-2 h-12 w-full rounded-md border border-white/20 bg-white/10 px-4 text-white placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-[#2B1B72]"
             />
           </label>
-          <label className="mb-4 block text-sm">
+          <label className="mb-4 block text-sm text-gray-300">
             {isAr ? "كلمة المرور" : "Password"}
             <input
               required
               type="password"
               minLength={isSignup ? 8 : 1}
               autoComplete={isSignup ? "new-password" : "current-password"}
+              placeholder={isAr ? "Ø§ÙƒØªØ¨ÙŠ ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±" : "Enter your password"}
+              disabled={authBusy}
               value={authPassword}
               onChange={(event) => setAuthPassword(event.target.value)}
-              className="mt-2 w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-white outline-none focus:border-purple-400"
+              className="mt-2 h-12 w-full rounded-md border border-white/20 bg-white/10 px-4 text-white placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-[#2B1B72]"
             />
           </label>
           {(authError || authStatus === "unavailable") && (
             <p
               role="alert"
-              className="mb-4 rounded-xl bg-rose-500/10 p-3 text-sm text-rose-700"
+              className="mb-4 rounded-md bg-rose-500/10 p-3 text-sm text-rose-300"
             >
               {authError ||
                 (isAr
@@ -757,7 +770,7 @@ export default function StaticApp() {
           )}
           <button
             disabled={authBusy || authStatus === "unavailable"}
-            className="w-full rounded-xl bg-[#2B1B72] px-5 py-3 font-medium text-white disabled:opacity-60"
+            className="h-12 w-full rounded-md bg-[#2B1B72] text-lg font-semibold text-white transition hover:bg-[#3d257f] disabled:opacity-60"
           >
             {authBusy
               ? isAr
@@ -766,10 +779,10 @@ export default function StaticApp() {
               : isSignup
                 ? isAr
                   ? "إنشاء الحساب"
-                  : "Sign up"
+                  : "Sign Up"
                 : isAr
                   ? "تسجيل الدخول"
-                  : "Sign in"}
+              : "Sign In"}
           </button>
           <p className="mt-6 text-center text-sm text-gray-400">
             {isSignup
@@ -780,7 +793,7 @@ export default function StaticApp() {
                 ? "ليس لديك حساب؟"
                 : "New to Readverse?"}{" "}
             <Link
-              className="font-semibold text-purple-100"
+              className="ml-1 font-semibold text-blue-400 hover:text-blue-300"
               href={`/${locale}/${isSignup ? "Login" : "SignUp"}`}
             >
               {isSignup
@@ -792,8 +805,18 @@ export default function StaticApp() {
                   : "Create account"}
             </Link>
           </p>
+          {isSignup && (
+            <p className="mt-6 text-center text-xs leading-relaxed text-gray-400">
+              By creating an account, you agree to our{" "}
+              <Link href={`/${locale}/TermsAndConditions`} className="font-medium text-blue-400 hover:underline">Terms of Service</Link>
+              {" & "}
+              <Link href={`/${locale}/PrivacyPolicy`} className="font-medium text-blue-400 hover:underline">Privacy Policy</Link>
+            </p>
+          )}
         </form>
-      </main>
+        </main>
+        {isSignup && galaxyPanel}
+      </div>
     );
   }
 
@@ -808,7 +831,7 @@ export default function StaticApp() {
         if (highlightedLinkId) setHighlightedLinkId(null);
       }}
       dir={isAr ? "rtl" : "ltr"}
-      className="relative min-h-screen bg-[#050507] text-white"
+      className="readverse-app relative min-h-screen bg-[#050507] text-white"
       style={{
         backgroundImage: `url('/images/${isSpaceSection ? "galaxy3.jpg" : "galaxy4.jpg"}')`,
         backgroundRepeat: isSpaceSection ? "no-repeat" : "repeat",
@@ -818,27 +841,27 @@ export default function StaticApp() {
       }}
     >
       <aside
-        className={`fixed inset-y-0 left-0 z-10 hidden border-r border-white/10 bg-[#020106]/90 backdrop-blur-xl md:flex md:flex-col ${active === "" ? "w-[76px] items-center px-3 py-6" : "w-64 p-7"}`}
+        className="readverse-sidebar fixed inset-y-0 left-0 right-auto z-30 hidden w-64 flex-col border-r border-white/10 px-5 py-7 backdrop-blur-2xl md:flex rtl:left-auto rtl:right-0"
       >
         <Link
           href={`/${locale}`}
-          className={`mb-12 flex items-center gap-3 font-semibold tracking-tight ${active === "" ? "justify-center" : "text-xl"}`}
+          className="mb-12 flex items-center gap-3 text-xl font-semibold tracking-tight"
         >
           <span className="grid size-10 place-items-center rounded-2xl bg-[#2B1B72]/50">
             <BookOpen size={20} />
           </span>
-          {active === "" ? "" : "READVerse"}
+          <span>READVERSE</span>
         </Link>
-        <nav className={`space-y-2 ${active === "" ? "w-full" : ""}`}>
+        <nav className="space-y-2">
           {nav.map(([href, label, Icon]) => (
             <Link
               key={href}
               href={`/${locale}${href ? `/${href}` : ""}`}
               title={label}
-              className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition ${active === "" ? "justify-center px-3" : ""} ${active.toLowerCase() === href.toLowerCase() ? "bg-[#2B1B72]/35 font-semibold text-purple-100" : "text-gray-400 hover:bg-white/5"}`}
+              className={`readverse-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition ${active.toLowerCase() === href.toLowerCase() ? "bg-[#2B1B72]/35 font-semibold text-purple-100" : "text-gray-400 hover:bg-white/5"}`}
             >
               <Icon size={18} />
-              {active !== "" && label}
+              <span>{label}</span>
               {href === "Inbox" && unreadCount > 0 && (
                 <span className="ml-auto rounded-full bg-[#2B1B72] px-2 py-0.5 text-xs text-white">
                   {unreadCount}
@@ -866,7 +889,7 @@ export default function StaticApp() {
       </aside>
 
       <section
-        className={`min-h-screen px-5 pb-28 pt-8 ${active === "" ? "md:ml-[76px] md:px-5 md:pt-3" : "md:ml-64 md:w-[calc(100vw-16rem)] md:max-w-none md:px-12 md:pt-12"}`}
+          className="readverse-content min-h-screen px-5 pb-28 pt-6 md:ml-64 md:mr-0 md:px-10 md:pt-8 xl:px-14 rtl:md:ml-0 rtl:md:mr-64"
       >
         {active !== "" &&
           active !== "profile" &&
@@ -1165,6 +1188,37 @@ export default function StaticApp() {
           </>
         ) : active === "" ? (
           <>
+            <section className="home-welcome mb-8 overflow-hidden rounded-[2rem] p-6 sm:p-8 lg:p-10">
+              <div className="relative z-10 flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
+                <div className="max-w-2xl">
+                  <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-violet-300/20 bg-violet-300/10 px-3 py-1.5 text-xs font-medium text-violet-100">
+                    <Sparkles size={14} />
+                    {isAr ? "مساحتك الهادئة للقراءة" : "Your personal reading universe"}
+                  </div>
+                  <h1 className="text-4xl font-semibold leading-tight tracking-[-.04em] text-white sm:text-5xl">
+                    {isAr ? "كل فكرة، لها مدار." : "Every idea has an orbit."}
+                  </h1>
+                  <p className="mt-4 max-w-xl text-sm leading-7 text-slate-300 sm:text-base">
+                    {isAr ? "اجمع كتبك، اكتشف الروابط بينها، وشاهد مكتبتك تكبر." : "Bring your books together, discover the connections between them, and watch your library grow."}
+                  </p>
+                  <div className="mt-7 flex flex-wrap gap-3">
+                    <button onClick={() => setIsSearchModalOpen(true)} className="inline-flex h-12 items-center gap-2 rounded-2xl bg-violet-300 px-5 text-sm font-semibold text-slate-950 transition hover:bg-violet-200">
+                      <Search size={17} /> {text.find}
+                    </button>
+                    <a href="#your-galaxy" className="inline-flex h-12 items-center gap-2 rounded-2xl border border-white/15 bg-white/[.06] px-5 text-sm font-medium text-white transition hover:bg-white/10">
+                      <Layers size={17} /> {text.home}
+                    </a>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:min-w-[360px]">
+                  <Stat value={data.books.length} label={text.books} />
+                  <Stat value={categories.length} label={text.categories} />
+                  <Stat value={data.links.length} label={text.smartLinks} />
+                </div>
+              </div>
+              <div className="home-orbit home-orbit-one" aria-hidden="true" />
+              <div className="home-orbit home-orbit-two" aria-hidden="true" />
+            </section>
             <LegacyPlanetMap
               categories={categories}
               links={data.links}
@@ -1354,7 +1408,7 @@ export default function StaticApp() {
                 )}
               </div>
             </section>
-            <section className="mt-10">
+            <section id="your-galaxy" className="mt-10">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-lg font-semibold">{text.all}</h2>
                 <span className="text-sm text-gray-500">

@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, useCallback, useMemo } from "react";
-import dynamic from "next/dynamic";
+import { lazy, Suspense } from "react";
 import UserButton from "./UserButton";
 import { toast } from "sonner";
 import {
@@ -13,40 +13,16 @@ import {
 } from "@/models/users";
 import { getTwoRandomFullCategories } from "@/lib/mindmap-utils";
 import { useNotifications } from "@/context/NotficationContext";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useSearchParams } from "react-router-dom";
+import { useRouter, usePathname } from "@/i18n/routing";
+import { useTranslations } from "@/context/LocaleContext";
 import { getRank } from "@/constants/ranks";
 
-const MindMapCanvas = dynamic(
-  () => import("./dashboard/MindMapCanvas").then((m) => m.MindMapCanvas),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="fixed inset-0 flex items-center justify-center bg-[#050507] text-yellow-400 font-mono tracking-[0.5em] animate-pulse">
-        INITIATING CORE...
-      </div>
-    ),
-  },
-);
-const SearchModal = dynamic(
-  () => import("./dashboard/SearchModal").then((m) => m.SearchModal),
-  { ssr: false },
-);
-const CategoryDetailModal = dynamic(
-  () =>
-    import("./dashboard/CategoryDetailModal").then(
-      (m) => m.CategoryDetailModal,
-    ),
-  { ssr: false },
-);
-const SearchOverlay = dynamic(
-  () => import("./dashboard/SearchOverlay").then((m) => m.SearchOverlay),
-  { ssr: false },
-);
-const SidebarWrapper = dynamic(
-  () => import("./dashboard/SidebarWrapper").then((m) => m.SidebarWrapper),
-  { ssr: false },
-);
+const MindMapCanvas = lazy(() => import("./dashboard/MindMapCanvas").then((m) => ({ default: m.MindMapCanvas })));
+const SearchModal = lazy(() => import("./dashboard/SearchModal").then((m) => ({ default: m.SearchModal })));
+const CategoryDetailModal = lazy(() => import("./dashboard/CategoryDetailModal").then((m) => ({ default: m.CategoryDetailModal })));
+const SearchOverlay = lazy(() => import("./dashboard/SearchOverlay").then((m) => ({ default: m.SearchOverlay })));
+const SidebarWrapper = lazy(() => import("./dashboard/SidebarWrapper").then((m) => ({ default: m.SidebarWrapper })));
 
 function DashBoard() {
   const [showModal, setShowModal] = useState(false);
@@ -59,8 +35,9 @@ function DashBoard() {
 
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const [searchParams] = useSearchParams();
   const highlightParam = searchParams.get("highlight");
+  const SuspenseFallback = <div className="fixed inset-0 flex items-center justify-center bg-[#050507] text-yellow-400 font-mono tracking-[0.5em] animate-pulse">INITIATING CORE...</div>;
   const [activeHighlight, setActiveHighlight] = useState<string | null>(null);
 
   const t = useTranslations("Dashboard");
@@ -100,7 +77,7 @@ function DashBoard() {
     if (highlightParam) {
       setActiveHighlight(highlightParam);
       const timer = setTimeout(() => {
-        router.replace(pathname, { scroll: false });
+        router.replace(pathname);
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -316,14 +293,14 @@ function DashBoard() {
         {t("addBook")}
       </Button>
 
-      <MindMapCanvas
+      <Suspense fallback={SuspenseFallback}><MindMapCanvas
         mindMap={mindMap}
         bridges={bridges}
         onCategoryClick={setActiveCategory}
         searchQuery={searchQuery}
         highlightBook={activeHighlight}
         setHighlightBook={setActiveHighlight}
-      />
+      /></Suspense>
 
       {activeCategory && (
         <CategoryDetailModal

@@ -12,14 +12,13 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar";
 import { Button } from "./ui/button";
-import { signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { FaBook } from "react-icons/fa";
 import UserButton from "./UserButton";
 import { INotification } from "@/models/users";
 import { useNotifications } from "@/context/NotficationContext";
 import { Link } from "@/i18n/routing";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/context/LocaleContext";
 
 export function AppSidebar({ onSearchClick }: { onSearchClick?: () => void }) {
   const { notifications } = useNotifications();
@@ -30,7 +29,7 @@ export function AppSidebar({ onSearchClick }: { onSearchClick?: () => void }) {
   const t = useTranslations("Sidebar");
 
   const handleSignOut = async () => {
-    await signOut({ redirect: false });
+    await fetch("/api/auth/logout", { method: "POST" });
     router.push("/Login");
   };
 
@@ -76,7 +75,7 @@ export function AppSidebar({ onSearchClick }: { onSearchClick?: () => void }) {
                         asChild
                         className="hover:bg-white/5 transition-all duration-300 rounded-xl h-12 group/item"
                       >
-                        <Link
+                <Link
                           href={item.url}
                           className="flex items-center w-full px-3 gap-3"
                           onClick={

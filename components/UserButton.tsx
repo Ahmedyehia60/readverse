@@ -1,8 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { Loader } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -16,25 +15,28 @@ type UserButtonProps = {
 };
 
 const UserButton = ({ className }: UserButtonProps) => {
-  const { data: session, status } = useSession();
   const [user, setUser] = useState<UserType | null>(null);
+  const [status, setStatus] = useState<"loading" | "ready">("loading");
   const router = useRouter();
 
   useEffect(() => {
-    if (!session?.user?.id) return;
-
     const fetchUser = async () => {
-      const res = await fetch(`/api/get-user?userId=${session.user.id}`);
-      const data = await res.json();
-      setUser(data.user);
+      try {
+        const res = await fetch("/api/auth/session", { cache: "no-store" });
+        const data = await res.json();
+        setUser(data.user ? { name: data.user.name, image: "" } : null);
+      } finally {
+        setStatus("ready");
+      }
     };
 
     fetchUser();
-  }, [session]);
+  }, []);
 
-  if (status === "loading" || !user) {
+  if (status === "loading") {
     return <Loader className="size-5 animate-spin" />;
   }
+  if (!user) return null;
 
   const avatarFallback = user.name.charAt(0).toUpperCase();
 

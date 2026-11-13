@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { CirclePlus, Loader2, Search, Sparkles, X } from "lucide-react";
 import type { BookItem } from "@/models/users";
 import { getBookCategories } from "@/lib/book-categories";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/context/LocaleContext";
 
 type OpenLibraryDoc = {
   key?: string;

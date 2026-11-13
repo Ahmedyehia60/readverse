@@ -1,7 +1,7 @@
 import { SettingsLogicType } from "@/hooks/useSettingsLogic";
 import { Moon, Sun, Sparkles } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { usePathname, useRouter } from "next/navigation";
+import { useTranslations } from "@/context/LocaleContext";
+import { usePathname, useRouter } from "@/i18n/routing";
 
 export const InterfaceSection = ({ logic }: { logic: SettingsLogicType }) => {
   const t = useTranslations("Settings");

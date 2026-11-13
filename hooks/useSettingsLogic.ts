@@ -17,7 +17,7 @@ export function useSettingsLogic() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [countdown, setCountdown] = useState(5);
   const [isDeleting, setIsDeleting] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     async function checkUserSecurity() {

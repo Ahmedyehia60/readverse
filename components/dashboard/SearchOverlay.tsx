@@ -1,7 +1,7 @@
 "use client";
 
 import { Search, X, BookText, Sparkles } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/context/LocaleContext";
 
 export const SearchOverlay = ({
   onSearch,

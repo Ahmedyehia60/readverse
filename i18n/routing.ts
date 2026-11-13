@@ -1,10 +1,40 @@
-import { defineRouting } from "next-intl/routing";
-import { createNavigation } from "next-intl/navigation";
+import { createElement, useCallback, useMemo } from "react";
+import {
+  Link as RouterLink,
+  useLocation,
+  useNavigate,
+  type LinkProps,
+} from "react-router-dom";
 
-export const routing = defineRouting({
-  locales: ["en", "ar"],
-  defaultLocale: "en",
-});
+type LocalizedLinkProps = Omit<LinkProps, "to"> & { href: string };
 
-export const { Link, redirect, usePathname, useRouter } =
-  createNavigation(routing);
+/** Localized navigation helpers shared by the application components. */
+export function Link({ href, ...props }: LocalizedLinkProps) {
+  const pathname = useLocation().pathname;
+  const locale = pathname.match(/^\/(ar|en)(?:\/|$)/)?.[1] ?? "en";
+  const to = href.startsWith("/") && !/^\/(ar|en)(?:\/|$)/.test(href)
+    ? `/${locale}${href === "/" ? "" : href}`
+    : href;
+  return createElement(RouterLink, { to, ...props });
+}
+
+export function usePathname() {
+  return useLocation().pathname;
+}
+
+export function useRouter() {
+  const navigate = useNavigate();
+  const pathname = useLocation().pathname;
+  const locale = pathname.match(/^\/(ar|en)(?:\/|$)/)?.[1] ?? "en";
+
+  const localize = useCallback((path: string) => {
+    if (!path.startsWith("/") || /^\/(ar|en)(?:\/|$)/.test(path)) return path;
+    return `/${locale}${path === "/" ? "" : path}`;
+  }, [locale]);
+
+  return useMemo(() => ({
+    push: (path: string) => navigate(localize(path)),
+    replace: (path: string) => navigate(localize(path), { replace: true }),
+    back: () => navigate(-1),
+  }), [navigate, localize]);
+}

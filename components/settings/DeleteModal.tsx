@@ -1,5 +1,5 @@
 import { SettingsLogicType } from "@/hooks/useSettingsLogic";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/context/LocaleContext";
 
 export const DeleteModal = ({ logic }: { logic: SettingsLogicType }) => {
   const t = useTranslations("deleteModal");

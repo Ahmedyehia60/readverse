@@ -1,10 +1,9 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 import { ICategory, IFavorite } from "@/models/users";
 import { Star, Trash2, X, AlertTriangle, Atom } from "lucide-react";
 import { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 
 interface Props {
   category: ICategory | null;

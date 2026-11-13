@@ -1,9 +1,8 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { X, Pencil } from "lucide-react";
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/context/LocaleContext";
 
 interface EditProfileModalProps {
   user: { name: string; image: string; id: string };

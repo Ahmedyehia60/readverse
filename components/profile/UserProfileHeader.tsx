@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import React from "react";
 import { Rocket } from "lucide-react";
 import { UserType, RankType } from "@/constants/ranks";

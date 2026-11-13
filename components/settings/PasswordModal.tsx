@@ -1,6 +1,6 @@
 import { SettingsLogicType } from "@/hooks/useSettingsLogic";
 import { Loader2 } from "lucide-react";
-import { useTranslations } from "next-intl"; // استدعاء الترجمة
+import { useTranslations } from "@/context/LocaleContext"; // استدعاء الترجمة
 
 export const PasswordModal = ({ logic }: { logic: SettingsLogicType }) => {
   const t = useTranslations("PasswordModal"); // استخدام قاموس المودال

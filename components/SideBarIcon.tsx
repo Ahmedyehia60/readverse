@@ -1,10 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { useState } from "react";
 import { Home, Star, User } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/context/LocaleContext";
 type SidebarIconProps = {
   active: string;
 };
