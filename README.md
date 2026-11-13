@@ -1,5 +1,7 @@
 # Readverse
 
+
+🌌 **Live demo:** [Open Readverse](https://readverse-zd3m.vercel.app/en)
 Readverse is a galaxy themed reading library. The app uses React and TypeScript in the browser, with a Node.js and Express REST API, PostgreSQL storage, and account based authentication.
 
 ## Features
